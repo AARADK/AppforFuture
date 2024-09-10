@@ -91,7 +91,15 @@ Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
 
-  return Scaffold(
+  return WillPopScope(
+    onWillPop: () async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
+      );
+      return false; // Prevent the default back button behavior
+    },
+    child:Scaffold(
     backgroundColor: Colors.white,
     body: Stack(
       children: [
@@ -267,6 +275,7 @@ Widget build(BuildContext context) {
           
             bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 0),
 
+  )
   );
 }
 

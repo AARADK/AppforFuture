@@ -137,7 +137,15 @@ Widget build(BuildContext context) {
         ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.end)
         : 'End date';
 
-  return Scaffold(
+  return WillPopScope(
+    onWillPop: () async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
+      );
+      return false; // Prevent the default back button behavior
+    },
+    child:Scaffold(
     backgroundColor: Colors.white,
     body: Stack(
       children: [
@@ -265,7 +273,7 @@ SizedBox(height: screenHeight * 0.04),
                     } else {
                       final horoscope = snapshot.data!;
                       final description = horoscope.description;
-                      final maxLines = _isExpanded ? null : 3; // Show full text if expanded, else limit to 3 lines
+                      final maxLines = _isExpanded ? null : 1; // Show full text if expanded, else limit to 3 lines
 
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
@@ -274,7 +282,7 @@ SizedBox(height: screenHeight * 0.04),
                           children: [
                             Text(
                               description,
-                              maxLines: 1 ,
+                              maxLines: maxLines ,
                               overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                               textAlign: TextAlign.justify,
                               style: TextStyle(
@@ -386,6 +394,7 @@ Center(
       ),
       
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 1), 
+  )
   );
 }
 

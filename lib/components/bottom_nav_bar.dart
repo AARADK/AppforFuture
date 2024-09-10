@@ -64,35 +64,42 @@ class BottomNavBar extends StatelessWidget {
   }
 
   Widget _buildNavItem(BuildContext context, {
-    required int index,
-    String? iconImage,
-    IconData? icon,
-    required String label,
-    required Widget targetPage,
-  }) {
-    bool isSelected = currentPageIndex == index;
+  required int index,
+  String? iconImage,
+  IconData? icon,
+  required String label,
+  required Widget targetPage,
+}) {
+  bool isSelected = currentPageIndex == index;
 
-    return Column(
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => targetPage),
+      );
+    },
+    behavior: HitTestBehavior.translucent, // Ensures the entire area can be tapped
+    child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => targetPage),
-            );
-          },
+        Container(
+          padding: EdgeInsets.all(screenWidth * 0.02), // Increase the tappable area
+          decoration: BoxDecoration(
+            color: isSelected ? Color(0xFFFF9933).withOpacity(0.2) : Colors.transparent, // Optional feedback
+            shape: BoxShape.circle, // Ensure the padding follows a circular area
+          ),
           child: iconImage != null
               ? Image.asset(
                   iconImage,
-                  width: screenWidth * 0.07, // Smaller icon size
-                  height: screenWidth * 0.07, // Smaller icon size
+                  width: screenWidth * 0.07, // Icon size remains small
+                  height: screenWidth * 0.07, // Icon size remains small
                   color: isSelected ? Color(0xFFFF9933) : null,
                 )
               : Icon(
                   icon,
                   color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
-                  size: screenWidth * 0.07, // Smaller icon size
+                  size: screenWidth * 0.07, // Icon size remains small
                 ),
         ),
         SizedBox(height: 2), // Reduced spacing between icon and text
@@ -105,8 +112,10 @@ class BottomNavBar extends StatelessWidget {
         ),
         SizedBox(height: 1), // Added a small space below the text
       ],
-    );
-  }
+    ),
+  );
+}
+
 
   Widget _buildAskButton(BuildContext context) {
     return Column(

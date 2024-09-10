@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
-import 'package:flutter_application_1/features/compatibility/ui/compatibility_page2.dart';
 import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart';
 import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';

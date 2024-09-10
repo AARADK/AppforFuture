@@ -138,7 +138,15 @@ Widget build(BuildContext context) {
         ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.end)
         : 'End date';
 
-  return Scaffold(
+ return WillPopScope(
+    onWillPop: () async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
+      );
+      return false; // Prevent the default back button behavior
+    },
+    child:Scaffold(
     backgroundColor: Colors.white,
     body: Stack(
       children: [
@@ -387,7 +395,8 @@ Center(
       ),
       
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 2), 
-  );
+  )
+ );
 }
 
 Widget _buildCircleWithName(String assetPath, String name, double screenWidth, BuildContext context) {

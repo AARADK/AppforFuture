@@ -63,7 +63,15 @@ class _AskQuestionPageState extends State<AskQuestion> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+    return WillPopScope(
+    onWillPop: () async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
+      );
+      return false; // Prevent the default back button behavior
+    },
+    child:Scaffold(
        backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
@@ -76,9 +84,12 @@ class _AskQuestionPageState extends State<AskQuestion> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context); 
-                      },
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => DashboardPage()),
+                            );
+                          },
                       child: Text(
                         'Done',
                         style: TextStyle(
@@ -260,7 +271,8 @@ class _AskQuestionPageState extends State<AskQuestion> {
         ],
       ),          
         ),
-      );
+      )
+    );
     
   }
 }
