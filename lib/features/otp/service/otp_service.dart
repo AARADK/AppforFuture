@@ -9,12 +9,13 @@ class OtpService {
   Future<bool> verifyOtp(String otp, String email) async {
     final box = Hive.box('settings');
     final baseUrl = await box.get('otpApiUrl'); // Retrieve OTP validation URL
+    final int otps = int.parse(otp);
 
     if (baseUrl != null) {
-      final url = '$baseUrl?email=$email&otp=$otp'; // Construct the full URL
+      final url = '$baseUrl?email=$email&otp=$otps'; // Construct the full URL
       final response = await http.get(Uri.parse(url)); // Call the API
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && jsonDecode(response.body)['error_code'] == '0') {
         // Handle successful response
         var responseData = jsonDecode(response.body);
         print('OTP validated successfully: ${response.body}');

@@ -1,12 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/typeselectionpage.dart';
 import 'package:flutter_application_1/features/offer/model/offer_model.dart';
-import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
-import 'package:flutter_application_1/features/offer/ui/offer_widget.dart'; // Import OfferWidget
+import 'package:flutter_application_1/features/offer/repo/offer_repo.dart';
+import 'package:flutter_application_1/features/offer/ui/offer_widget.dart';
 
-class OfferPage extends StatelessWidget {
+class OfferPage extends StatefulWidget {
   final Offer offer;
 
   const OfferPage({required this.offer});
+
+  @override
+  _OfferPageState createState() => _OfferPageState();
+}
+
+class _OfferPageState extends State<OfferPage> {
+  String? _auspiciousQuestion;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAuspiciousQuestion();
+  }
+
+  Future<void> _fetchAuspiciousQuestion() async {
+    try {
+      final repository = OfferRepository();
+      final questions = await repository.fetchQuestions();
+      setState(() {
+        _auspiciousQuestion = questions[widget.offer.auspiciousQuestionId] ?? 'No auspicious question available';
+      });
+    } catch (e) {
+      setState(() {
+        _auspiciousQuestion = 'Error fetching auspicious question';
+      });
+    }
+  }
+
+  void _showQuestionsDialog(int typeId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TypeSelectionPage(typeId: typeId),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +60,12 @@ class OfferPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Use OfferWidget for displaying offer details
-            OfferWidget(offer: offer),
+            OfferWidget(offer: widget.offer),
             SizedBox(height: 8),
-            // Offer description
             Text(
-              offer.description ?? 'No Description Available',
+              widget.offer.description ?? 'No Description Available',
               style: TextStyle(
-                fontSize: screenWidth * 0.04, // Responsive font size
+                fontSize: screenWidth * 0.04,
                 color: Colors.black54,
               ),
             ),
@@ -38,7 +73,7 @@ class OfferPage extends StatelessWidget {
             Text(
               'Details Table',
               style: TextStyle(
-                fontSize: screenWidth * 0.05, // Responsive font size
+                fontSize: screenWidth * 0.05,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -58,9 +93,9 @@ class OfferPage extends StatelessWidget {
                 ],
               ),
               child: DataTable(
-                columnSpacing: screenWidth * 0.05, // Adjusted for better spacing
-                headingRowHeight: 48, // Adjusted for better alignment
-                dataRowHeight: 56, // Adjusted for better alignment
+                columnSpacing: screenWidth * 0.05,
+                headingRowHeight: 48,
+                dataRowHeight: 56,
                 columns: [
                   DataColumn(
                     label: Expanded(
@@ -104,24 +139,14 @@ class OfferPage extends StatelessWidget {
                         style: TextStyle(fontSize: screenWidth * 0.038),
                       )),
                       DataCell(Text(
-                        '${offer.horoscopeQuestionCount ?? 0}',
+                        '${widget.offer.horoscopeQuestionCount ?? 0}',
                         style: TextStyle(fontSize: screenWidth * 0.038),
                       )),
                       DataCell(
                         GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AskQuestion(),
-                              ),
-                            );
-                          },
+                          onTap: () => _showQuestionsDialog(1),
                           child: Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 6.0,
-                              horizontal: 12.0,
-                            ),
+                            padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
                             decoration: BoxDecoration(
                               color: Color(0xFFFF9933),
                               borderRadius: BorderRadius.circular(5.0),
@@ -146,24 +171,14 @@ class OfferPage extends StatelessWidget {
                         style: TextStyle(fontSize: screenWidth * 0.038),
                       )),
                       DataCell(Text(
-                        '${offer.compatibilityQuestionCount ?? 0}',
+                        '${widget.offer.compatibilityQuestionCount ?? 0}',
                         style: TextStyle(fontSize: screenWidth * 0.038),
                       )),
                       DataCell(
                         GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AskQuestion(),
-                              ),
-                            );
-                          },
+                          onTap: () => _showQuestionsDialog(2),
                           child: Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 6.0,
-                              horizontal: 12.0,
-                            ),
+                            padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
                             decoration: BoxDecoration(
                               color: Color(0xFFFF9933),
                               borderRadius: BorderRadius.circular(5.0),
@@ -188,39 +203,13 @@ class OfferPage extends StatelessWidget {
                         style: TextStyle(fontSize: screenWidth * 0.038),
                       )),
                       DataCell(Text(
-                        '1',
-                        style: TextStyle(fontSize: screenWidth * 0.038),
-                      )),
-                      DataCell(
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AskQuestion(),
-                              ),
-                            );
-                          },
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 6.0,
-                              horizontal: 12.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Color(0xFFFF9933),
-                              borderRadius: BorderRadius.circular(5.0),
-                            ),
-                            child: Text(
-                              'Choose',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: screenWidth * 0.035,
-                              ),
-                            ),
-                          ),
+                        _auspiciousQuestion ?? 'Loading...',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.038,
+                          color: Colors.black87,
                         ),
-                      ),
+                      )),
+                      DataCell(SizedBox.shrink()),
                     ],
                   ),
                 ],

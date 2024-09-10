@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
 import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
@@ -125,38 +126,11 @@ class _SupportPageState extends State<SupportPage> {
               ],
             ),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-              color: Colors.white,
-              child: Center(
-                child: ElevatedButton(
-                  onPressed: _handleSubmit,
-                  child: Text(
-                    'Submit',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Inter',
-                      color: Colors.white,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                 style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                      ),
-                      fixedSize: Size(screenWidth * 0.6, screenHeight * 0.05),
-                      shadowColor: Colors.black,
-                      elevation: 10,
-                    ),
-                  ),
-              ),
-            ),
+          CustomButton(
+            buttonText: 'Submit',
+            onPressed: _handleSubmit,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),

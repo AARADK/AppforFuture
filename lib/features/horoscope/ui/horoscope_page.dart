@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/custom_button.dart';
+import 'package:flutter_application_1/components/questionlistwidget.dart';
 import 'package:flutter_application_1/features/ask_a_question/repo/ask_a_question_repo.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/horoscope/model/horoscope_model.dart';
@@ -12,6 +14,7 @@ import 'package:flutter_application_1/features/profile/model/profile_model.dart'
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
 
 import 'package:intl/intl.dart';
 
@@ -38,6 +41,12 @@ class _HoroscopePageState extends State<HoroscopePage> {
   DateTime? _selectedDate;
   DateTimeRange? selectedDateRange;
 
+  // Variables to store profile details
+String _name = '';
+String _dob = '';
+String _cityId = '';
+String _tob = '';
+
   // Method to show DateRangePicker
   Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
@@ -62,11 +71,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
     }
   }
 
-
-
-
-
-  @override
+ @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now(); // Set the default date to the current date
@@ -122,6 +127,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
+  
 
   // Format selected date range to "YYYY-MM-DD"
     final String formattedStartDate = selectedDateRange != null
@@ -268,14 +274,14 @@ SizedBox(height: screenHeight * 0.04),
                           children: [
                             Text(
                               description,
-                              maxLines: maxLines,
+                              maxLines: 1 ,
                               overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
                               textAlign: TextAlign.justify,
                               style: TextStyle(
                                 color: Colors.black,
                                 fontSize: screenWidth * 0.040,
                                 fontFamily: 'Inter',
-                                fontWeight: FontWeight.w100,
+                                fontWeight: FontWeight.w300,
                               ),
                             ),
                             SizedBox(height: screenHeight * 0.02),
@@ -291,7 +297,7 @@ SizedBox(height: screenHeight * 0.04),
                                   color: Color(0xFFFF9933),
                                   fontSize: screenWidth * 0.03,
                                   fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w100,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -302,101 +308,13 @@ SizedBox(height: screenHeight * 0.04),
                   },
                 ),
                 
-                
-               SizedBox(height: screenHeight * 0.02),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                      child: Text(
-                        'Ideas what to ask :',
-                        style: TextStyle(
-                          color: Color(0xFFFF9933),
-                          fontSize: screenWidth * 0.04,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  SizedBox(
-                    height: screenHeight * 0.19, // Adjust the height based on how many questions you want visible
-                    child: FutureBuilder<List<Question>>(
-                      future: _questionsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                            child: Text(
-                              'Error loading questions: ${snapshot.error}',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: screenWidth * 0.03,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          );
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                            child: Text(
-                              'No related questions available.',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: screenWidth * 0.03,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          );
-                        } else {
-                          final questions = snapshot.data!;
-                          return ListView.builder(
-                            itemCount: questions.length,
-                            itemBuilder: (context, index) {
-                              final question = questions[index];
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.06,
-                                  vertical: screenHeight * 0.005,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Color(0xFFFF9933)), // Orange border
-                                    borderRadius: BorderRadius.circular(8), // Small rounded corners
-                                  ),
-                                  child: ListTile(
-                                    title: Text(
-                                      question.question,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: screenWidth * 0.03,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    trailing: Text(
-                                      '\$${question.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 20, 59, 17),
-                                        fontSize: screenWidth * 0.03,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      _showQuestionDetails(context, question);
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ),
+                // SizedBox(height: screenHeight * 0.02),
+QuestionListWidget(
+        questionsFuture: _questionsFuture,
+        title: 'Ideas what to ask:',
+        onTapQuestion: _showQuestionDetails,
+      ),
+    
                   SizedBox(height: screenHeight * 0.02),
 
                    // Add Date selector button
@@ -419,7 +337,7 @@ SizedBox(height: screenHeight * 0.04),
     ),
   ),
 ),
-                   SizedBox(height: screenHeight * 0.02),
+                   SizedBox(height: screenHeight * 0.01),
                           
                          // Display the selected date range
 Center(
@@ -427,8 +345,8 @@ Center(
     onTap: () => _selectDateRange(context),
     child: Container(
       padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.015,
-        horizontal: screenWidth * 0.06,
+        vertical: screenHeight * 0.008, // Reduced padding for a smaller container
+        horizontal: screenWidth * 0.04, // Reduced horizontal padding
       ),
       decoration: BoxDecoration(
         border: Border.all(
@@ -440,60 +358,33 @@ Center(
         '$formattedStartDate to $formattedEndDate',
         style: TextStyle(
           color:  Color(0xFFFF9933),
-          fontSize: screenWidth * 0.045,
+          fontSize: screenWidth * 0.035, // Reduced font size
           fontFamily: 'Inter',
         ),
       ),
     ),
   ),
-),
+)
                 ],
               ),
             ),
           ),
-      
-           Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: screenHeight * 0.01),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PaymentPage()),
-                      );
-                    },
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                      ),
-                      fixedSize: Size(screenWidth * 0.6, screenHeight * 0.05),
-                      shadowColor: Colors.black,
-                      elevation: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          // Place the CustomButton above the bottom navigation bar
+          CustomButton(
+            buttonText: 'Submit',
+            onPressed: () {
+            // Define your button action
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PaymentPage()),
+            );
+          },
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),
+      
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 1), 
   );
 }
@@ -510,8 +401,8 @@ Widget _buildCircleWithName(String assetPath, String name, double screenWidth, B
             }
           },
           child: Container(
-            width: screenWidth * 0.3,
-            height: screenWidth * 0.3,
+            width: screenWidth * 0.25,
+            height: screenWidth * 0.25,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -522,8 +413,8 @@ Widget _buildCircleWithName(String assetPath, String name, double screenWidth, B
             child: Center(
               child: Image.asset(
                 assetPath,
-                width: screenWidth * 0.2,
-                height: screenWidth * 0.2,
+                width: screenWidth * 0.15,
+                height: screenWidth * 0.15,
                 fit: BoxFit.contain,
               ),
             ),
@@ -556,87 +447,104 @@ void _showQuestionDetails(BuildContext context, Question question) {
   }
 
   void _showProfileDialog(BuildContext context, ProfileModel profile) {
-    final TextEditingController nameController = TextEditingController(text: profile.name);
-    final TextEditingController dobController = TextEditingController(text: profile.dob);
-    final TextEditingController cityIdController = TextEditingController(text: profile.cityId);
-    final TextEditingController tobController = TextEditingController(text: profile.tob);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('User Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Name', nameController),
-            _buildTextField('Date of Birth', dobController),
-            _buildTextField('Place of Birth', cityIdController),
-            _buildTextField('Time of Birth', tobController),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Close'),
-          ),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('User Profile'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextRow('Name', profile.name),
+          _buildTextRow('Date of Birth', profile.dob),
+          _buildTextRow('Place of Birth', profile.cityId),
+          _buildTextRow('Time of Birth', profile.tob),
         ],
       ),
-    );
-  }
-
-   void _showEditableProfileDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController dobController = TextEditingController();
-    final TextEditingController cityIdController = TextEditingController();
-    final TextEditingController tobController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Enter details'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Name', nameController),
-            _buildTextField('Date of Birth', dobController),
-            _buildTextField('Place of Birth', cityIdController),
-            _buildTextField('Time of Birth', tobController),
-          ],
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Close'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _person2Name = nameController.text.isEmpty
-                    ? 'Person 2'
-                    : nameController.text;
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text('Save'),
-          ),
-        ],
-      ),
-    );
-  }
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        SizedBox(height: 5),
-        TextField(controller: controller),
       ],
-    );
-  }
+    ),
+  );
+}
+
+Widget _buildTextRow(String label, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xFFFF9933)),
+      ),
+      SizedBox(height: 5),
+      Text(value), // Display the profile information
+      SizedBox(height: 10),
+    ],
+  );
+}
+  void _showEditableProfileDialog(BuildContext context) {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController cityIdController = TextEditingController();
+  final TextEditingController tobController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Enter details'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField('Name', nameController),
+          _buildTextField('Date of Birth', dobController),
+          _buildTextField('Place of Birth', cityIdController),
+          _buildTextField('Time of Birth', tobController),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
+        TextButton(
+          onPressed: () {
+            setState(() {
+              // Store the data entered in the dialog to the variables
+              _name = nameController.text;
+              _dob = dobController.text;
+              _cityId = cityIdController.text;
+              _tob = tobController.text;
+            });
+            Navigator.of(context).pop();
+          },
+          child: Text('Save'),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildTextField(String label, TextEditingController controller) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          color: Color(0xFFFF9933), // Set the label color to #FF9933
+        ),
+      ),
+      SizedBox(height: 5),
+      TextField(controller: controller),
+    ],
+  );
+}
 }

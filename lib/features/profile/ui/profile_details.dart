@@ -101,11 +101,13 @@ class _ProfileDetailsState extends State<ProfileDetails> {
 
   @override
   Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final double padding = mediaQuery.size.width * 0.05; // 5% of screen width
-    final double spacing = mediaQuery.size.height * 0.02; // 2% of screen height
-    final double fontSize = mediaQuery.size.width * 0.04; // 4% of screen width
-    final double buttonPadding = mediaQuery.size.width * 0.1; // 10% of screen width
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    final double padding = screenWidth * 0.05; // 5% of screen width
+    final double spacing = screenHeight * 0.02; // 2% of screen height
+    final double fontSize = screenWidth * 0.04; // 4% of screen width
+    final double buttonPadding = screenWidth * 0.1; // 10% of screen width
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -130,12 +132,12 @@ class _ProfileDetailsState extends State<ProfileDetails> {
             ? Center(child: CircularProgressIndicator())
             : _errorMessage != null
                 ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red, fontSize: fontSize)))
-                : _buildProfileUI(fontSize, spacing, buttonPadding),
+                : _buildProfileUI(fontSize, spacing, buttonPadding, screenWidth),
       ),
     );
   }
 
-  Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding) {
+  Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding, double screenWidth) {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,7 +152,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
           SizedBox(height: spacing * 1.5),
           _guestProfileData == null
               ? Center(child: Text('Profile is being generated...', style: TextStyle(color: Colors.orange, fontSize: fontSize)))
-              : _buildGuestProfileUI(fontSize, spacing),
+              : _buildGuestProfileUI(fontSize, spacing, screenWidth),
           SizedBox(height: spacing * 1.5),
           _isEditing
               ? Center(
@@ -180,7 +182,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text('Edit Profile', style: TextStyle(fontSize: fontSize)),
+                    child: Text('Edit Profile', style:  TextStyle(fontSize: fontSize, color: Colors.white)),
                   ),
                 ),
         ],
@@ -188,7 +190,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     );
   }
 
-  Widget _buildGuestProfileUI(double fontSize, double spacing) {
+  Widget _buildGuestProfileUI(double fontSize, double spacing, double screenWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -204,6 +206,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
           value: _guestProfileData!['basic_description'] ?? '',
           fontSize: fontSize,
           isExpandable: true, // Indicating that this field is expandable
+          screenWidth: screenWidth,
         ),
 
         // Lucky Color
@@ -249,6 +252,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     required String value,
     required double fontSize,
     bool isExpandable = false,
+    double? screenWidth,
   }) {
     if (isExpandable) {
       final int maxLength = 100; // Define the maximum number of characters before truncating
@@ -264,9 +268,9 @@ class _ProfileDetailsState extends State<ProfileDetails> {
               children: [
                 Text(
                   '$label: ',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize, color: Color(0xFFFF9933)),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
                 ),
-                Expanded(
+                Flexible(
                   child: Text(
                     isTruncated ? '${value.substring(0, maxLength)}...' : value,
                     style: TextStyle(fontSize: fontSize),
@@ -274,22 +278,20 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                 ),
               ],
             ),
-            if (isTruncated || _isExpanded)
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isExpanded = !_isExpanded;
-                  });
-                },
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isExpanded = !_isExpanded; // Toggle between expanded and collapsed
+                });
+              },
+              child: Padding(
+                padding: EdgeInsets.only(top: fontSize * 0.4),
                 child: Text(
-                  _isExpanded ? 'View Less' : 'View More',
-                  style: TextStyle(
-                    fontSize: fontSize * 0.9,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
-                  ),
+                  _isExpanded ? 'View Less' : 'View More', // Switch text between "View More" and "View Less"
+                  style: TextStyle(color: Color(0xFFFF9933), fontSize: fontSize),
                 ),
               ),
+            ),
           ],
         ),
       );
@@ -301,9 +303,9 @@ class _ProfileDetailsState extends State<ProfileDetails> {
           children: [
             Text(
               '$label: ',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize, color: Color(0xFFFF9933)),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
             ),
-            Expanded(
+            Flexible(
               child: Text(
                 value,
                 style: TextStyle(fontSize: fontSize),
@@ -315,20 +317,27 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     }
   }
 
-  Widget _buildTextField(
-      String label, TextEditingController controller, IconData icon, bool isEditable, double fontSize) {
-    return TextField(
-      controller: controller,
-      enabled: isEditable,
-      style: TextStyle(fontSize: fontSize),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(fontSize: fontSize),
-        prefixIcon: Icon(icon, size: fontSize * 1.5),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+ Widget _buildTextField(String label, TextEditingController controller, IconData icon, bool isEnabled, double fontSize) {
+  return TextFormField(
+    controller: controller,
+    enabled: isEnabled,
+    decoration: InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      labelStyle: TextStyle(fontSize: fontSize),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Color(0xFFFF9933)), // Set border color
       ),
-    );
-  }
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Color(0xFFFF9933)), // Set border color for enabled state
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: BorderSide(color: Color(0xFFFF9933)), // Set border color for focused state
+      ),
+    ),
+  );
+}
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/model/compatibility_model.dart';
@@ -188,7 +189,7 @@ Widget build(BuildContext context) {
                     } else if (!snapshot.hasData || snapshot.data == null || snapshot.data?.compatibility == null || snapshot.data!.compatibility.isEmpty) {
                       return Center(
                         child: Text(
-                          'No horoscope data available at the moment.',
+                          'No compatibility data available at the moment.',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: screenWidth * 0.040,
@@ -217,7 +218,7 @@ Widget build(BuildContext context) {
                                 color: Colors.black,
                                 fontSize: screenWidth * 0.040,
                                 fontFamily: 'Inter',
-                                fontWeight: FontWeight.w100,
+                                fontWeight: FontWeight.w300,
                               ),
                             ),
                             SizedBox(height: screenHeight * 0.02),
@@ -233,7 +234,7 @@ Widget build(BuildContext context) {
                                   color: Color(0xFFFF9933),
                                   fontSize: screenWidth * 0.03,
                                   fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w100,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -249,45 +250,17 @@ Widget build(BuildContext context) {
             ),
           ),
       
-           Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: screenHeight * 0.01),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => CompatibilityPage2()),
-                      );
-                    },
-                    child: Text(
-                      'Get specific compatibility',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                      ),
-                      fixedSize: Size(screenWidth * 0.6, screenHeight * 0.05),
-                      shadowColor: Colors.black,
-                      elevation: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            CustomButton(
+            buttonText: 'Get Specific Compatibility',
+            onPressed: () {
+            // Define your button action
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CompatibilityPage2()),
+            );
+          },
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),
@@ -309,8 +282,8 @@ Widget _buildCircleWithName(String assetPath, String name, double screenWidth, B
             }
           },
           child: Container(
-            width: screenWidth * 0.3,
-            height: screenWidth * 0.3,
+            width: screenWidth * 0.25,
+            height: screenWidth * 0.25,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -321,8 +294,8 @@ Widget _buildCircleWithName(String assetPath, String name, double screenWidth, B
             child: Center(
               child: Image.asset(
                 assetPath,
-                width: screenWidth * 0.2,
-                height: screenWidth * 0.2,
+                width: screenWidth * 0.15,
+                height: screenWidth * 0.15,
                 fit: BoxFit.contain,
               ),
             ),
@@ -335,44 +308,44 @@ Widget _buildCircleWithName(String assetPath, String name, double screenWidth, B
   }
 
   void _showProfileDialog(BuildContext context, ProfileModel profile) {
-    final TextEditingController nameController = TextEditingController(text: profile.name);
-    final TextEditingController dobController = TextEditingController(text: profile.dob);
-    final TextEditingController cityIdController = TextEditingController(text: profile.cityId);
-    final TextEditingController tobController = TextEditingController(text: profile.tob);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('User Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Name', nameController),
-            _buildTextField('Date of Birth', dobController),
-            _buildTextField('Place of Birth', cityIdController),
-            _buildTextField('Time of Birth', tobController),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Close'),
-          ),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('User Profile'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextRow('Name', profile.name),
+          _buildTextRow('Date of Birth', profile.dob),
+          _buildTextRow('Place of Birth', profile.cityId),
+          _buildTextRow('Time of Birth', profile.tob),
         ],
       ),
-    );
-  }
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        SizedBox(height: 5),
-        TextField(controller: controller),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
       ],
-    );
-  }
+    ),
+  );
 }
+
+Widget _buildTextRow(String label, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xFFFF9933)),
+      ),
+      SizedBox(height: 5),
+      Text(value), // Display the profile information
+      SizedBox(height: 10),
+    ],
+  );
+}
+  }

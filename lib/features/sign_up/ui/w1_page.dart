@@ -23,7 +23,6 @@ class _W1PageState extends State<W1Page> {
 
   bool _isLoginMode = false;
   bool _isLoading = false; // Variable to track loading state
-  bool? state = SignUpRepo().getState();
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +165,7 @@ class _W1PageState extends State<W1Page> {
                               ? CircularProgressIndicator() // Show loading indicator
                               : IconButton(
                                   icon: Icon(Icons.arrow_forward, color: Color(0xFFFF9933)),
-                                  onPressed: () => _isLoginMode ? _loginUser(context) : _signupAndNavigateToOTP(context),
+                                  onPressed: () => _isLoginMode ? _loginUser(context, _isLoginMode) : _signupAndNavigateToOTP(context, _isLoginMode),
                                 ),
                         ),
                         keyboardType: TextInputType.emailAddress,
@@ -196,7 +195,7 @@ class _W1PageState extends State<W1Page> {
     });
   }
 
-  void _loginUser(BuildContext context) async {
+  void _loginUser(BuildContext context, bool isLoginMode) async {
     if (_emailController.text.isNotEmpty) {
       String email = _emailController.text;
 
@@ -212,7 +211,7 @@ class _W1PageState extends State<W1Page> {
           // Login successful, navigate to OTP page
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OtpOverlay(email: email,state: state)),
+            MaterialPageRoute(builder: (context) => OtpOverlay(email: email, isLoginMode: isLoginMode)),
           );
         } else {
           // Email not registered, show appropriate message
@@ -257,7 +256,7 @@ class _W1PageState extends State<W1Page> {
     }
   }
 
-  void _signupAndNavigateToOTP(BuildContext context) async {
+  void _signupAndNavigateToOTP(BuildContext context, bool isLoginMode) async {
     if (_validateInputs()) {
       UserModel user = UserModel(
         name: _nameController.text,
@@ -278,7 +277,7 @@ class _W1PageState extends State<W1Page> {
           // Signup successful, navigate to OTP page
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OtpOverlay(email: user.email, state: state)),
+            MaterialPageRoute(builder: (context) => OtpOverlay(email: user.email, isLoginMode: isLoginMode)),
           );
         } else {
           // Email already registered, show appropriate message

@@ -139,54 +139,55 @@ class _DashboardState extends State<DashboardPage> {
                         ),
                         SizedBox(height: 16),
                         FutureBuilder<List<Offer>>(
-                          future: _offersFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            } else if (snapshot.hasData) {
-                              final offers = snapshot.data!;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: 250, // Adjust the height as needed
-                                    child: PageView.builder(
-                                      itemCount: offers.length,
-                                      itemBuilder: (context, index) {
-                                        final offer = offers[index];
-                                        return OfferWidget(offer: offer);
-                                      },
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => AllOffersPage()),
-                                        );
-                                      },
-                                      child: Text(
-                                        'See More...',
-                                        style: TextStyle(
-                                          fontSize: size.width * 0.04,
-                                          fontFamily: 'Inter',
-                                          color: Color(0xFFFF9933),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            } else {
-                              return Center(child: Text('No offers available'));
-                            }
-                          },
-                        ),
+  future: _offersFuture,
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      return Center(child: Text('Error: ${snapshot.error}'));
+    } else if (snapshot.hasData) {
+      final offers = snapshot.data!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height * 0.31, // 30% of the screen height
+            child: PageView.builder(
+              itemCount: offers.length,
+              itemBuilder: (context, index) {
+                final offer = offers[index];
+                return OfferWidget(offer: offer);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AllOffersPage()),
+                );
+              },
+              child: Text(
+                'See More...',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                  fontFamily: 'Inter',
+                  color: Color(0xFFFF9933),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Center(child: Text('No offers available'));
+    }
+  },
+),
+
                         SizedBox(height: 10),
 FutureBuilder<DashboardData>(
   future: _dashboardDataFuture,

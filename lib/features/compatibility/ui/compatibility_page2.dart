@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/custom_button.dart';
+import 'package:flutter_application_1/components/questionlistwidget.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/repo/ask_a_question_repo.dart';
 import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
@@ -181,143 +183,27 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
                                 }).toList() ?? [],
                               ),
                             ),
-                            SizedBox(height: screenHeight * 0.02),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                      child: Text(
-                        'Ideas what to ask :',
-                        style: TextStyle(
-                          color: Color(0xFFFF9933),
-                          fontSize: screenWidth * 0.04,
-                          fontFamily: 'Inter',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  SizedBox(
-                    height: screenHeight * 0.25, // Adjust the height based on how many questions you want visible
-                    child: FutureBuilder<List<Question>>(
-                      future: _questionsFuture,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
-                        } else if (snapshot.hasError) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                            child: Text(
-                              'Error loading questions: ${snapshot.error}',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: screenWidth * 0.03,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          );
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                            child: Text(
-                              'No related questions available.',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: screenWidth * 0.03,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          );
-                        } else {
-                          final questions = snapshot.data!;
-                          return ListView.builder(
-                            itemCount: questions.length,
-                            itemBuilder: (context, index) {
-                              final question = questions[index];
-                              return Padding(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: screenWidth * 0.06,
-                                  vertical: screenHeight * 0.005,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Color(0xFFFF9933)), // Orange border
-                                    borderRadius: BorderRadius.circular(8), // Small rounded corners
-                                  ),
-                                  child: ListTile(
-                                    title: Text(
-                                      question.question,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: screenWidth * 0.03,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    trailing: Text(
-                                      '\$${question.price.toStringAsFixed(2)}',
-                                      style: TextStyle(
-                                        color: Color.fromARGB(255, 20, 59, 17),
-                                        fontSize: screenWidth * 0.03,
-                                        fontFamily: 'Inter',
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    onTap: () {
-                                      _showQuestionDetails(context, question);
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ),
+                            // SizedBox(height: screenHeight * 0.01),
+                  QuestionListWidget(
+        questionsFuture: _questionsFuture,
+        title: 'Ideas what to ask:',
+        onTapQuestion: _showQuestionDetails,
+      ),
                 ],
               ),
             ),
           ),
-           Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: screenHeight * 0.01),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PaymentPage()),
-                      );
-                    },
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.05,
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                      ),
-                      fixedSize: Size(screenWidth * 0.8, screenHeight * 0.07),
-                      shadowColor: Colors.black,
-                      elevation: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            CustomButton(
+            buttonText: 'Submit',
+            onPressed: () {
+            // Define your button action
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PaymentPage()),
+            );
+          },
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),
@@ -341,8 +227,8 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
             }
           },
           child: Container(
-            width: screenWidth * 0.3,
-            height: screenWidth * 0.3,
+            width: screenWidth * 0.25,
+            height: screenWidth * 0.25,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -353,8 +239,8 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
             child: Center(
               child: Image.asset(
                 assetPath,
-                width: screenWidth * 0.2,
-                height: screenWidth * 0.2,
+                width: screenWidth * 0.15,
+                height: screenWidth * 0.15,
                 fit: BoxFit.contain,
               ),
             ),
@@ -393,6 +279,7 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
             },
             child: Text('Close'),
           ),
+          
         ],
       ),
     );

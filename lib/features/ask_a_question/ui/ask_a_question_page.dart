@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_category_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/repo/ask_a_question_repo.dart';
@@ -244,45 +245,17 @@ class _AskQuestionPageState extends State<AskQuestion> {
                 ],
               ),
             ),
-             Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(height: screenHeight * 0.01),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PaymentPage()),
-                      );
-                    },
-                    child: Text(
-                      'Submit',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.04,
-                        fontFamily: 'Inter',
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0.0),
-                      ),
-                      fixedSize: Size(screenWidth * 0.6, screenHeight * 0.05),
-                      shadowColor: Colors.black,
-                      elevation: 10,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+             CustomButton(
+            buttonText: 'Submit',
+            onPressed: () {
+            // Define your button action
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PaymentPage()),
+            );
+          },
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
           ),
         ],
       ),          

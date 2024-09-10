@@ -6,21 +6,19 @@ import 'package:flutter_application_1/features/otp/service/otp_service.dart';
 
 class OtpOverlay extends StatefulWidget {
   final String email;
-  final bool? state;  // Nullable bool to handle optional state
+  final bool isLoginMode;
 
-  OtpOverlay({required this.email, this.state});
+  OtpOverlay({required this.email, required this.isLoginMode});
 
   @override
-  _OtpOverlayState createState() => _OtpOverlayState(state: state ?? false); // Default to false if null
+  _OtpOverlayState createState() => _OtpOverlayState(); // Default to false if null
 }
 
 class _OtpOverlayState extends State<OtpOverlay> {
   final TextEditingController _otpController = TextEditingController();
   final OtpService _otpService = OtpService();
   bool _isVerifying = false;
-  final bool state;
 
-  _OtpOverlayState({required this.state});
 
   @override
   Widget build(BuildContext context) {
@@ -132,17 +130,22 @@ class _OtpOverlayState extends State<OtpOverlay> {
 
         if (isVerified) {
           // Navigate depending on the state value
-          if (state == true) {
+          if (widget.isLoginMode) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => DashboardPage()),
             );
-          } else if (state == false) {
+          } else {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => MainLogoPage()),
             );
           }
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => MainLogoPage()),
+            // );
+        
           _otpController.clear();
         } else {
           _showSnackBar('Invalid OTP. Please try again.');

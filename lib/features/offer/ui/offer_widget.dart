@@ -44,10 +44,10 @@ class _OfferWidgetState extends State<OfferWidget> {
 
     if (widget.offer == null) {
       return Container(
-        margin: EdgeInsets.all(8.0),
-        padding: EdgeInsets.all(16.0),
+        margin: EdgeInsets.all(screenWidth * 0.02), // Responsive margin
+        padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(screenWidth * 0.02), // Responsive border radius
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -78,10 +78,10 @@ class _OfferWidgetState extends State<OfferWidget> {
         );
       },
       child: Container(
-        margin: EdgeInsets.all(8.0),
-        padding: EdgeInsets.all(16.0),
+        margin: EdgeInsets.all(screenWidth * 0.02), // Responsive margin
+        padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(screenWidth * 0.02), // Responsive border radius
           color: Colors.white,
           boxShadow: [
             BoxShadow(
@@ -102,7 +102,7 @@ class _OfferWidgetState extends State<OfferWidget> {
                   child: Text(
                     widget.offer?.name ?? 'No Name Available',
                     style: TextStyle(
-                      fontSize: screenWidth * 0.05, // Responsive font size
+                      fontSize: screenWidth * 0.04, // Responsive font size
                       fontWeight: FontWeight.bold,
                     ),
                     overflow: TextOverflow.ellipsis, // Handle overflow
@@ -117,20 +117,20 @@ class _OfferWidgetState extends State<OfferWidget> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            SizedBox(height: screenHeight * 0.01), // Responsive spacing
             // Image container
             widget.offer?.imageData != null
                 ? Image.memory(
                     widget.offer!.imageData!,
-                    width: screenWidth * 0.8, // Full width
-                    height: screenHeight * 0.12, // Responsive height
+                    width: screenWidth * 0.9, // Full width
+                    height: screenHeight * 0.14, // Responsive height
                     fit: BoxFit.cover,
                   )
                 : Placeholder(
-                    fallbackHeight: screenHeight * 0.12, // Responsive height
-                    fallbackWidth: screenWidth * 0.8, // Full width
+                    fallbackHeight: screenHeight * 0.14, // Responsive height
+                    fallbackWidth: screenWidth * 0.9, // Full width
                   ),
-            SizedBox(height: 8),
+            SizedBox(height: screenHeight * 0.01), // Responsive spacing
             // Side-by-side counts
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,13 +154,14 @@ class _OfferWidgetState extends State<OfferWidget> {
                 ),
               ],
             ),
-            SizedBox(height: 5),
+            SizedBox(height: screenHeight * 0.01), // Responsive spacing
             // Auspicious Question
             Text(
               'Auspicious Question: ${_auspiciousQuestion ?? 'Loading...'}',
               style: TextStyle(
                 fontSize: screenWidth * 0.03, // Responsive font size
               ),
+              overflow: TextOverflow.ellipsis, // Handle overflow
             ),
           ],
         ),

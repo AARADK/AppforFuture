@@ -20,14 +20,14 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFFF9933))),
+        border: Border(top: BorderSide(color: Color(0xFFFF9933), width: 2)), // Keep border same
       ),
       padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.02,
-        horizontal: screenWidth * 0.02,
+        vertical: screenHeight * 0.01, // Adjusted padding to ensure border stays the same
+        horizontal: screenWidth * 0.05,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           _buildNavItem(
             context,
@@ -85,24 +85,25 @@ class BottomNavBar extends StatelessWidget {
           child: iconImage != null
               ? Image.asset(
                   iconImage,
-                  width: screenWidth * 0.10,
-                  height: screenWidth * 0.10,
+                  width: screenWidth * 0.07, // Smaller icon size
+                  height: screenWidth * 0.07, // Smaller icon size
                   color: isSelected ? Color(0xFFFF9933) : null,
                 )
               : Icon(
                   icon,
                   color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
-                  size: screenWidth * 0.10,
+                  size: screenWidth * 0.07, // Smaller icon size
                 ),
         ),
-        SizedBox(height: 4),
+        SizedBox(height: 2), // Reduced spacing between icon and text
         Text(
           label,
           style: TextStyle(
-            fontSize: 12,
+            fontSize: 10, // Smaller text size
             color: isSelected ? Color(0xFFFF9933) : Colors.black,
           ),
         ),
+        SizedBox(height: 1), // Added a small space below the text
       ],
     );
   }
@@ -119,8 +120,8 @@ class BottomNavBar extends StatelessWidget {
             );
           },
           child: Container(
-            width: screenWidth * 0.12,
-            height: screenWidth * 0.12,
+            width: screenWidth * 0.09, // Smaller button size
+            height: screenWidth * 0.09, // Smaller button size
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -131,12 +132,12 @@ class BottomNavBar extends StatelessWidget {
             child: Icon(
               Icons.add,
               color: Color(0xFFFF9933),
-              size: screenWidth * 0.08,
+              size: screenWidth * 0.06, // Smaller icon size
             ),
           ),
         ),
-        SizedBox(height: 4),
-        Text('Ask', style: TextStyle(fontSize: 12, color: const Color.fromARGB(255, 2, 2, 2))),
+        SizedBox(height: 2), // Reduced spacing between button and text
+        Text('Ask', style: TextStyle(fontSize: 10, color: const Color.fromARGB(255, 2, 2, 2))),
       ],
     );
   }
