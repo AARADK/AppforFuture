@@ -1,6 +1,7 @@
 // lib/ui/inbox_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
@@ -52,55 +53,18 @@ class _InboxPageState extends State<InboxPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SafeArea(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.04, 
-                  vertical: screenHeight * 0.01,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context); // Navigate back to previous screen
+             // Using TopNavWidget instead of SafeArea with custom AppBar
+                    // Use TopNavBar here with correct arguments
+                    TopNavBar(
+                      title: 'Inbox',
+                      onLeftButtonPressed: () {
+                        Navigator.pop(
+                          context,
+                          
+                        );
                       },
-                      child: Text(
-                        'Back',
-                        style: TextStyle(
-                          fontSize: screenWidth * 0.06,
-                          fontWeight: FontWeight.normal,
-                          fontFamily: 'Inter',
-                          color: Color(0xFFFF9933),
-                        ),
-                      ),
+                      leftIcon: Icons.arrow_back, // Optional: Change to menu if you want
                     ),
-                    Text(
-                      'Inbox',
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.06,
-                        fontWeight: FontWeight.normal,
-                        fontFamily: 'Inter',
-                        color: Color(0xFFFF9933),
-                      ),
-                    ),
-                    Container(
-                      width: screenWidth * 0.12,
-                      height: screenHeight * 0.06,
-                      decoration: BoxDecoration(
-                        color: Color(0xFFF4DFC8),
-                        borderRadius: BorderRadius.circular(screenWidth * 0.06),
-                      ),
-                      child: Icon(
-                        Icons.inbox,
-                        color: Color(0xFFFF9933),
-                        size: screenWidth * 0.08,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
               child: TextField(

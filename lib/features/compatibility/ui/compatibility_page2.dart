@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/questionlistwidget.dart';
+import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/repo/ask_a_question_repo.dart';
 import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
@@ -99,57 +100,18 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SafeArea(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              'Done',
-                              style: TextStyle(
-                                fontSize: screenWidth * 0.06,
-                                fontWeight: FontWeight.normal,
-                                fontFamily: 'Inter',
-                                color: primaryColor,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Compatibility',
-                            style: TextStyle(
-                              fontSize: screenWidth * 0.06,
-                              fontWeight: FontWeight.normal,
-                              fontFamily: 'Inter',
-                              color: primaryColor,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => InboxPage()),
-                              );
-                            },
-                            child: Container(
-                              width: screenWidth * 0.12,
-                              height: screenWidth * 0.12,
-                              decoration: BoxDecoration(
-                                border: Border.all(color: primaryColor),
-                                borderRadius: BorderRadius.circular(screenWidth * 0.06),
-                              ),
-                              child: Icon(Icons.inbox, color: primaryColor, size: screenWidth * 0.06),
-                            ),
-                          ),
-                        ],
-                      ),
+                   // Using TopNavWidget instead of SafeArea with custom AppBar
+                    // Use TopNavBar here with correct arguments
+                    TopNavBar(
+                      title: 'Compatibility',
+                      onLeftButtonPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => CompatibilityPage()),
+                        );
+                      },
+                      leftIcon: Icons.done, // Optional: Change to menu if you want
                     ),
-                  ),
                   SizedBox(height: screenHeight * 0.05),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

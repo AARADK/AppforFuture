@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/buildcirclewithname.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/questionlistwidget.dart';
+import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/ask_a_question/repo/ask_a_question_repo.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/horoscope/model/horoscope_model.dart';
@@ -155,69 +157,35 @@ Widget build(BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SafeArea(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => DashboardPage()),
-                            );
-                          },
-                          child: Text(
-                            'Done',
-                            style: TextStyle(
-                              fontSize: screenWidth * 0.06,
-                              fontWeight: FontWeight.normal,
-                              fontFamily: 'Inter',
-                              color: Color(0xFFFF9933),
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'Horoscope',
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.06,
-                            fontWeight: FontWeight.normal,
-                            fontFamily: 'Inter',
-                            color: Color(0xFFFF9933),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => InboxPage()),
-                            );
-                          },
-                          child: Container(
-                            width: screenWidth * 0.12,
-                            height: screenWidth * 0.12,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Color(0xFFFF9933)),
-                              borderRadius: BorderRadius.circular(screenWidth * 0.06), // Matching radius
-                            ),
-                            child: Icon(Icons.inbox, color: Color(0xFFFF9933), size: screenWidth * 0.06),
-                          ),
-                        ),
-                      ],
+                // Using TopNavWidget instead of SafeArea with custom AppBar
+                    // Use TopNavBar here with correct arguments
+                    TopNavBar(
+                      title: 'Horoscope',
+                      onLeftButtonPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => DashboardPage()),
+                        );
+                      },
+                      leftIcon: Icons.done, // Optional: Change to menu if you want
                     ),
-                  ),
-                ),
                 SizedBox(height: screenHeight * 0.05),
                 Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    _buildCircleWithName(
-      'assets/images/virgo.png',
-      _profile?.name ?? 'no name available', // Display name if available
-      screenWidth,
-      context,
-    ),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleWithNameWidget(
+                        assetPath: 'assets/images/virgo.png',
+                        name: _profile?.name ?? 'no name available', // Display name if available
+                        screenWidth: screenWidth,
+                        onTap: () {
+                          if (_profile?.name != null) {
+                            _showProfileDialog(context, _profile!);
+                          } else {
+                            print("no name");
+                          }
+                        },
+                        primaryColor: Color(0xFFFF9933), // Set the color
+                      ),
     SizedBox(width: 8.0), // Add spacing between the name and the edit icon
     GestureDetector(
       onTap: () => _showEditableProfileDialog(context),
@@ -398,42 +366,7 @@ Center(
   );
 }
 
-Widget _buildCircleWithName(String assetPath, String name, double screenWidth, BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            if (name == _profile?.name && _profile != null) {
-              _showProfileDialog(context, _profile!);
-            } else {
-              print("no name");
-            }
-          },
-          child: Container(
-            width: screenWidth * 0.25,
-            height: screenWidth * 0.25,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: primaryColor,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Image.asset(
-                assetPath,
-                width: screenWidth * 0.15,
-                height: screenWidth * 0.15,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: screenWidth * 0.02),
-        Text(name, style: TextStyle(fontSize: screenWidth * 0.04, color: primaryColor)),
-      ],
-    );
-  }
+
 void _showQuestionDetails(BuildContext context, Question question) {
     showDialog(
       context: context,

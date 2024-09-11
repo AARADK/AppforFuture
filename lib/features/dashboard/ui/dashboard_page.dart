@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
@@ -68,68 +69,24 @@ class _DashboardState extends State<DashboardPage> {
             },
             onHorizontalDragUpdate: (details) {
               if (details.delta.dx < -6 && _isMenuOpen) {
-                _closeMenu(); // Close the menu on left swipe if it's open
+                _closeMenu();
               } else if (details.delta.dx > 6 && !_isMenuOpen) {
-                _openMenu(); // Open the menu on right swipe if it's closed
+                _openMenu();
               }
             },
             child: Column(
               children: [
+                TopNavBar(
+                  title: 'myFutureTime',
+                  leftIcon: Icons.menu,
+                  onLeftButtonPressed: _openMenu,
+                ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    _openMenu(); // Open the menu when the menu icon is tapped
-                                  },
-                                  child: Container(
-                                    width: iconSize,
-                                    height: iconSize,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Color(0xFFFF9933)),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Icon(Icons.menu, color: Color(0xFFFF9933)),
-                                  ),
-                                ),
-                                Text(
-                                  'myFutureTime',
-                                  style: TextStyle(
-                                    fontSize: size.width * 0.06,
-                                    fontWeight: FontWeight.normal,
-                                    fontFamily: 'Inter',
-                                    color: Color(0xFFFF9933),
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) => InboxPage()),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: iconSize,
-                                    height: iconSize,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Color(0xFFFF9933)),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Icon(Icons.inbox, color: Color(0xFFFF9933)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                        
                         SizedBox(height: 16),
                         FutureBuilder<List<Offer>>(
                           future: _offersFuture,
