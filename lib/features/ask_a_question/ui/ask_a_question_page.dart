@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/custom_button.dart';
+import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_category_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
+import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
+import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 
 class AskQuestionPage extends StatefulWidget {
   @override
@@ -58,32 +63,76 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Ask a Question'),
-      ),
-      body: ListView(
-        children: categoriesByType.entries.map((entry) {
-          int typeId = entry.key;
-          List<QuestionCategory> categories = entry.value;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-          return ExpansionTile(
-            title: Text('Category Type ID: $typeId'),
-            children: categories.map((category) {
-              return ListTile(
-                title: Text(category.category),
-                onTap: () async {
-                  setState(() {
-                    selectedTypeId = typeId;
-                  });
-                  await _fetchQuestions(typeId);
-                  _showQuestions(context, category.id);
-                },
+    return WillPopScope(
+    onWillPop: () async {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardPage()),
+      );
+      return false;
+    }, 
+    child:Scaffold(
+    backgroundColor: Colors.white,
+
+      body: Column(
+        children: [
+         TopNavBar(
+                    title: 'Auspicious Time',
+                    onLeftButtonPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DashboardPage()),
+                      );
+                    },
+                    leftIcon: Icons.done,
+                  ),
+
+          // Main body with category and questions list
+          Expanded(
+            child: ListView(
+              children: categoriesByType.entries.map((entry) {
+                int typeId = entry.key;
+                List<QuestionCategory> categories = entry.value;
+
+                return ExpansionTile(
+                  title: Text('Category Type ID: $typeId'),
+                  children: categories.map((category) {
+                    return ListTile(
+                      title: Text(category.category),
+                      onTap: () async {
+                        setState(() {
+                          selectedTypeId = typeId;
+                        });
+                        await _fetchQuestions(typeId);
+                        _showQuestions(context, category.id);
+                      },
+                    );
+                  }).toList(),
+                );
+              }).toList(),
+            ),
+          ),
+
+          // Custom button placed just after the content
+          CustomButton(
+            buttonText: 'Submit',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PaymentPage()),
               );
-            }).toList(),
-          );
-        }).toList(),
+            },
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+          ),
+          // Bottom navigation bar at the footer
+        ],
       ),
+          bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
+    )
     );
   }
 
