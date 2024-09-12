@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/categorydropdown.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/questionlistwidget.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
@@ -127,237 +128,228 @@ String _tob = '';
 
 
   @override
+@override
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
 
-  // Format selected date range to "YYYY-MM-DD"
-    final String formattedStartDate = selectedDateRange != null
-        ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.start)
-        : 'Start date';
-    final String formattedEndDate = selectedDateRange != null
-        ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.end)
-        : 'End date';
+  final String formattedStartDate = selectedDateRange != null
+      ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.start)
+      : 'Start date';
+  final String formattedEndDate = selectedDateRange != null
+      ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.end)
+      : 'End date';
 
- return WillPopScope(
+  return WillPopScope(
     onWillPop: () async {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => DashboardPage()),
       );
-      return false; // Prevent the default back button behavior
+      return false;
     },
-    child:Scaffold(
-    backgroundColor: Colors.white,
-    body: Stack(
-      children: [
-        SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(bottom: screenHeight * 0.4), // Increased bottom padding to accommodate questions
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                 // Using TopNavWidget instead of SafeArea with custom AppBar
-                    // Use TopNavBar here with correct arguments
-                    TopNavBar(
-                      title: 'Auspicious Time',
-                      onLeftButtonPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
-                        );
-                      },
-                      leftIcon: Icons.done, // Optional: Change to menu if you want
-                    ),
-                SizedBox(height: screenHeight * 0.05),
-                Row(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-    _buildCircleWithName(
-      'assets/images/auspicious2.png',
-      _profile?.name ?? 'no name available', // Display name if available
-      screenWidth,
-      context,
-    ),
-    SizedBox(width: 8.0), // Add spacing between the name and the edit icon
-    GestureDetector(
-      onTap: () => _showEditableProfileDialog(context),
-      child: Container(
-        padding: EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[200], // Background color of the rectangle
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Icon(
-          Icons.edit,
-          size: 20.0, // Size of the edit icon
-          color: Colors.black, // Color of the edit icon
-        ),
-      ),
-    ),
-  ],
-),
-
+    child: Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: screenHeight * 0.4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TopNavBar(
+                    title: 'Auspicious Time',
+                    onLeftButtonPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => DashboardPage()),
+                      );
+                    },
+                    leftIcon: Icons.done,
+                  ),
+                  SizedBox(height: screenHeight * 0.05),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildCircleWithName(
+                        'assets/images/auspicious2.png',
+                        _profile?.name ?? 'no name available',
+                        screenWidth,
+                        context,
+                      ),
+                      SizedBox(width: 8.0),
+                      GestureDetector(
+                        onTap: () => _showEditableProfileDialog(context),
+                        child: Container(
+                          padding: EdgeInsets.all(4.0),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: Icon(
+                            Icons.edit,
+                            size: 20.0,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   SizedBox(height: screenHeight * 0.04),
-                  // Horoscope Description
-                FutureBuilder<Auspicious>(
-                  future: _auspiciousFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Data is being generated, please wait....',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: screenWidth * 0.040,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w100,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    } else if (!snapshot.hasData || snapshot.data == null || snapshot.data?.description == null || snapshot.data!.description.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No auapicious data available at the moment.',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: screenWidth * 0.040,
-                            fontFamily: 'Inter',
-                            fontWeight: FontWeight.w100,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      );
-                    } else {
-                      final horoscope = snapshot.data!;
-                      final description = horoscope.description;
-                      final maxLines = _isExpanded ? null : 3; // Show full text if expanded, else limit to 3 lines
-
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              description,
-                              maxLines: maxLines,
-                              overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: screenWidth * 0.040,
-                                fontFamily: 'Inter',
-                                fontWeight: FontWeight.w300,
-                              ),
+                  FutureBuilder<Auspicious>(
+                    future: _auspiciousFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Data is being generated, please wait....',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: screenWidth * 0.040,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w100,
                             ),
-                            SizedBox(height: screenHeight * 0.02),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _isExpanded = !_isExpanded; // Toggle text expansion
-                                });
-                              },
-                              child: Text(
-                                _isExpanded ? 'View Less' : 'View More', // Change button text based on state
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data == null || snapshot.data?.description == null || snapshot.data!.description.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No auspicious data available at the moment.',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: screenWidth * 0.040,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.w100,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      } else {
+                        final horoscope = snapshot.data!;
+                        final description = horoscope.description;
+                        final maxLines = _isExpanded ? null : 3;
+
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                description,
+                                maxLines: maxLines,
+                                overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                                textAlign: TextAlign.justify,
                                 style: TextStyle(
-                                  color: Color(0xFFFF9933),
-                                  fontSize: screenWidth * 0.03,
+                                  color: Colors.black,
+                                  fontSize: screenWidth * 0.040,
                                   fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.w300,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  },
-                ),
-                
-                // SizedBox(height: screenHeight * 0.02),
-QuestionListWidget(
-        questionsFuture: _questionsFuture,
-        title: 'Ideas what to ask:',
-        onTapQuestion: _showQuestionDetails,
-      ),
-    
+                              SizedBox(height: screenHeight * 0.02),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _isExpanded = !_isExpanded;
+                                  });
+                                },
+                                child: Text(
+                                  _isExpanded ? 'View Less' : 'View More',
+                                  style: TextStyle(
+                                    color: Color(0xFFFF9933),
+                                    fontSize: screenWidth * 0.03,
+                                    fontFamily: 'Inter',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   SizedBox(height: screenHeight * 0.02),
-
-                   // Add Date selector button
+                    Center(
+                      child: CategoryDropdown(
+                        categoryTypeId: 3, // Example category type ID
+                        onQuestionsFetched: (categoryId, questions) {
+                          // Handle the fetched questions here if needed
+                        },
+                      ),
+                    ),
+                  SizedBox(height: screenHeight * 0.02),
                   Center(
-  child: Padding(
-    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          'Select Date range',
-          style: TextStyle(
-            color: Color(0xFFFF9933),
-            fontSize: screenWidth * 0.04,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-                   SizedBox(height: screenHeight * 0.01),
-                          
-                         // Display the selected date range
-Center(
-  child: GestureDetector(
-    onTap: () => _selectDateRange(context),
-    child: Container(
-      padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.008, // Reduced padding for a smaller container
-        horizontal: screenWidth * 0.04, // Reduced horizontal padding
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0xFFFF9933),
-        ),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Text(
-        '$formattedStartDate to $formattedEndDate',
-        style: TextStyle(
-          color:  Color(0xFFFF9933),
-          fontSize: screenWidth * 0.035, // Reduced font size
-          fontFamily: 'Inter',
-        ),
-      ),
-    ),
-  ),
-)
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Select Date range',
+                            style: TextStyle(
+                              color: Color(0xFFFF9933),
+                              fontSize: screenWidth * 0.04,
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: screenHeight * 0.01),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => _selectDateRange(context),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: screenHeight * 0.008,
+                          horizontal: screenWidth * 0.04,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Color(0xFFFF9933),
+                          ),
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        child: Text(
+                          '$formattedStartDate to $formattedEndDate',
+                          style: TextStyle(
+                            color: Color(0xFFFF9933),
+                            fontSize: screenWidth * 0.035,
+                            fontFamily: 'Inter',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
-          // Place the CustomButton above the bottom navigation bar
           CustomButton(
             buttonText: 'Submit',
             onPressed: () {
-            // Define your button action
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PaymentPage()),
-            );
-          },
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PaymentPage()),
+              );
+            },
             screenWidth: screenWidth,
             screenHeight: screenHeight,
           ),
         ],
       ),
-      
-      bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 2), 
-  )
- );
+      bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 2),
+    ),
+  );
 }
+
 
 Widget _buildCircleWithName(String assetPath, String name, double screenWidth, BuildContext context) {
     return Column(

@@ -125,7 +125,7 @@ class BottomNavBar extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AskQuestion()),
+              MaterialPageRoute(builder: (context) => AskQuestionPage()),
             );
           },
           child: Container(

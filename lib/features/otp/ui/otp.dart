@@ -86,15 +86,13 @@ class _OtpOverlayState extends State<OtpOverlay> {
                     foregroundColor: Colors.white,
                     backgroundColor: Color(0xFFFF9933),
                     padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.05,
-                        vertical: screenHeight * 0.02),
+                        horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0),
                     ),
-                    fixedSize: Size(
-                        screenWidth * 0.8, screenHeight * 0.07),
-                    shadowColor: Colors.black,
-                    elevation: 10,
+                    fixedSize: Size(screenWidth * 0.6, screenHeight * 0.05),
+                shadowColor: Colors.black,
+                elevation: 10,
                   ),
                   onPressed: _isVerifying ? null : _verifyOtp,
                   child: _isVerifying
@@ -102,7 +100,7 @@ class _OtpOverlayState extends State<OtpOverlay> {
                       : Text(
                           'Verify OTP',
                           style: TextStyle(
-                            fontSize: screenWidth * 0.06,
+                            fontSize: screenWidth * 0.04,
                             fontFamily: 'Inter',
                             color: Colors.white,
                             fontWeight: FontWeight.normal,

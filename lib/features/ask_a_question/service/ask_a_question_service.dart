@@ -16,6 +16,17 @@ class AskQuestionService {
     }
   }
 
+  // Fetch categories filtered by type ID from the repository
+  Future<List<QuestionCategory>> getCategoriesByTypeId(int typeId) async {
+    try {
+      final categories = await _repository.fetchCategoriesByTypeId(typeId);
+      return categories;
+    } catch (e) {
+      // Handle or log the error if needed
+      throw Exception('Error getting categories by type ID: $e');
+    }
+  }
+
   // Fetch questions based on category ID from the repository
   Future<List<Question>> getQuestions(String categoryId) async {
     try {
@@ -24,6 +35,17 @@ class AskQuestionService {
     } catch (e) {
       // Handle or log the error if needed
       throw Exception('Error getting questions: $e');
+    }
+  }
+
+  // Fetch questions filtered by type ID from the repository
+  Future<List<Question>> getQuestionsByTypeId(int typeId) async {
+    try {
+      final questions = await _repository.fetchQuestionsByTypeId(typeId);
+      return questions;
+    } catch (e) {
+      // Handle or log the error if needed
+      throw Exception('Error getting questions by type ID: $e');
     }
   }
 }

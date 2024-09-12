@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/categorydropdown.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/questionlistwidget.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
@@ -146,11 +147,15 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
                               ),
                             ),
                             // SizedBox(height: screenHeight * 0.01),
-                  QuestionListWidget(
-        questionsFuture: _questionsFuture,
-        title: 'Ideas what to ask:',
-        onTapQuestion: _showQuestionDetails,
-      ),
+                  SizedBox(height: screenHeight * 0.02),
+                    Center(
+                      child: CategoryDropdown(
+                        categoryTypeId: 2, // Example category type ID
+                        onQuestionsFetched: (categoryId, questions) {
+                          // Handle the fetched questions here if needed
+                        },
+                      ),
+                    ),
                 ],
               ),
             ),

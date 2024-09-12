@@ -14,7 +14,7 @@ class AskQuestionButton extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AskQuestion()),
+            MaterialPageRoute(builder: (context) => AskQuestionPage()),
           );
         },
         child: Text(

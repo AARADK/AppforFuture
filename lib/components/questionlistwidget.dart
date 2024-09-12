@@ -1,16 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/features/ask_a_question/model/question_category_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
+import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
 
-class QuestionListWidget extends StatelessWidget {
-  final Future<List<Question>> questionsFuture;
+class QuestionListWidget extends StatefulWidget {
+  final int categoryTypeId;
   final String title;
-  final void Function(BuildContext context, Question question) onTapQuestion;
 
   const QuestionListWidget({
-    required this.questionsFuture,
+    required this.categoryTypeId,
     required this.title,
-    required this.onTapQuestion,
   });
+
+  @override
+  _QuestionListWidgetState createState() => _QuestionListWidgetState();
+}
+
+class _QuestionListWidgetState extends State<QuestionListWidget> {
+  final AskQuestionService _service = AskQuestionService();
+  List<QuestionCategory> categories = [];
+  Map<String, List<Question>> questionsByCategoryId = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCategories();
+  }
+
+  Future<void> _fetchCategories() async {
+    try {
+      final allCategories = await _service.getCategoriesByTypeId(widget.categoryTypeId);
+      setState(() {
+        categories = allCategories;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching categories: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _fetchQuestions(String categoryId) async {
+    try {
+      final questions = await _service.getQuestions(categoryId);
+      setState(() {
+        questionsByCategoryId[categoryId] = questions;
+      });
+    } catch (e) {
+      print('Error fetching questions: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +62,12 @@ class QuestionListWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: screenHeight * 0.01), // Reduced space before the title
+        SizedBox(height: screenHeight * 0.01),
         Center(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
             child: Text(
-              title,
+              widget.title,
               style: TextStyle(
                 color: Color(0xFFFF9933),
                 fontSize: screenWidth * 0.04,
@@ -35,92 +77,46 @@ class QuestionListWidget extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: screenHeight * 0.005), // Small space after the title
-        SizedBox(
-          height: screenHeight * 0.19, // Adjust the height for the list
-          child: FutureBuilder<List<Question>>(
-            future: questionsFuture,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  child: Text(
-                    'Error loading questions: ${snapshot.error}',
-                    style: TextStyle(
-                      color: Colors.red,
-                      fontSize: screenWidth * 0.03,
-                      fontFamily: 'Inter',
-                    ),
-                  ),
-                );
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                  child: Text(
-                    'No related questions available.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: screenWidth * 0.03,
-                      fontFamily: 'Inter',
-                    ),
-                  ),
-                );
-              } else {
-                final questions = snapshot.data!;
-                return ListView.builder(
-                  itemCount: questions.length,
-                  itemBuilder: (context, index) {
-                    final question = questions[index];
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.06,
-                        vertical: screenHeight * 0.002, // Reduced vertical padding between items
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Color(0xFFFF9933)), // Orange border
-                          borderRadius: BorderRadius.circular(8), // Small rounded corners
-                        ),
-                        child: ListTile(
-                          dense: true, // This reduces the height of the ListTile
-                          contentPadding: EdgeInsets.symmetric(
-                            vertical: screenHeight * 0, // Reduce ListTile internal padding
-                            horizontal: screenWidth * 0.04, // Adjust horizontal padding
-                          ),
-                          title: Text(
-                            question.question,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: screenWidth * 0.03,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          trailing: Text(
-                            '\$${question.price.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 20, 59, 17),
-                              fontSize: screenWidth * 0.03,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          onTap: () {
-                            onTapQuestion(context, question);
-                          },
-                        ),
-                      ),
+        SizedBox(height: screenHeight * 0.005),
+        _isLoading
+            ? Center(child: CircularProgressIndicator())
+            : Expanded(
+                child: ListView(
+                  children: categories.map((category) {
+                    return ListTile(
+                      title: Text(category.category),
+                      onTap: () async {
+                        await _fetchQuestions(category.id);
+                        _showQuestions(context, category.id);
+                      },
                     );
-                  },
-                );
-              }
-            },
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.08)
+                  }).toList(),
+                ),
+              ),
+        SizedBox(height: screenHeight * 0.08),
       ],
+    );
+  }
+
+  void _showQuestions(BuildContext context, String categoryId) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        List<Question>? questions = questionsByCategoryId[categoryId];
+
+        if (questions == null || questions.isEmpty) {
+          return Center(child: Text('No questions available.'));
+        }
+
+        return ListView(
+          children: questions.map((question) {
+            return ListTile(
+              title: Text(question.question),
+              trailing: Text('\$${question.price.toStringAsFixed(2)}'),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }

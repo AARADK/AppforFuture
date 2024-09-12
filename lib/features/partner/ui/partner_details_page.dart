@@ -40,7 +40,7 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
   void _navigateToAskQuestion(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => AskQuestion()),
+      MaterialPageRoute(builder: (context) => AskQuestionPage()),
     );
   }
 

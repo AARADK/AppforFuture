@@ -96,7 +96,7 @@ class AskQuestionRepository {
       List<Question> allQuestions = [];
 
       for (var category in categories) {
-        final questions = await fetchQuestions(category.id.toString());
+        final questions = await fetchQuestions(category.id);
         allQuestions.addAll(questions);
       }
 

@@ -3,6 +3,7 @@ import 'package:flutter_application_1/features/menu/service/menu_service.dart';
 import 'package:flutter_application_1/features/settings/ui/settings_page.dart';
 import 'package:flutter_application_1/features/sign_up/ui/w1_page.dart';
 import 'package:flutter_application_1/hive/hive_service.dart';
+import 'package:flutter_application_1/screens/categories_screen.dart';
 
 
 class Menu extends StatefulWidget {
@@ -118,7 +119,7 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                               );
                             }),
                             _buildMenuItem(context, 'Contact Us', Icons.contact_mail, () {
-                              MenuService.navigateToContactUs(context);
+                              Navigator.push(context,MaterialPageRoute(builder: (context)=> CategoriesScreen()));
                             }),
                             _buildMenuItem(context, 'About Us', Icons.info, () {
                               MenuService.navigateToAboutUs(context);
