@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
@@ -7,6 +9,9 @@ import 'package:flutter_application_1/features/ask_a_question/model/question_mod
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
+
 
 class AskQuestionPage extends StatefulWidget {
   @override
@@ -18,6 +23,14 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
   Map<int, List<QuestionCategory>> categoriesByType = {};
   Map<String, List<Question>> questionsByCategoryId = {};
   int? selectedTypeId;
+  String? selectedQuestionId;
+
+  Map<String, dynamic> profile = {
+    "name": "Ramesh", // Default user details
+    "city_id": "Birjung",
+    "dob": "2024-01-01",
+    "tob": "11:10",
+  };
 
   @override
   void initState() {
@@ -60,6 +73,47 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
       print('Error fetching questions: $e');
     }
   }
+  Future<void> _handleTickIconTap() async {
+    if (selectedQuestionId == null) {
+      print('No question selected');
+      return;
+    }
+
+    try {
+      final box = Hive.box('settings');
+      String? token = await box.get('token'); // Retrieve the token from Hive storage
+
+      final url = 'http://52.66.24.172:7001/frontend/GuestInquiry/StartInquiryProcess'; // Use your API URL
+      final body = jsonEncode({
+        "inquiry_type": 0,
+        "inquiry_regular": {
+          "question_id": selectedQuestionId,
+        },
+        "profile1": profile,
+      });
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token', // Include the token in the request headers
+        },
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        // Handle success
+        final responseData = jsonDecode(response.body);
+        print('Inquiry started successfully: $responseData');
+      } else {
+        // Handle error
+        print('Failed to start inquiry: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Handle exceptions
+      print('An error occurred: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +134,7 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
       body: Column(
         children: [
          TopNavBar(
-                    title: 'Auspicious Time',
+                    title: 'Ask a Question',
                     onLeftButtonPressed: () {
                       Navigator.push(
                         context,
@@ -89,7 +143,7 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
                     },
                     leftIcon: Icons.done,
                   ),
-
+               SizedBox(height: screenHeight * 0.05),
           // Main body with category and questions list
           Expanded(
             child: ListView(
@@ -136,25 +190,46 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
     );
   }
 
-  void _showQuestions(BuildContext context, String categoryId) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        List<Question>? questions = questionsByCategoryId[categoryId];
 
-        if (questions == null || questions.isEmpty) {
-          return Center(child: Text('No questions available.'));
-        }
+ void _showQuestions(BuildContext context, String categoryId) {
+  List<Question>? questions = questionsByCategoryId[categoryId];
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      if (questions == null || questions.isEmpty) {
+        return Center(child: Text('No questions available.'));
+      }
 
-        return ListView(
-          children: questions.map((question) {
-            return ListTile(
-              title: Text(question.question),
-              trailing: Text('\$${question.price.toStringAsFixed(2)}'),
-            );
-          }).toList(),
-        );
-      },
-    );
-  }
+      return Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: questions.map((question) {
+                final isSelected = selectedQuestionId == question.id;
+                return ListTile(
+                  title: Text(question.question),
+                  trailing: isSelected
+                      ? IconButton(
+                          icon: Icon(Icons.check_circle, color: Colors.green),
+                          onPressed: _handleTickIconTap, // Handle tick icon tap
+                        )
+                      : null,
+                  onTap: () {
+                    setState(() {
+                      selectedQuestionId = question.id;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: _handleTickIconTap,
+            child: Text('Submit'),
+          ),
+        ],
+      );
+    },
+  );
+}
 }

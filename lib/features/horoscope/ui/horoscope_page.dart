@@ -14,6 +14,7 @@ import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/features/horoscope/repo/horoscope_repo.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart'; // Import the question model
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
+import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -43,12 +44,18 @@ class _HoroscopePageState extends State<HoroscopePage> {
   // Add a DateTime variable to store the selected date
   DateTime? _selectedDate;
   DateTimeRange? selectedDateRange;
+  String? _editedName = '';
+String? _editedDob = '';
+String? _editedCityId = '';
+String? _editedTob = '';
+bool isEditing = false;
 
-  // Variables to store profile details
-String _name = '';
-String _dob = '';
-String _cityId = '';
-String _tob = '';
+
+
+
+
+
+  
 
   // Method to show DateRangePicker
   Future<void> _selectDateRange(BuildContext context) async {
@@ -73,7 +80,8 @@ String _tob = '';
       });
     }
   }
-
+  
+  
  @override
   void initState() {
     super.initState();
@@ -83,46 +91,50 @@ String _tob = '';
     _questionsFuture = _askQuestionRepository.fetchQuestionsByTypeId(1);
 
   }
+
+  
   Future<void> _fetchProfileData() async {
-    try {
-      final box = Hive.box('settings');
-      String? token = await box.get('token');
-      String url = 'http://52.66.24.172:7001/frontend/Guests/Get';
+  try {
+    final box = Hive.box('settings');
+    String? token = await box.get('token');
+    String url = 'http://52.66.24.172:7001/frontend/Guests/Get';
 
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $token',
-        },
-      );
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
 
-      if (response.statusCode == 200) {
-        var responseData = jsonDecode(response.body);
-        if (responseData['error_code'] == "0") {
-          setState(() {
-            _profile = ProfileModel.fromJson(responseData['data']['item']);
-            _horoscopeData = responseData['data']['horoscope'];
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _errorMessage = responseData['message'];
-            _isLoading = false;
-          });
-        }
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      if (responseData['error_code'] == "0") {
+        setState(() {
+          _profile = ProfileModel.fromJson(responseData['data']['item']);
+          _horoscopeData = responseData['data']['horoscope'];
+          _isLoading = false;
+
+          
+        });
       } else {
         setState(() {
-          _errorMessage = 'Failed to load horoscope data';
+          _errorMessage = responseData['message'];
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } else {
       setState(() {
-        _errorMessage = 'An error occurred: $e';
+        _errorMessage = 'Failed to load horoscope data';
         _isLoading = false;
       });
     }
+  } catch (e) {
+    setState(() {
+      _errorMessage = 'An error occurred: $e';
+      _isLoading = false;
+    });
   }
+}
 
 
 
@@ -130,6 +142,7 @@ String _tob = '';
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
+  
   
 
   // Format selected date range to "YYYY-MM-DD"
@@ -180,7 +193,7 @@ Widget build(BuildContext context) {
                         screenWidth: screenWidth,
                         onTap: () {
                           if (_profile?.name != null) {
-                            _showProfileDialog(context, _profile!);
+                            _showProfileDialog(context,_profile!);
                           } else {
                             print("no name");
                           }
@@ -285,16 +298,20 @@ SizedBox(height: screenHeight * 0.04),
                   },
                 ),
                 
-                 SizedBox(height: screenHeight * 0.02),
-                    Center(
-                      child: CategoryDropdown(
-                        categoryTypeId: 1, // Example category type ID
+                                Center(
+                  child: _isLoading
+                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
+                    : CategoryDropdown(
+                       inquiryType: 'Horoscope',
+                        categoryTypeId: 1,
                         onQuestionsFetched: (categoryId, questions) {
-                          // Handle the fetched questions here if needed
+                          // Handle fetched questions
                         },
-                      ),
+                        // Conditionally pass editedProfile based on isEditing flag
+                        editedProfile: isEditing ? getEditedProfile() : null,
                     ),
-                SizedBox(height: screenHeight * 0.02),
+                ),
+
 
                    // Add Date selector button
                   Center(
@@ -370,28 +387,9 @@ Center(
 }
 
 
-void _showQuestionDetails(BuildContext context, Question question) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Press the submit button if you are sure about this question.'),
-          content: Text(question.question),
-          actions: [
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            // Add more actions if needed
-          ],
-        );
-      },
-    );
-  }
 
-  void _showProfileDialog(BuildContext context, ProfileModel profile) {
+
+   void _showProfileDialog(BuildContext context, ProfileModel profile) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -418,6 +416,7 @@ void _showQuestionDetails(BuildContext context, Question question) {
   );
 }
 
+
 Widget _buildTextRow(String label, String value) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -432,6 +431,8 @@ Widget _buildTextRow(String label, String value) {
     ],
   );
 }
+
+
   void _showEditableProfileDialog(BuildContext context) {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
@@ -461,13 +462,22 @@ Widget _buildTextRow(String label, String value) {
         ),
         TextButton(
           onPressed: () {
+            isEditing = true;
+
             setState(() {
               // Store the data entered in the dialog to the variables
-              _name = nameController.text;
-              _dob = dobController.text;
-              _cityId = cityIdController.text;
-              _tob = tobController.text;
+              _editedName = nameController.text;
+              _editedDob = dobController.text;
+              _editedCityId = cityIdController.text;
+              _editedTob = tobController.text;
             });
+
+
+            // Print the edited details
+              print('Edited Name: $_editedName');
+              print('Edited Date of Birth: $_editedDob');
+              print('Edited City ID: $_editedCityId');
+              print('Edited Time of Birth: $_editedTob');
             Navigator.of(context).pop();
           },
           child: Text('Save'),
@@ -475,6 +485,26 @@ Widget _buildTextRow(String label, String value) {
       ],
     ),
   );
+}
+
+// Assuming you have a method to handle saving the profile and navigating
+void _saveProfile(String editedName , String editedCityId, String editedDob, String editedTob) {
+    // Save the edited details
+    // You might also want to update the class variables here
+    this._editedName = editedName;
+    this._editedCityId = editedCityId;
+    this._editedDob = editedDob;
+    this._editedTob = editedTob;
+  }
+
+ Map<String, dynamic> getEditedProfile() {
+    return {
+     'name': _editedName,
+      'dob': _editedDob,
+      'city_id': _editedCityId,
+      'tob': _editedTob,
+    };
+  }
 }
 
 Widget _buildTextField(String label, TextEditingController controller) {
@@ -492,4 +522,4 @@ Widget _buildTextField(String label, TextEditingController controller) {
     ],
   );
 }
-}
+

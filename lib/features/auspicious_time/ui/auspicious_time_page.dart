@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/buildcirclewithname.dart';
 import 'package:flutter_application_1/components/categorydropdown.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/questionlistwidget.dart';
@@ -41,11 +42,11 @@ class _AuspiciousPageState extends State<AuspiciousTimePage> {
   DateTime? _selectedDate;
   DateTimeRange? selectedDateRange;
   
-  // Variables to store profile details
-String _name = '';
-String _dob = '';
-String _cityId = '';
-String _tob = '';
+   String? _editedName = '';
+String? _editedDob = '';
+String? _editedCityId = '';
+String? _editedTob = '';
+bool isEditing = false;
 
   // Method to show DateRangePicker
   Future<void> _selectDateRange(BuildContext context) async {
@@ -168,34 +169,41 @@ Widget build(BuildContext context) {
                     },
                     leftIcon: Icons.done,
                   ),
-                  SizedBox(height: screenHeight * 0.05),
-                  Row(
+                   SizedBox(height: screenHeight * 0.05),
+                Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _buildCircleWithName(
-                        'assets/images/auspicious2.png',
-                        _profile?.name ?? 'no name available',
-                        screenWidth,
-                        context,
+                      CircleWithNameWidget(
+                        assetPath: 'assets/images/virgo.png',
+                        name: _profile?.name ?? 'no name available', // Display name if available
+                        screenWidth: screenWidth,
+                        onTap: () {
+                          if (_profile?.name != null) {
+                            _showProfileDialog(context,_profile!);
+                          } else {
+                            print("no name");
+                          }
+                        },
+                        primaryColor: Color(0xFFFF9933), // Set the color
                       ),
-                      SizedBox(width: 8.0),
-                      GestureDetector(
-                        onTap: () => _showEditableProfileDialog(context),
-                        child: Container(
-                          padding: EdgeInsets.all(4.0),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[200],
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: Icon(
-                            Icons.edit,
-                            size: 20.0,
-                            color: Colors.black,
-                          ),
+                     SizedBox(width: 8.0), // Add spacing between the name and the edit icon
+                            GestureDetector(
+                              onTap: () => _showEditableProfileDialog(context),
+                              child: Container(
+                                padding: EdgeInsets.all(4.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200], // Background color of the rectangle
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                child: Icon(
+                                  Icons.edit,
+                                  size: 20.0, // Size of the edit icon
+                                  color: Colors.black, // Color of the edit icon
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                   SizedBox(height: screenHeight * 0.04),
                   FutureBuilder<Auspicious>(
                     future: _auspiciousFuture,
@@ -273,15 +281,21 @@ Widget build(BuildContext context) {
                       }
                     },
                   ),
-                  SizedBox(height: screenHeight * 0.02),
-                    Center(
-                      child: CategoryDropdown(
-                        categoryTypeId: 3, // Example category type ID
+                   Center(
+                  child: _isLoading
+                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
+                    : CategoryDropdown(
+                      inquiryType: 'auspicious_time',
+                        categoryTypeId: 3,
+                        auspiciousFromDate: formattedStartDate,
                         onQuestionsFetched: (categoryId, questions) {
-                          // Handle the fetched questions here if needed
+                          // Handle fetched questions
                         },
-                      ),
+                        // Conditionally pass editedProfile based on isEditing flag
+                        editedProfile: isEditing ? getEditedProfile() : null,
                     ),
+                ),
+
                   SizedBox(height: screenHeight * 0.02),
                   Center(
                     child: Padding(
@@ -351,62 +365,8 @@ Widget build(BuildContext context) {
 }
 
 
-Widget _buildCircleWithName(String assetPath, String name, double screenWidth, BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            if (name == _profile?.name && _profile != null) {
-              _showProfileDialog(context, _profile!);
-            } else {
-              print("no name");
-            }
-          },
-          child: Container(
-            width: screenWidth * 0.25,
-            height: screenWidth * 0.25,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: primaryColor,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Image.asset(
-                assetPath,
-                width: screenWidth * 0.15,
-                height: screenWidth * 0.15,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-        SizedBox(height: screenWidth * 0.02),
-        Text(name, style: TextStyle(fontSize: screenWidth * 0.04, color: primaryColor)),
-      ],
-    );
-  }
-void _showQuestionDetails(BuildContext context, Question question) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Press the submit button if you are sure about this question.'),
-          content: Text(question.question),
-          actions: [
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            // Add more actions if needed
-          ],
-        );
-      },
-    );
-  }
+
+
 
  void _showProfileDialog(BuildContext context, ProfileModel profile) {
   showDialog(
@@ -435,6 +395,7 @@ void _showQuestionDetails(BuildContext context, Question question) {
   );
 }
 
+
 Widget _buildTextRow(String label, String value) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -449,6 +410,8 @@ Widget _buildTextRow(String label, String value) {
     ],
   );
 }
+
+
   void _showEditableProfileDialog(BuildContext context) {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController dobController = TextEditingController();
@@ -478,13 +441,22 @@ Widget _buildTextRow(String label, String value) {
         ),
         TextButton(
           onPressed: () {
+            isEditing = true;
+
             setState(() {
               // Store the data entered in the dialog to the variables
-              _name = nameController.text;
-              _dob = dobController.text;
-              _cityId = cityIdController.text;
-              _tob = tobController.text;
+              _editedName = nameController.text;
+              _editedDob = dobController.text;
+              _editedCityId = cityIdController.text;
+              _editedTob = tobController.text;
             });
+
+
+            // Print the edited details
+              print('Edited Name: $_editedName');
+              print('Edited Date of Birth: $_editedDob');
+              print('Edited City ID: $_editedCityId');
+              print('Edited Time of Birth: $_editedTob');
             Navigator.of(context).pop();
           },
           child: Text('Save'),
@@ -492,6 +464,26 @@ Widget _buildTextRow(String label, String value) {
       ],
     ),
   );
+}
+
+// Assuming you have a method to handle saving the profile and navigating
+void _saveProfile(String editedName , String editedCityId, String editedDob, String editedTob) {
+    // Save the edited details
+    // You might also want to update the class variables here
+    this._editedName = editedName;
+    this._editedCityId = editedCityId;
+    this._editedDob = editedDob;
+    this._editedTob = editedTob;
+  }
+
+ Map<String, dynamic> getEditedProfile() {
+    return {
+     'name': _editedName,
+      'dob': _editedDob,
+      'city_id': _editedCityId,
+      'tob': _editedTob,
+    };
+  }
 }
 
 Widget _buildTextField(String label, TextEditingController controller) {
@@ -509,4 +501,4 @@ Widget _buildTextField(String label, TextEditingController controller) {
     ],
   );
 }
-}
+

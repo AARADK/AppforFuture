@@ -5,46 +5,53 @@ import 'dart:convert';
 class ProfileRepo {
   final HiveService _hiveService = HiveService();
 
+  // Variables to store profile data
+  String? name;
+  String? dob;
+  String? tob;
+  String? cityId;
+
+  // API URLs
+  static const String _updateProfileUrl = 'http://52.66.24.172:7001/frontend/Guests/UpdateGuestProfile';
+  static const String _getProfileUrl = 'http://52.66.24.172:7001/frontend/Guests/Get';
+
   // Method to update guest profile
   Future<bool> updateGuestProfile(Map<String, dynamic> updateData) async {
-    String apiUrl = 'http://52.66.24.172:7001/frontend/Guests/UpdateGuestProfile'; // Replace with your actual URL
     String? token = await _hiveService.getToken();
 
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {
-        'Authorization': token != null ? 'Bearer $token' : '',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(updateData), // Sending the update data in the body
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(_updateProfileUrl),
+        headers: {
+          'Authorization': token != null ? 'Bearer $token' : '',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(updateData),
+      );
 
-    if (response.statusCode == 200) {
-      var responseData = jsonDecode(response.body);
-      if (responseData['error_code'] == "0") {
-        return true; // Update successful
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+        if (responseData['error_code'] == "0") {
+          return true; // Update successful
+        } else {
+          print('Error updating profile: ${responseData['message']}');
+        }
       } else {
-        print('Error updating profile: ${responseData['message']}');
+        print('Failed to update profile: ${response.statusCode}');
       }
-    } else {
-      print('Failed to update profile: ${response.statusCode}');
+    } catch (e) {
+      print('Exception during update: $e');
     }
     return false; // Update failed
   }
 
   // Method to get profile data
   Future<Map<String, dynamic>?> getProfile() async {
-    // Ensure that the guest profile is updated before fetching
-    bool updateSuccess = await updateGuestProfile({
-      // Provide necessary data for updating the profile here
-    });
+    String? token = await _hiveService.getToken();
 
-    if (updateSuccess) {
-      String apiUrl = 'http://52.66.24.172:7001/frontend/Guests/Get'; // Replace with your actual URL
-      String? token = await _hiveService.getToken();
-
+    try {
       final response = await http.get(
-        Uri.parse(apiUrl),
+        Uri.parse(_getProfileUrl),
         headers: {
           'Authorization': token != null ? 'Bearer $token' : '',
         },
@@ -53,14 +60,31 @@ class ProfileRepo {
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
         if (responseData['error_code'] == "0") {
-          return responseData['data']['item'];
+          var profileData = responseData['data']['item'];
+          
+          // Store profile data in variables
+          name = profileData['name'];
+          dob = profileData['dob'];
+          tob = profileData['tob'];
+          cityId = profileData['city_id'];
+          
+
+          // Return profile data if needed
+          return profileData;
         } else {
           print('Error fetching profile: ${responseData['message']}');
         }
       } else {
         print('Failed to fetch profile: ${response.statusCode}');
       }
+    } catch (e) {
+      print('Exception during fetch: $e');
     }
     return null;
   }
+  // Getters for profile data
+  String? getName() => name;
+  String? getDob() => dob;
+  String? getTob() => tob;
+  String? getCityId() => cityId;
 }

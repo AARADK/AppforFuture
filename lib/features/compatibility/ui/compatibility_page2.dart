@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/buildcirclewithname.dart';
 import 'package:flutter_application_1/components/categorydropdown.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/questionlistwidget.dart';
@@ -34,6 +35,17 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
   String? _person2Name = 'Person 2'; // Variable to store Person 2's name
   late Future<List<Question>> _questionsFuture; // Future for Horoscope questions
   final AskQuestionRepository _askQuestionRepository = AskQuestionRepository(); // Instantiate the repository
+   String? _editedName = '';
+String? _editedDob = '';
+String? _editedCityId = '';
+String? _editedTob = '';
+bool isEditing = false;
+
+String? _editedName2 = '';
+String? _editedDob2 = '';
+String? _editedCityId2 = '';
+String? _editedTob2 = '';
+bool isEditing2 = false;
 
 
 
@@ -87,226 +99,364 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+ @override
+Widget build(BuildContext context) {
+  final screenHeight = MediaQuery.of(context).size.height;
+  final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: screenHeight * 0.2),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                   // Using TopNavWidget instead of SafeArea with custom AppBar
-                    // Use TopNavBar here with correct arguments
-                    TopNavBar(
-                      title: 'Compatibility',
-                      onLeftButtonPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => CompatibilityPage()),
-                        );
-                      },
-                      leftIcon: Icons.done, // Optional: Change to menu if you want
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Stack(
+      children: [
+        SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: screenHeight * 0.2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TopNavBar(
+                  title: 'Compatibility',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CompatibilityPage()),
+                    );
+                  },
+                  leftIcon: Icons.done, // Optional: Change to menu if you want
+                ),
+                SizedBox(height: screenHeight * 0.05),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Circle and Edit Icon for Profile
+                    Stack(
+                      children: [
+                        CircleWithNameWidget(
+                          assetPath: 'assets/images/virgo.png',
+                          name: _profile?.name ?? 'no name available',
+                          screenWidth: screenWidth,
+                          onTap: () {
+                            if (_profile?.name != null) {
+                              _showProfileDialog(context, _profile!);
+                            } else {
+                              print("no name");
+                            }
+                          },
+                          primaryColor: Color(0xFFFF9933),
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.edit, color: primaryColor),
+                            onPressed: () {
+                              if (_profile != null) {
+                                _showEditableProfileDialog(context);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  SizedBox(height: screenHeight * 0.05),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildCircleWithName(
-                        'assets/images/virgo.png',
-                        _profile?.name ?? 'Person 1', // Display name if available
-                        screenWidth,
-                        context,
-                      ),
-                      SizedBox(width: screenWidth * 0.1),
-                      _buildCircleWithName(
-                        'assets/images/pisces.png',
-                        _person2Name!, // Display the entered name or "Person 2"
-                        screenWidth,
-                        context,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: screenHeight * 0.02),
-                  _isLoading
-                      ? Center(child: CircularProgressIndicator())
-                      : _errorMessage != null
-                          ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
-                          : Padding(
-                              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: _compatibilityData?.entries.map((entry) {
-                                  return _buildCompatibilityRow(entry.key, entry.value);
-                                }).toList() ?? [],
-                              ),
+                    SizedBox(width: screenWidth * 0.1),
+                    // Circle and Edit Icon for Person 2
+                    Stack(
+                      children: [
+                        CircleWithNameWidget(
+                          assetPath: 'assets/images/pisces.png',
+                          name: _person2Name!,
+                          screenWidth: screenWidth,
+                          onTap: () {
+                            _showEditableProfileDialog2(context);
+                          },
+                          primaryColor: Color(0xFFFF9933),
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: IconButton(
+                            icon: Icon(Icons.edit, color: primaryColor),
+                            onPressed: () {
+                              _showEditableProfileDialog2(context);
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: screenHeight * 0.02),
+                _isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    : _errorMessage != null
+                        ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
+                        : Padding(
+                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: _compatibilityData?.entries.map((entry) {
+                                return _buildCompatibilityRow(entry.key, entry.value);
+                              }).toList() ?? [],
                             ),
-                            // SizedBox(height: screenHeight * 0.01),
-                  SizedBox(height: screenHeight * 0.02),
-                    Center(
-                      child: CategoryDropdown(
-                        categoryTypeId: 2, // Example category type ID
-                        onQuestionsFetched: (categoryId, questions) {
-                          // Handle the fetched questions here if needed
-                        },
-                      ),
-                    ),
-                ],
-              ),
+                          ),
+                SizedBox(height: screenHeight * 0.02),
+                Center(
+                  child: CategoryDropdown(
+                    inquiryType: 'compatibility',
+                    categoryTypeId: 2,
+                    onQuestionsFetched: (categoryId, questions) {
+                      // Handle the fetched questions here if needed
+                    },
+                    editedProfile2: isEditing2 ? getEditedProfile2() : null,
+                    editedProfile: isEditing ? getEditedProfile() : null,
+                  ),
+                ),
+              ],
             ),
           ),
-            CustomButton(
-            buttonText: 'Submit',
-            onPressed: () {
-            // Define your button action
+        ),
+        CustomButton(
+          buttonText: 'Submit',
+          onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => PaymentPage()),
             );
           },
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-          ),
-        ],
-      ),
-             bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 0),
-
-
-    );
-  }
-
-  Widget _buildCircleWithName(String assetPath, String name, double screenWidth, BuildContext context) {
-    return Column(
-      children: [
-        GestureDetector(
-          onTap: () {
-            if (name == _profile?.name && _profile != null) {
-              _showProfileDialog(context, _profile!);
-            } else if (name == _person2Name) {
-              _showEditableProfileDialog(context);
-            } else {
-              print("no name");
-            }
-          },
-          child: Container(
-            width: screenWidth * 0.25,
-            height: screenWidth * 0.25,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: primaryColor,
-                width: 2,
-              ),
-            ),
-            child: Center(
-              child: Image.asset(
-                assetPath,
-                width: screenWidth * 0.15,
-                height: screenWidth * 0.15,
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
+          screenWidth: screenWidth,
+          screenHeight: screenHeight,
         ),
-        SizedBox(height: screenWidth * 0.02),
-        Text(name, style: TextStyle(fontSize: screenWidth * 0.04, color: primaryColor)),
       ],
-    );
-  }
+    ),
+    bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 0),
+  );
+}
+
+
+  
 
   void _showProfileDialog(BuildContext context, ProfileModel profile) {
-    final TextEditingController nameController = TextEditingController(text: profile.name);
-    final TextEditingController dobController = TextEditingController(text: profile.dob);
-    final TextEditingController cityIdController = TextEditingController(text: profile.cityId);
-    final TextEditingController tobController = TextEditingController(text: profile.tob);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('User Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Name', nameController),
-            _buildTextField('Date of Birth', dobController),
-            _buildTextField('Place of Birth', cityIdController),
-            _buildTextField('Time of Birth', tobController),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Close'),
-          ),
-          
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('User Profile'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextRow('Name', profile.name),
+          _buildTextRow('Date of Birth', profile.dob),
+          _buildTextRow('Place of Birth', profile.cityId),
+          _buildTextRow('Time of Birth', profile.tob),
         ],
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+Widget _buildTextRow(String label, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xFFFF9933)),
+      ),
+      SizedBox(height: 5),
+      Text(value), // Display the profile information
+      SizedBox(height: 10),
+    ],
+  );
+}
 
   void _showEditableProfileDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController dobController = TextEditingController();
-    final TextEditingController cityIdController = TextEditingController();
-    final TextEditingController tobController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController cityIdController = TextEditingController();
+  final TextEditingController tobController = TextEditingController();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Enter Person 2 Name'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Name', nameController),
-            _buildTextField('Date of Birth', dobController),
-            _buildTextField('Place of Birth', cityIdController),
-            _buildTextField('Time of Birth', tobController),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Close'),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                _person2Name = nameController.text.isEmpty
-                    ? 'Person 2'
-                    : nameController.text;
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text('Save'),
-          ),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Enter details 1'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField('Name', nameController),
+          _buildTextField('Date of Birth', dobController),
+          _buildTextField('Place of Birth', cityIdController),
+          _buildTextField('Time of Birth', tobController),
         ],
       ),
-    );
-  }
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
+        TextButton(
+          onPressed: () {
+            isEditing = true;
 
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label),
-        SizedBox(height: 5),
-        TextField(controller: controller),
+            setState(() {
+              // Store the data entered in the dialog to the variables
+              _editedName = nameController.text;
+              _editedDob = dobController.text;
+              _editedCityId = cityIdController.text;
+              _editedTob = tobController.text;
+            });
+
+
+            // Print the edited details
+              print('Edited Name: $_editedName');
+              print('Edited Date of Birth: $_editedDob');
+              print('Edited City ID: $_editedCityId');
+              print('Edited Time of Birth: $_editedTob');
+            Navigator.of(context).pop();
+          },
+          child: Text('Save'),
+        ),
       ],
-    );
+    ),
+  );
+}
+
+// Assuming you have a method to handle saving the profile and navigating
+void _saveProfile(String editedName , String editedCityId, String editedDob, String editedTob) {
+    // Save the edited details
+    // You might also want to update the class variables here
+    this._editedName = editedName;
+    this._editedCityId = editedCityId;
+    this._editedDob = editedDob;
+    this._editedTob = editedTob;
   }
 
-  Widget _buildCompatibilityRow(String title, dynamic value) {
+ Map<String, dynamic> getEditedProfile() {
+    return {
+     'name': _editedName,
+      'dob': _editedDob,
+      'city_id': _editedCityId,
+      'tob': _editedTob,
+    };
+  }
+
+
+Widget _buildTextField(String label, TextEditingController controller) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          color: Color(0xFFFF9933), // Set the label color to #FF9933
+        ),
+      ),
+      SizedBox(height: 5),
+      TextField(controller: controller),
+    ],
+  );
+}
+
+
+  void _showEditableProfileDialog2(BuildContext context) {
+  final TextEditingController name2Controller = TextEditingController();
+  final TextEditingController dob2Controller = TextEditingController();
+  final TextEditingController cityId2Controller = TextEditingController();
+  final TextEditingController tob2Controller = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text('Enter details 2'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField2('Name', name2Controller),
+          _buildTextField2('Date of Birth', dob2Controller),
+          _buildTextField2('Place of Birth', cityId2Controller),
+          _buildTextField2('Time of Birth', tob2Controller),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text('Close'),
+        ),
+        TextButton(
+          onPressed: () {
+             isEditing2 = true;
+
+            setState(() {
+              // Store the data entered in the dialog to the variables
+              _editedName2 = name2Controller.text;
+              _editedDob2 = dob2Controller.text;
+              _editedCityId2 = cityId2Controller.text;
+              _editedTob2 = tob2Controller.text;
+            });
+
+
+            // Print the edited details
+              print('Edited Name: $_editedName2');
+              print('Edited Date of Birth: $_editedDob2');
+              print('Edited City ID: $_editedCityId2');
+              print('Edited Time of Birth: $_editedTob2');
+            Navigator.of(context).pop();
+          },
+          child: Text('Save'),
+        ),
+      ],
+    ),
+  );
+}
+
+// Assuming you have a method to handle saving the profile and navigating
+void _saveProfile2(String editedName2 , String editedCityId2, String editedDob2, String editedTob2) {
+    // Save the edited details
+    // You might also want to update the class variables here
+    this._editedName2 = editedName2;
+    this._editedCityId2 = editedCityId2;
+    this._editedDob2 = editedDob2;
+    this._editedTob2 = editedTob2;
+  }
+
+ Map<String, dynamic> getEditedProfile2() {
+    return {
+     'name': _editedName2,
+      'dob': _editedDob2,
+      'city_id': _editedCityId2,
+      'tob': _editedTob2,
+    };
+  }
+
+Widget _buildTextField2(String label, TextEditingController controller) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          color: Color(0xFFFF9933), // Set the label color to #FF9933
+        ),
+      ),
+      SizedBox(height: 5),
+      TextField(controller: controller),
+    ],
+  );
+}
+
+Widget _buildCompatibilityRow(String title, dynamic value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
@@ -318,61 +468,9 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
       ),
     );
   }
-
-  Widget _buildElevatedButton(BuildContext context, String label, Widget targetPage, double screenWidth, double screenHeight) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: primaryColor,
-        minimumSize: Size(screenWidth * 0.8, screenHeight * 0.07),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(0),
-        ),
-      ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => targetPage),
-        );
-      },
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: screenWidth * 0.045,
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavBarIcon(BuildContext context, String assetPath, Widget targetPage) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => targetPage));
-      },
-      child: Image.asset(assetPath, width: 24, height: 24),
-    );
-  }
 }
 
-  /// Optional: Show question details in a dialog
-  void _showQuestionDetails(BuildContext context, Question question) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Press the submit button if you are sure about this question.'),
-          content: Text(question.question),
-          actions: [
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            // Add more actions if needed
-          ],
-        );
-      },
-    );
-  }
+  
+
+  
 
