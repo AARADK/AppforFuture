@@ -48,6 +48,14 @@ String? _editedCityId = '';
 String? _editedTob = '';
 bool isEditing = false;
 
+Color _iconColor = Colors.black; // Initial color
+
+  void _updateIconColor() {
+    setState(() {
+      _iconColor = _iconColor == Colors.black ? Color(0xFFFF9933) : Colors.black;
+    });
+  }
+
   // Method to show DateRangePicker
   Future<void> _selectDateRange(BuildContext context) async {
     final DateTimeRange? picked = await showDateRangePicker(
@@ -73,6 +81,14 @@ bool isEditing = false;
   }
 
 
+void _showDateSelectionMessage() {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Please select a date range before proceeding.'),
+      backgroundColor: Colors.red,
+    ),
+  );
+}
 
 
   @override
@@ -128,7 +144,8 @@ bool isEditing = false;
 
 
 
-  @override
+ 
+@override
 @override
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
@@ -171,37 +188,40 @@ Widget build(BuildContext context) {
                   ),
                    SizedBox(height: screenHeight * 0.05),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleWithNameWidget(
-                        assetPath: 'assets/images/virgo.png',
-                        name: _profile?.name ?? 'no name available', // Display name if available
-                        screenWidth: screenWidth,
-                        onTap: () {
-                          if (_profile?.name != null) {
-                            _showProfileDialog(context,_profile!);
-                          } else {
-                            print("no name");
-                          }
-                        },
-                        primaryColor: Color(0xFFFF9933), // Set the color
-                      ),
-                     SizedBox(width: 8.0), // Add spacing between the name and the edit icon
-                            GestureDetector(
-                              onTap: () => _showEditableProfileDialog(context),
-                              child: Container(
-                                padding: EdgeInsets.all(4.0),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200], // Background color of the rectangle
-                                  borderRadius: BorderRadius.circular(4.0),
-                                ),
-                                child: Icon(
-                                  Icons.edit,
-                                  size: 20.0, // Size of the edit icon
-                                  color: Colors.black, // Color of the edit icon
-                                ),
-                              ),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Circle and Edit Icon for Profile
+                    Stack(
+                      children: [
+                        CircleWithNameWidget(
+                          assetPath: 'assets/images/virgo.png',
+                          name: _profile?.name ?? 'no name available',
+                          screenWidth: screenWidth,
+                          onTap: () {
+                            if (_profile?.name != null) {
+                              _showProfileDialog(context, _profile!);
+                            } else {
+                              print("no name");
+                            }
+                          },
+                          primaryColor: Color(0xFFFF9933),
+                        ),
+                        Positioned(
+                            left: 70,
+                            right: 0,
+                            top: 8,
+                            child: IconButton(
+                              icon: Icon(Icons.edit, color: _iconColor),
+                              onPressed: () {
+                                _updateIconColor();
+                                if (_profile != null) {
+                                  _showEditableProfileDialog(context);
+                                }
+                              },
                             ),
+                        ),
+                      ],
+                    ),
                           ],
                         ),
                   SizedBox(height: screenHeight * 0.04),
@@ -281,6 +301,7 @@ Widget build(BuildContext context) {
                       }
                     },
                   ),
+                   SizedBox(height: screenHeight * 0.02),
                    Center(
                   child: _isLoading
                     ? const CircularProgressIndicator() // Show a loading indicator while fetching data
@@ -289,9 +310,12 @@ Widget build(BuildContext context) {
                         categoryTypeId: 3,
                         auspiciousFromDate: formattedStartDate,
                         onQuestionsFetched: (categoryId, questions) {
-                          // Handle fetched questions
+                          if (selectedDateRange == null) {
+                            _showDateSelectionMessage();
+                          } else {
+                            // Handle fetched questions
+                          }
                         },
-                        // Conditionally pass editedProfile based on isEditing flag
                         editedProfile: isEditing ? getEditedProfile() : null,
                     ),
                 ),

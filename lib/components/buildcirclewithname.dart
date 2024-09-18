@@ -26,8 +26,8 @@ class CircleWithNameWidget extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Container(
-            width: screenWidth * 0.25,
-            height: screenWidth * 0.25,
+            width: screenWidth * 0.22,
+            height: screenWidth * 0.22,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(

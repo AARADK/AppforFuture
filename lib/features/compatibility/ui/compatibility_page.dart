@@ -140,24 +140,9 @@ Widget build(BuildContext context) {
                         },
                         primaryColor: Color(0xFFFF9933), // Set the color
                       ),
-    SizedBox(width: 8.0), // Add spacing between the name and the edit icon
-    GestureDetector(
-      onTap: () => _showProfileDialog(context,_profile!),
-      child: Container(
-        padding: EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[200], // Background color of the rectangle
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Icon(
-          Icons.edit,
-          size: 20.0, // Size of the edit icon
-          color: Colors.black, // Color of the edit icon
-        ),
-      ),
-    ),
-  ],
-),
+    
+                    ],
+                ),
                   SizedBox(height: screenHeight * 0.04),
                   // Horoscope Description
                 FutureBuilder<Compatibility>(

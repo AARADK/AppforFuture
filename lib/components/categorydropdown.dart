@@ -186,72 +186,158 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
 
 
   void _showQuestions(BuildContext context, String categoryId) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return FutureBuilder<Map<String, List<Question>>>(
-          future: _fetchQuestions(categoryId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Error fetching questions: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data![categoryId] == null || snapshot.data![categoryId]!.isEmpty) {
-              return Center(child: Text('No questions available.'));
-            } else {
-              final questions = snapshot.data![categoryId]!;
-              return StatefulBuilder(
-                builder: (BuildContext context, StateSetter setState) {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView(
-                          children: questions.map((question) {
-                            final isSelected = selectedQuestionId == question.id;
-                            return ListTile(
-                              title: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(child: Text(question.question)),
-                                  Text(
-                                    '\$${question.price.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      color: isSelected ? Colors.white : Colors.black,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              tileColor: isSelected ? Color(0xFFFF9933) : null,
-                              trailing: isSelected
-                                  ? IconButton(
-                                      icon: Icon(Icons.check_circle, color: Colors.green),
-                                      onPressed: _handleTickIconTap,
-                                    )
-                                  : null,
-                              onTap: () {
-                                setState(() {
-                                  selectedQuestionId = question.id;
-                                });
-                              },
-                            );
-                          }).toList(),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final screenSize = MediaQuery.of(context).size;
+      final screenWidth = screenSize.width;
+      final screenHeight = screenSize.height;
+
+      final double fontSizeTitle = screenWidth * 0.05;
+      final double fontSizeSubtitle = screenWidth * 0.04;
+      final double padding = screenWidth * 0.03;
+      final double buttonFontSize = screenWidth * 0.04;
+
+      return FutureBuilder<Map<String, List<Question>>>(
+        future: _fetchQuestions(categoryId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return AlertDialog(
+              title: Text('Error', style: TextStyle(fontSize: fontSizeTitle)),
+              content: Text('Error fetching questions: ${snapshot.error}', style: TextStyle(fontSize: fontSizeSubtitle)),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK', style: TextStyle(fontSize: buttonFontSize)),
+                ),
+              ],
+              backgroundColor: Colors.white,
+            );
+          } else if (!snapshot.hasData || snapshot.data![categoryId] == null || snapshot.data![categoryId]!.isEmpty) {
+            return AlertDialog(
+              title: Text('No questions available', style: TextStyle(fontSize: fontSizeTitle)),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK', style: TextStyle(fontSize: buttonFontSize)),
+                ),
+              ],
+              backgroundColor: Colors.white,
+            );
+          } else {
+            final questions = snapshot.data![categoryId]!;
+            return AlertDialog(
+              title: Text('Select a Question', style: TextStyle(fontSize: fontSizeTitle)),
+              content: SizedBox(
+                width: screenWidth * 0.9,
+                child: StatefulBuilder(
+                  builder: (BuildContext context, StateSetter setState) {
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: ListView(
+                            shrinkWrap: true,
+                            children: questions.map((question) {
+                              final isSelected = selectedQuestionId == question.id;
+                             return Card(
+  elevation: 2,
+  margin: EdgeInsets.symmetric(vertical: padding / 2),
+  shape: RoundedRectangleBorder(
+    side: BorderSide(color: Color(0xFFFF9933), width: 1.0), // Border color and width
+    borderRadius: BorderRadius.circular(4.0), // Rounded corners
+  ),
+  color: isSelected ? Color(0xFFFF9933) : Colors.white, // Card background color
+  child: ListTile(
+    contentPadding: EdgeInsets.all(padding),
+    title: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, // Align text at the top
+      children: [
+        Expanded(
+          child: Text(
+            question.question,
+            style: TextStyle(
+              fontSize: screenWidth * 0.03,
+              fontWeight: FontWeight.w300,
+            ),
+            overflow: TextOverflow.visible, // Allow text to be visible
+          ),
+        ),
+      ],
+    ),
+    subtitle: Row(
+      children: [
+        Text(
+          '\$${question.price.toStringAsFixed(2)}',
+          style: TextStyle(
+            fontSize: screenWidth * 0.03,
+            fontWeight: FontWeight.bold,
+            color: isSelected ? Colors.white : Colors.green,
+          ),
+        ),
+        if (isSelected) // Show the tick icon only if selected
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: Icon(Icons.check_circle, color: Colors.green, size: screenWidth * 0.05),
+          ),
+      ],
+    ),
+    tileColor: isSelected ? Color(0xFFFF9933) : null, // Color when selected
+    onTap: () {
+      setState(() {
+        selectedQuestionId = question.id;
+      });
+    },
+  ),
+);
+
+
+
+                            }).toList(),
+                          ),
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _handleTickIconTap,
-                        child: Text('Submit'),
-                        
-                      ),
-                    ],
-                  );
-                },
-              );
-            }
-          },
-        );
-      },
-    );
-  }
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                              },
+                              child: Text('Cancel', style: TextStyle(fontSize: buttonFontSize)),
+                            ),
+                            SizedBox(width: padding), // Space between buttons
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Close the dialog
+                                _handleTickIconTap(); // Call the handle function
+                              },
+                              child: Text('OK', style: TextStyle(fontSize: buttonFontSize)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+              backgroundColor: Colors.white,
+            );
+          }
+        },
+      );
+    },
+  );
+}
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -267,17 +353,44 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
         } else {
           final categories = snapshot.data![widget.categoryTypeId]!;
           return ExpansionTile(
-            title: const Text('Ideas what to ask'),
-            children: categories.map((category) {
-              return ListTile(
-                title: Text(category.category),
-                onTap: () async {
-                  await _fetchQuestions(category.id);
-                  _showQuestions(context, category.id);
-                },
-              );
-            }).toList(),
-          );
+  title: Container(
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: Color(0xFFFF9933), // Rectangle border color: ff9933
+        width: 2.0, // Border width
+      ),
+      borderRadius: BorderRadius.circular(5), // Optional: to round the corners of the rectangle
+    ),
+    child: SizedBox(
+      height: 50, // Adjust height to add space at the top and bottom
+      child: Row(
+        children: [
+          SizedBox(width: 10), // Adds spacing from the left edge of the rectangle
+          Expanded(
+            child: Text(
+              'Ideas what to ask',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFFF9933), // Text color: ff9933
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+  children: categories.map((category) {
+    return ListTile(
+      title: Text(category.category),
+      onTap: () async {
+        await _fetchQuestions(category.id);
+        _showQuestions(context, category.id);
+      },
+    );
+  }).toList(),
+)
+;
+
         }
       },
     );

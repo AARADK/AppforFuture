@@ -4,7 +4,7 @@ class TopNavBar extends StatelessWidget {
   final String title;
   final VoidCallback onLeftButtonPressed;
   final IconData leftIcon;
-  
+
   TopNavBar({
     required this.title,
     required this.onLeftButtonPressed,
@@ -19,24 +19,13 @@ class TopNavBar extends StatelessWidget {
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            GestureDetector(
-              onTap: onLeftButtonPressed, // Call the action on button press
-              child: Container(
-                width: iconSize,
-                height: iconSize,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Color(0xFFFF9933)),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(leftIcon, color: Color(0xFFFF9933)),
-              ),
-            ),
-             // Use Expanded to center the text in the middle
-            Expanded(
-              child: Center(
+        child: SizedBox(
+          width: double.infinity, // Ensure it takes up full width
+          child: Stack(
+            children: [
+              // Center the title
+              Align(
+                alignment: Alignment.bottomCenter,
                 child: Text(
                   title,
                   style: TextStyle(
@@ -48,9 +37,27 @@ class TopNavBar extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               ),
-            ),
-           
-          ],
+              // Align the icon to the left and bottom
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 8), // Add margin to match the bottom alignment
+                  child: GestureDetector(
+                    onTap: onLeftButtonPressed, // Call the action on button press
+                    child: Container(
+                      width: iconSize,
+                      height: iconSize,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Color(0xFFFF9933)),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Icon(leftIcon, color: Color(0xFFFF9933)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -47,6 +47,14 @@ String? _editedCityId2 = '';
 String? _editedTob2 = '';
 bool isEditing2 = false;
 
+Color _iconColor = Colors.black; // Initial color
+
+  void _updateIconColor() {
+    setState(() {
+      _iconColor = _iconColor == Colors.black ? Color(0xFFFF9933) : Colors.black;
+    });
+  }
+
 
 
   @override
@@ -145,8 +153,9 @@ Widget build(BuildContext context) {
                           primaryColor: Color(0xFFFF9933),
                         ),
                         Positioned(
+                          left:70,
                           right: 0,
-                          top: 0,
+                          top: 8,
                           child: IconButton(
                             icon: Icon(Icons.edit, color: primaryColor),
                             onPressed: () {
@@ -172,14 +181,18 @@ Widget build(BuildContext context) {
                           primaryColor: Color(0xFFFF9933),
                         ),
                         Positioned(
-                          right: 0,
-                          top: 0,
-                          child: IconButton(
-                            icon: Icon(Icons.edit, color: primaryColor),
-                            onPressed: () {
-                              _showEditableProfileDialog2(context);
-                            },
-                          ),
+                            left: 70,
+                            right: 0,
+                            top: 8,
+                            child: IconButton(
+                              icon: Icon(Icons.edit, color: _iconColor),
+                              onPressed: () {
+                                _updateIconColor();
+                                if (_profile != null) {
+                                  _showEditableProfileDialog(context);
+                                }
+                              },
+                            ),
                         ),
                       ],
                     ),
@@ -199,7 +212,7 @@ Widget build(BuildContext context) {
                               }).toList() ?? [],
                             ),
                           ),
-                SizedBox(height: screenHeight * 0.02),
+                 SizedBox(height: screenHeight * 0.02),
                 Center(
                   child: CategoryDropdown(
                     inquiryType: 'compatibility',

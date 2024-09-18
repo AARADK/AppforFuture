@@ -159,7 +159,8 @@ class _DashboardState extends State<DashboardPage> {
                                       imageWidth: circleSize * 0.67,
                                       imageHeight: circleSize * 0.75,
                                       page: HoroscopePage(),
-                                      rating: data.horoscope.rating,
+                                      description: data.horoscope.description,
+                                     
                                     ),
                                     SizedBox(height: 16),
                                     _buildCircleSection(
@@ -179,7 +180,7 @@ class _DashboardState extends State<DashboardPage> {
                                       imageWidth: circleSize * 0.67,
                                       imageHeight: circleSize * 0.75,
                                       page: AuspiciousTimePage(),
-                                      rating: data.auspicious.rating,
+                                      description: data.auspicious.description,
                                     ),
                                   ],
                                 ),
@@ -219,6 +220,7 @@ class _DashboardState extends State<DashboardPage> {
   required Widget page,
   int? rating,
   String? compatibility,
+  String? description,
 }) {
   final size = MediaQuery.of(context).size;
   final double circleSize = size.width * 0.18;
@@ -263,16 +265,19 @@ class _DashboardState extends State<DashboardPage> {
                       color: Color(0xFFFF9933), // Title color set to #FF9933
                     ),
                   ),
-                  if (rating != null)
+                  if (description != null)
                     // Rating in black
                     Text(
-                      'Rating: $rating/10',
-                      style: TextStyle(
-                        fontSize: size.width * 0.034,
-                        fontFamily: 'Inter',
-                        color: Colors.black, // Black for rating
-                      ),
-                    ),
+                          description,
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                            fontSize: size.width * 0.034,
+                            fontFamily: 'Inter',
+                            color: Colors.black, // Black for compatibility details
+                            fontWeight: FontWeight.normal,
+                          ),
+                          maxLines: 3, // Allow text to wrap
+                        ),
                   if (compatibility != null)
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,7 +293,7 @@ class _DashboardState extends State<DashboardPage> {
                             color: Colors.black, // Black for compatibility details
                             fontWeight: FontWeight.normal,
                           ),
-                          maxLines: null, // Allow text to wrap
+                          maxLines: 3, // Allow text to wrap
                         ),
                       ],
                     ),

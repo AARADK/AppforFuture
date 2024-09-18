@@ -50,7 +50,13 @@ String? _editedCityId = '';
 String? _editedTob = '';
 bool isEditing = false;
 
+Color _iconColor = Colors.black; // Initial color
 
+  void _updateIconColor() {
+    setState(() {
+      _iconColor = _iconColor == Colors.black ? Color(0xFFFF9933) : Colors.black;
+    });
+  }
 
 
 
@@ -174,48 +180,51 @@ Widget build(BuildContext context) {
                 // Using TopNavWidget instead of SafeArea with custom AppBar
                     // Use TopNavBar here with correct arguments
                     TopNavBar(
-                      title: 'Horoscope',
-                      onLeftButtonPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
-                        );
-                      },
-                      leftIcon: Icons.done, // Optional: Change to menu if you want
-                    ),
+                  title: 'Horoscope',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  },
+                  leftIcon: Icons.done, // Optional: Change to menu if you want
+                ),
                 SizedBox(height: screenHeight * 0.05),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleWithNameWidget(
-                        assetPath: 'assets/images/virgo.png',
-                        name: _profile?.name ?? 'no name available', // Display name if available
-                        screenWidth: screenWidth,
-                        onTap: () {
-                          if (_profile?.name != null) {
-                            _showProfileDialog(context,_profile!);
-                          } else {
-                            print("no name");
-                          }
-                        },
-                        primaryColor: Color(0xFFFF9933), // Set the color
-                      ),
-    SizedBox(width: 8.0), // Add spacing between the name and the edit icon
-    GestureDetector(
-      onTap: () => _showEditableProfileDialog(context),
-      child: Container(
-        padding: EdgeInsets.all(4.0),
-        decoration: BoxDecoration(
-          color: Colors.grey[200], // Background color of the rectangle
-          borderRadius: BorderRadius.circular(4.0),
-        ),
-        child: Icon(
-          Icons.edit,
-          size: 20.0, // Size of the edit icon
-          color: Colors.black, // Color of the edit icon
-        ),
-      ),
-    ),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Circle and Edit Icon for Profile
+                    Stack(
+                      children: [
+                        CircleWithNameWidget(
+                          assetPath: 'assets/images/virgo.png',
+                          name: _profile?.name ?? _editedName?? 'no name available',
+                          screenWidth: screenWidth,
+                          onTap: () {
+                            if (_profile?.name != null) {
+                              _showProfileDialog(context, _profile!);
+                            } else {
+                              print("no name");
+                            }
+                          },
+                          primaryColor: Color(0xFFFF9933),
+                        ),
+                        Positioned(
+                            left: 70,
+                            right: 0,
+                            top: 8,
+                            child: IconButton(
+                              icon: Icon(Icons.edit, color: _iconColor),
+                              onPressed: () {
+                                _updateIconColor();
+                                if (_profile != null) {
+                                  _showEditableProfileDialog(context);
+                                }
+                              },
+                            ),
+                        ),
+                      ],
+                    ),
   ],
 ),
                         
@@ -255,7 +264,7 @@ SizedBox(height: screenHeight * 0.04),
                     } else {
                       final horoscope = snapshot.data!;
                       final description = horoscope.description;
-                      final maxLines = _isExpanded ? null : 1; // Show full text if expanded, else limit to 3 lines
+                      final maxLines = _isExpanded ? null : 3; // Show full text if expanded, else limit to 3 lines
 
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
@@ -297,7 +306,7 @@ SizedBox(height: screenHeight * 0.04),
                     }
                   },
                 ),
-                
+                SizedBox(height: screenHeight * 0.02),
                                 Center(
                   child: _isLoading
                     ? const CircularProgressIndicator() // Show a loading indicator while fetching data
@@ -312,6 +321,7 @@ SizedBox(height: screenHeight * 0.04),
                     ),
                 ),
 
+                                SizedBox(height: screenHeight * 0.02),
 
                    // Add Date selector button
                   Center(
@@ -463,6 +473,7 @@ Widget _buildTextRow(String label, String value) {
         TextButton(
           onPressed: () {
             isEditing = true;
+            _editedName = _editedName;
 
             setState(() {
               // Store the data entered in the dialog to the variables
