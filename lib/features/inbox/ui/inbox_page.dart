@@ -1,15 +1,7 @@
-// lib/ui/inbox_page.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/components/bottom_nav_bar.dart';
-import 'package:flutter_application_1/components/topnavbar.dart';
-import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
-import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
-import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
-import 'package:flutter_application_1/features/compatibility/ui/compatibility_page2.dart';
-import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart';
-import 'package:flutter_application_1/features/inbox/model/inbox_model.dart';
-import 'package:flutter_application_1/features/inbox/service/inbox_service.dart';
-import 'package:flutter_application_1/features/inbox/ui/chat_box_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:hive/hive.dart';
 
 class InboxPage extends StatefulWidget {
   @override
@@ -17,113 +9,132 @@ class InboxPage extends StatefulWidget {
 }
 
 class _InboxPageState extends State<InboxPage> {
-  final MessageService _messageService = MessageService();
-  late List<Message> _messages;
-  TextEditingController _searchController = TextEditingController();
-  String _searchQuery = '';
+  Future<List<dynamic>> _fetchInquiries() async {
+    try {
+      final box = Hive.box('settings');
+      String? token = await box.get('token');
 
-  @override
-  void initState() {
-    super.initState();
-    _messages = _messageService.fetchMessages();
-  }
+      if (token == null) {
+        throw Exception('Token is not available');
+      }
 
-  void _openChatBox(Message message) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChatBoxPage(message: message),
-      ),
-    );
+      final url = 'http://52.66.24.172:7001/frontend/GuestInquiry/MyInquiries'; // Replace with actual URL
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = jsonDecode(response.body);
+
+        if (responseData['error_code'] == "0") {
+          var inquiries = responseData['data']['inquiries'];
+          if (inquiries is List) {
+            return inquiries;
+          } else {
+            throw Exception('Unexpected response format: inquiries is not a list');
+          }
+        } else {
+          throw Exception('Error: ${responseData['message']}');
+        }
+      } else {
+        throw Exception('Failed to load inquiries: HTTP ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching inquiries: $e');
+      return [];
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Message> filteredMessages = _messages.where((message) {
-      return message.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-             message.content.toLowerCase().contains(_searchQuery.toLowerCase());
-    }).toList();
-
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Scaffold(
-       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
+      appBar: AppBar(
+        title: Text('Inbox'),
+      ),
+      body: FutureBuilder<List<dynamic>>(
+        future: _fetchInquiries(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (snapshot.hasData) {
+            final inquiries = snapshot.data!;
+            if (inquiries.isEmpty) {
+              return Center(child: Text('No inquiries found.'));
+            }
+
+            return ListView.builder(
+              itemCount: inquiries.length,
+              itemBuilder: (context, index) {
+                final inquiry = inquiries[index];
+                return _buildInquiryCard(inquiry);
+              },
+            );
+          } else {
+            return Center(child: Text('No data available.'));
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildInquiryCard(dynamic inquiry) {
+    bool isRead = inquiry['is_read'] ?? false;
+    bool isReplied = inquiry['is_replied'] ?? false;
+
+    return Card(
+      elevation: 2.0,
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: ListTile(
+        leading: Icon(
+          isRead ? Icons.mark_email_read : Icons.mark_email_unread,
+          color: isRead ? Colors.green : Colors.red,
+        ),
+        title: Text(
+          inquiry['question'],
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             // Using TopNavWidget instead of SafeArea with custom AppBar
-                    // Use TopNavBar here with correct arguments
-                    TopNavBar(
-                      title: 'Inbox',
-                      onLeftButtonPressed: () {
-                        Navigator.pop(
-                          context,
-                          
-                        );
-                      },
-                      leftIcon: Icons.arrow_back, // Optional: Change to menu if you want
-                    ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search',
-                  prefixIcon: Icon(Icons.search, color: Color(0xFFC06500)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(screenWidth * 0.03),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
-              ),
-            ),
-            SizedBox(height: screenHeight * 0.02),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: filteredMessages.length,
-              itemBuilder: (context, index) {
-                final message = filteredMessages[index];
-                return ListTile(
-                  leading: Container(
-                    width: screenWidth * 0.08,
-                    height: screenHeight * 0.04,
-                    decoration: BoxDecoration(
-                      color: message.categoryColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  title: Text(
-                    message.title,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.normal,
-                      fontSize: screenWidth * 0.045,
-                    ),
-                  ),
-                  subtitle: Text(
-                    message.content,
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: screenWidth * 0.04,
-                    ),
-                  ),
-                  onTap: () => _openChatBox(message),
-                );
-              },
-            ),
-            SizedBox(height: screenHeight * 0.05),
+            Text('Purchased on: ${inquiry['purchased_on']}'),
+            Text('Price: \$${inquiry['price']}'),
           ],
         ),
+        trailing: isReplied
+            ? Icon(Icons.done_all, color: Colors.blue)
+            : Icon(Icons.hourglass_empty, color: Colors.orange),
+        onTap: () {
+          // Navigate to detailed inquiry view if needed
+          _showInquiryDetails(inquiry);
+        },
       ),
-             bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 3),
+    );
+  }
 
-  );
+  void _showInquiryDetails(dynamic inquiry) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Inquiry Details'),
+        content: Text('Question: ${inquiry['question']}\n'
+            'Purchased On: ${inquiry['purchased_on']}\n'
+            'Price: \$${inquiry['price']}\n'
+            'Is Replied: ${inquiry['is_replied']}'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
   }
 }

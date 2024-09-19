@@ -3,6 +3,7 @@ import 'package:flutter_application_1/features/ask_a_question/model/question_cat
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
 import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
+import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:hive/hive.dart'; // Import Hive package
@@ -173,17 +174,77 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       body: bodyJson,
     );
 
+    final responseData = jsonDecode(response.body);
+
     if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      print('Inquiry started successfully: $responseData');
+      if (responseData['error_code'] == "0") {
+        // Save the inquiry number in Hive
+        String inquiryNumber = responseData['data']['inquiry_number'];
+        await HiveService().saveInquiryNumber(inquiryNumber);
+
+        // Show success message if error_code is 0
+        _showResultDialog(responseData['message'], inquiryNumber);
+      } else if (responseData['error_code'] == "1") {
+        // Show error message if error_code is 1
+        _showErrorDialog(responseData['message']);
+      }
     } else {
       print('Failed to start inquiry: ${response.statusCode}');
+      _showErrorDialog('Failed to start inquiry. Please try again later.');
     }
   } catch (e) {
     print('An error occurred: $e');
+    _showErrorDialog('An error occurred. Please try again later.');
   }
 }
+  void _showResultDialog(String message, String? inquiryNumber) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success!'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(message),
+              if (inquiryNumber != null) 
+                Text('Inquiry Number: $inquiryNumber'),
+                
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sorry!'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showQuestions(BuildContext context, String categoryId) {
   showDialog(

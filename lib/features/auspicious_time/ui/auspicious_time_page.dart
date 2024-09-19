@@ -16,6 +16,7 @@ import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart'
 import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
+import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -42,7 +43,7 @@ class _AuspiciousPageState extends State<AuspiciousTimePage> {
   DateTime? _selectedDate;
   DateTimeRange? selectedDateRange;
   
-   String? _editedName = '';
+   String? _editedName = ProfileRepo().getName();
 String? _editedDob = '';
 String? _editedCityId = '';
 String? _editedTob = '';
@@ -195,7 +196,7 @@ Widget build(BuildContext context) {
                       children: [
                         CircleWithNameWidget(
                           assetPath: 'assets/images/virgo.png',
-                          name: _profile?.name ?? 'no name available',
+                          name: _editedName?? _profile?.name ?? 'no name available',
                           screenWidth: screenWidth,
                           onTap: () {
                             if (_profile?.name != null) {
@@ -308,7 +309,9 @@ Widget build(BuildContext context) {
                     : CategoryDropdown(
                       inquiryType: 'auspicious_time',
                         categoryTypeId: 3,
-                        auspiciousFromDate: formattedStartDate,
+                         auspiciousFromDate: selectedDateRange != null
+                          ? formattedStartDate
+                          : 'Please select a date', // Fallback message for unselected date
                         onQuestionsFetched: (categoryId, questions) {
                           if (selectedDateRange == null) {
                             _showDateSelectionMessage();

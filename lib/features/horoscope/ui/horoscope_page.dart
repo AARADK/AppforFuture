@@ -44,7 +44,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
   // Add a DateTime variable to store the selected date
   DateTime? _selectedDate;
   DateTimeRange? selectedDateRange;
-  String? _editedName = '';
+  String? _editedName = ProfileRepo().getName();
 String? _editedDob = '';
 String? _editedCityId = '';
 String? _editedTob = '';
@@ -198,7 +198,7 @@ Widget build(BuildContext context) {
                       children: [
                         CircleWithNameWidget(
                           assetPath: 'assets/images/virgo.png',
-                          name: _profile?.name ?? _editedName?? 'no name available',
+                          name: _editedName?? _profile?.name ?? 'no name available',
                           screenWidth: screenWidth,
                           onTap: () {
                             if (_profile?.name != null) {
@@ -473,7 +473,7 @@ Widget _buildTextRow(String label, String value) {
         TextButton(
           onPressed: () {
             isEditing = true;
-            _editedName = _editedName;
+          
 
             setState(() {
               // Store the data entered in the dialog to the variables

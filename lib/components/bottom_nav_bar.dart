@@ -20,14 +20,15 @@ class BottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFFF9933), width: 2)), // Keep border same
+        border: Border(top: BorderSide(color: Color(0xFFFF9933), width: 2)),
       ),
       padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.01, // Adjusted padding to ensure border stays the same
+        // vertical: screenHeight * 0.01,
         horizontal: screenWidth * 0.05,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.end, // Align all children at the bottom
         children: [
           _buildNavItem(
             context,
@@ -54,7 +55,7 @@ class BottomNavBar extends StatelessWidget {
           _buildNavItem(
             context,
             index: 3,
-            icon: Icons.mail,
+            iconImage: 'assets/images/Inbox.png',
             label: 'Inbox',
             targetPage: InboxPage(),
           ),
@@ -63,63 +64,64 @@ class BottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(BuildContext context, {
-  required int index,
-  String? iconImage,
-  IconData? icon,
-  required String label,
-  required Widget targetPage,
-}) {
-  bool isSelected = currentPageIndex == index;
+  Widget _buildNavItem(
+    BuildContext context, {
+    required int index,
+    String? iconImage,
+    IconData? icon,
+    required String label,
+    required Widget targetPage,
+  }) {
+    bool isSelected = currentPageIndex == index;
 
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => targetPage),
-      );
-    },
-    behavior: HitTestBehavior.translucent, // Ensures the entire area can be tapped
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          padding: EdgeInsets.all(screenWidth * 0.02), // Increase the tappable area
-          decoration: BoxDecoration(
-            color: isSelected ? Color(0xFFFF9933).withOpacity(0.2) : Colors.transparent, // Optional feedback
-            shape: BoxShape.circle, // Ensure the padding follows a circular area
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => targetPage),
+        );
+      },
+      behavior: HitTestBehavior.translucent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end, // Align the icon and text at the bottom
+        children: [
+          Container(
+            padding: EdgeInsets.all(screenWidth * 0.02),
+            decoration: BoxDecoration(
+              color: isSelected ? Color(0xFFFF9933).withOpacity(0.2) : Colors.transparent,
+              shape: BoxShape.circle,
+            ),
+            child: iconImage != null
+                ? Image.asset(
+                    iconImage,
+                    width: screenWidth * 0.07,
+                    height: screenWidth * 0.07,
+                    color: isSelected ? Color(0xFFFF9933) : null,
+                  )
+                : Icon(
+                    icon,
+                    color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
+                    size: screenWidth * 0.07,
+                  ),
           ),
-          child: iconImage != null
-              ? Image.asset(
-                  iconImage,
-                  width: screenWidth * 0.07, // Icon size remains small
-                  height: screenWidth * 0.07, // Icon size remains small
-                  color: isSelected ? Color(0xFFFF9933) : null,
-                )
-              : Icon(
-                  icon,
-                  color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
-                  size: screenWidth * 0.07, // Icon size remains small
-                ),
-        ),
-        SizedBox(height: 2), // Reduced spacing between icon and text
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 10, // Smaller text size
-            color: isSelected ? Color(0xFFFF9933) : Colors.black,
+          SizedBox(height: 2), // Consistent spacing
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              color: isSelected ? Color(0xFFFF9933) : Colors.black,
+            ),
           ),
-        ),
-        SizedBox(height: 1), // Added a small space below the text
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildAskButton(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end, // Align button and text at the bottom
       children: [
         GestureDetector(
           onTap: () {
@@ -129,8 +131,8 @@ class BottomNavBar extends StatelessWidget {
             );
           },
           child: Container(
-            width: screenWidth * 0.09, // Smaller button size
-            height: screenWidth * 0.09, // Smaller button size
+            width: screenWidth * 0.09,
+            height: screenWidth * 0.09,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
@@ -141,12 +143,18 @@ class BottomNavBar extends StatelessWidget {
             child: Icon(
               Icons.add,
               color: Color(0xFFFF9933),
-              size: screenWidth * 0.06, // Smaller icon size
+              size: screenWidth * 0.06,
             ),
           ),
         ),
-        SizedBox(height: 2), // Reduced spacing between button and text
-        Text('Ask', style: TextStyle(fontSize: 10, color: const Color.fromARGB(255, 2, 2, 2))),
+        SizedBox(height: 2), // Consistent spacing
+        Text(
+          'Ask',
+          style: TextStyle(
+            fontSize: 10,
+            color: const Color.fromARGB(255, 2, 2, 2),
+          ),
+        ),
       ],
     );
   }

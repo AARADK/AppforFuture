@@ -75,4 +75,24 @@ class HiveService {
     var box = Hive.box(_boxName);
     await box.clear();
   }
+
+  // Save inquiry numbers
+  Future<void> saveInquiryNumber(String inquiryNumber) async {
+    var box = Hive.box(_boxName);
+    List<String> inquiries = List<String>.from(box.get('inquiry_numbers', defaultValue: []));
+    inquiries.add(inquiryNumber);
+    await box.put('inquiry_numbers', inquiries);
+  }
+
+  // Retrieve all inquiry numbers
+  Future<List<String>> getInquiryNumbers() async {
+    var box = Hive.box(_boxName);
+    return List<String>.from(box.get('inquiry_numbers', defaultValue: []));
+  }
+
+  // Clear all inquiry numbers
+  Future<void> clearInquiryNumbers() async {
+    var box = Hive.box(_boxName);
+    await box.delete('inquiry_numbers');
+  }
 }

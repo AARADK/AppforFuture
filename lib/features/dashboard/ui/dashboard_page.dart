@@ -137,7 +137,7 @@ class _DashboardState extends State<DashboardPage> {
                             }
                           },
                         ),
-                        SizedBox(height: 10),
+                        SizedBox(height: size.height * 0.01),
                         FutureBuilder<DashboardData>(
                           future: _dashboardDataFuture,
                           builder: (context, snapshot) {
@@ -162,7 +162,7 @@ class _DashboardState extends State<DashboardPage> {
                                       description: data.horoscope.description,
                                      
                                     ),
-                                    SizedBox(height: 16),
+                                      SizedBox(height: size.height * 0.03),
                                     _buildCircleSection(
                                       context,
                                       title: 'Compatibility',
@@ -172,7 +172,7 @@ class _DashboardState extends State<DashboardPage> {
                                       page: CompatibilityPage(),
                                       compatibility: data.compatibility,
                                     ),
-                                    SizedBox(height: 16),
+                                     SizedBox(height: size.height * 0.03),
                                     _buildCircleSection(
                                       context,
                                       title: 'Auspicious Time',
@@ -190,7 +190,7 @@ class _DashboardState extends State<DashboardPage> {
                             }
                           },
                         ),
-                        SizedBox(height: 16),
+                          SizedBox(height: size.height * 0.03),
                       ],
                     ),
                   ),
@@ -271,7 +271,7 @@ class _DashboardState extends State<DashboardPage> {
                           description,
                           textAlign: TextAlign.justify,
                           style: TextStyle(
-                            fontSize: size.width * 0.034,
+                            fontSize: size.width * 0.03,
                             fontFamily: 'Inter',
                             color: Colors.black, // Black for compatibility details
                             fontWeight: FontWeight.normal,
@@ -288,7 +288,7 @@ class _DashboardState extends State<DashboardPage> {
                           compatibility,
                           textAlign: TextAlign.justify,
                           style: TextStyle(
-                            fontSize: size.width * 0.034,
+                            fontSize: size.width * 0.03,
                             fontFamily: 'Inter',
                             color: Colors.black, // Black for compatibility details
                             fontWeight: FontWeight.normal,

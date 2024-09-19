@@ -157,8 +157,9 @@ Widget build(BuildContext context) {
                           right: 0,
                           top: 8,
                           child: IconButton(
-                            icon: Icon(Icons.edit, color: primaryColor),
+                           icon: Icon(Icons.edit, color: _iconColor),
                             onPressed: () {
+                               _updateIconColor();
                               if (_profile != null) {
                                 _showEditableProfileDialog(context);
                               }
@@ -212,14 +213,16 @@ Widget build(BuildContext context) {
                               }).toList() ?? [],
                             ),
                           ),
-                 SizedBox(height: screenHeight * 0.02),
-                Center(
-                  child: CategoryDropdown(
-                    inquiryType: 'compatibility',
-                    categoryTypeId: 2,
-                    onQuestionsFetched: (categoryId, questions) {
-                      // Handle the fetched questions here if needed
-                    },
+                SizedBox(height: screenHeight * 0.02),
+                                Center(
+                  child: _isLoading
+                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
+                    : CategoryDropdown(
+                       inquiryType: 'compatibility',
+                        categoryTypeId: 2,
+                        onQuestionsFetched: (categoryId, questions) {
+                          // Handle fetched questions
+                        },
                     editedProfile2: isEditing2 ? getEditedProfile2() : null,
                     editedProfile: isEditing ? getEditedProfile() : null,
                   ),
@@ -298,7 +301,7 @@ Widget _buildTextRow(String label, String value) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Enter details 1'),
+      title: Text('Enter details '),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

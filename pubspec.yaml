@@ -105,6 +105,8 @@ flutter:
    - assets/images/w1_tablet.png
    - assets/images/frame5_tablet.png
    - assets/images/overlay_tablet.png
+   - assets/images/Inbox.png
+
 
 
 fonts:
