@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/categorydropdown.dart';
 import 'package:flutter_application_1/components/custom_button.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_category_model.dart';
@@ -24,6 +25,7 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
   Map<String, List<Question>> questionsByCategoryId = {};
   int? selectedTypeId;
   String? selectedQuestionId;
+   bool _isLoading = true;
 
   Map<String, dynamic> profile = {
     "name": "Ramesh", // Default user details
@@ -143,32 +145,17 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
                     },
                     leftIcon: Icons.done,
                   ),
-               SizedBox(height: screenHeight * 0.05),
-          // Main body with category and questions list
-          Expanded(
-            child: ListView(
-              children: categoriesByType.entries.map((entry) {
-                int typeId = entry.key;
-                List<QuestionCategory> categories = entry.value;
-
-                return ExpansionTile(
-                  title: Text('Category Type ID: $typeId'),
-                  children: categories.map((category) {
-                    return ListTile(
-                      title: Text(category.category),
-                      onTap: () async {
-                        setState(() {
-                          selectedTypeId = typeId;
-                        });
-                        await _fetchQuestions(typeId);
-                        _showQuestions(context, category.id);
-                      },
-                    );
-                  }).toList(),
-                );
-              }).toList(),
-            ),
-          ),
+              SizedBox(height: screenHeight * 0.02),
+Center(
+  child: CategoryDropdown(
+    
+    inquiryType: 'ask_a_question',
+    categoryTypeId: 5,
+    onQuestionsFetched: (categoryId, questions) {
+      // Handle the fetched questions here
+    },
+  ),
+),
 
           // Custom button placed just after the content
           CustomButton(

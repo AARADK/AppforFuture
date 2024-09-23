@@ -15,7 +15,8 @@ class CategoryDropdown extends StatefulWidget {
     final Map<String, dynamic>? editedProfile2;
 
   final String inquiryType; // Add the inquiry type (e.g., horoscope, auspicious time)
-  final String? auspiciousFromDate; // Optional field for auspicious time inquiry
+  final String? auspiciousFromDate;
+  final String?  horoscopeFromDate;// Optional field for auspicious time inquiry
 
   const CategoryDropdown({
     required this.categoryTypeId,
@@ -23,7 +24,8 @@ class CategoryDropdown extends StatefulWidget {
     this.editedProfile,
     this.editedProfile2,
     required this.inquiryType, // Accept inquiry type
-    this.auspiciousFromDate, // Accept auspicious_from_date if needed
+    this.auspiciousFromDate,
+    this.horoscopeFromDate, // Accept auspicious_from_date if needed
 
     Key? key,
   }) : super(key: key);
@@ -246,19 +248,10 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
     );
   }
 
-  void _showQuestions(BuildContext context, String categoryId) {
+ void _showQuestions(BuildContext context, String categoryId) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-      final screenSize = MediaQuery.of(context).size;
-      final screenWidth = screenSize.width;
-      final screenHeight = screenSize.height;
-
-      final double fontSizeTitle = screenWidth * 0.05;
-      final double fontSizeSubtitle = screenWidth * 0.04;
-      final double padding = screenWidth * 0.03;
-      final double buttonFontSize = screenWidth * 0.04;
-
       return FutureBuilder<Map<String, List<Question>>>(
         future: _fetchQuestions(categoryId),
         builder: (context, snapshot) {
@@ -266,37 +259,44 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return AlertDialog(
-              title: Text('Error', style: TextStyle(fontSize: fontSizeTitle)),
-              content: Text('Error fetching questions: ${snapshot.error}', style: TextStyle(fontSize: fontSizeSubtitle)),
+              title: Text('Error'),
+              content: Text('Error fetching questions: ${snapshot.error}'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('OK', style: TextStyle(fontSize: buttonFontSize)),
+                  child: Text('OK'),
                 ),
               ],
               backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             );
           } else if (!snapshot.hasData || snapshot.data![categoryId] == null || snapshot.data![categoryId]!.isEmpty) {
             return AlertDialog(
-              title: Text('No questions available', style: TextStyle(fontSize: fontSizeTitle)),
+              title: Text('No questions available'),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('OK', style: TextStyle(fontSize: buttonFontSize)),
+                  child: Text('OK'),
                 ),
               ],
               backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             );
           } else {
             final questions = snapshot.data![categoryId]!;
             return AlertDialog(
-              title: Text('Select a Question', style: TextStyle(fontSize: fontSizeTitle)),
+              title: Text('Select a Question'),
               content: SizedBox(
-                width: screenWidth * 0.9,
+                width: 400, // Fixed width
+                height: 500, // Fixed height
                 child: StatefulBuilder(
                   builder: (BuildContext context, StateSetter setState) {
                     return Column(
@@ -307,59 +307,53 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                             shrinkWrap: true,
                             children: questions.map((question) {
                               final isSelected = selectedQuestionId == question.id;
-                             return Card(
-  elevation: 2,
-  margin: EdgeInsets.symmetric(vertical: padding / 2),
-  shape: RoundedRectangleBorder(
-    side: BorderSide(color: Color(0xFFFF9933), width: 1.0), // Border color and width
-    borderRadius: BorderRadius.circular(4.0), // Rounded corners
-  ),
-  color: isSelected ? Color(0xFFFF9933) : Colors.white, // Card background color
-  child: ListTile(
-    contentPadding: EdgeInsets.all(padding),
-    title: Row(
-      crossAxisAlignment: CrossAxisAlignment.start, // Align text at the top
-      children: [
-        Expanded(
-          child: Text(
-            question.question,
-            style: TextStyle(
-              fontSize: screenWidth * 0.03,
-              fontWeight: FontWeight.w300,
-            ),
-            overflow: TextOverflow.visible, // Allow text to be visible
-          ),
-        ),
-      ],
-    ),
-    subtitle: Row(
-      children: [
-        Text(
-          '\$${question.price.toStringAsFixed(2)}',
-          style: TextStyle(
-            fontSize: screenWidth * 0.03,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? Colors.white : Colors.green,
-          ),
-        ),
-        if (isSelected) // Show the tick icon only if selected
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Icon(Icons.check_circle, color: Colors.green, size: screenWidth * 0.05),
-          ),
-      ],
-    ),
-    tileColor: isSelected ? Color(0xFFFF9933) : null, // Color when selected
-    onTap: () {
-      setState(() {
-        selectedQuestionId = question.id;
-      });
-    },
-  ),
-);
-
-
-
+                              return Card(
+                                elevation: 2,
+                                margin: EdgeInsets.symmetric(vertical: 4),
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                color: isSelected ? Color(0xFFFF9933) : Colors.white,
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.all(8),
+                                  title: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          question.question,
+                                          style: TextStyle(
+                                            fontSize: 12, // Smaller font size
+                                            fontWeight: FontWeight.w300,
+                                          ),
+                                        ),
+                                      ),
+                                      // Price display
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            '\$${question.price.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 12, // Smaller font size
+                                              fontWeight: FontWeight.bold,
+                                              color: isSelected ? Colors.white : Colors.green,
+                                            ),
+                                          ),
+                                          if (isSelected)
+                                            Icon(Icons.check_circle, color: Colors.green, size: 16),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    setState(() {
+                                      selectedQuestionId = question.id;
+                                    });
+                                  },
+                                ),
+                              );
                             }).toList(),
                           ),
                         ),
@@ -368,17 +362,17 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                           children: [
                             TextButton(
                               onPressed: () {
-                                Navigator.of(context).pop(); // Close the dialog
+                                Navigator.of(context).pop();
                               },
-                              child: Text('Cancel', style: TextStyle(fontSize: buttonFontSize)),
+                              child: Text('Cancel'),
                             ),
-                            SizedBox(width: padding), // Space between buttons
+                            SizedBox(width: 8), // Space between buttons
                             ElevatedButton(
                               onPressed: () {
-                                Navigator.of(context).pop(); // Close the dialog
-                                _handleTickIconTap(); // Call the handle function
+                                Navigator.of(context).pop();
+                                _handleTickIconTap();
                               },
-                              child: Text('OK', style: TextStyle(fontSize: buttonFontSize)),
+                              child: Text('OK'),
                             ),
                           ],
                         ),
@@ -388,6 +382,9 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
                 ),
               ),
               backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             );
           }
         },
@@ -399,8 +396,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
 
 
 
-
-  @override
+ @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<int, List<QuestionCategory>>>(
       future: _categoriesFuture,
@@ -449,10 +445,8 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       },
     );
   }).toList(),
-)
-;
-
-        }
+);
+  }
       },
     );
   }

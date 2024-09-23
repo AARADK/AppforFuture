@@ -43,7 +43,8 @@ class _HoroscopePageState extends State<HoroscopePage> {
   String? _errorMessage;
   // Add a DateTime variable to store the selected date
   DateTime? _selectedDate;
-  DateTimeRange? selectedDateRange;
+    DateTime? _horoscopeSelectedDate;
+
   String? _editedName = ProfileRepo().getName();
 String? _editedDob = '';
 String? _editedCityId = '';
@@ -62,31 +63,42 @@ Color _iconColor = Colors.black; // Initial color
 
 
   
-
-  // Method to show DateRangePicker
-  Future<void> _selectDateRange(BuildContext context) async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      initialDateRange: selectedDateRange,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: Color(0xFFFF9933), // Customize the picker color
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != selectedDateRange) {
-      setState(() {
-        selectedDateRange = picked;
-      });
-    }
+ // Method to show DatePicker
+Future<void> _selectDate(BuildContext context) async {
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: _horoscopeSelectedDate ?? DateTime.now(),
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2100),
+    builder: (context, child) {
+      return Theme(
+        data: ThemeData.light().copyWith(
+          primaryColor: Color(0xFFFF9933), // Customize the picker color
+          buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+        ),
+        child: child!,
+      );
+    },
+  );
+  if (picked != null && picked != _horoscopeSelectedDate) {
+    setState(() {
+      _horoscopeSelectedDate = picked;
+    });
   }
-  
+}
+
+
+void _showDateSelectionMessage() {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Please select a date before proceeding.'),
+      backgroundColor: Colors.red,
+    ),
+  );
+}
+
+
+
   
  @override
   void initState() {
@@ -150,14 +162,9 @@ Widget build(BuildContext context) {
   final screenWidth = MediaQuery.of(context).size.width;
   
   
-
-  // Format selected date range to "YYYY-MM-DD"
-    final String formattedStartDate = selectedDateRange != null
-        ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.start)
-        : 'Start date';
-    final String formattedEndDate = selectedDateRange != null
-        ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.end)
-        : 'End date';
+final String formattedDate = _horoscopeSelectedDate != null
+    ? DateFormat('yyyy-MM-dd').format(_horoscopeSelectedDate!)
+    : 'Select Date';
 
   return WillPopScope(
     onWillPop: () async {
@@ -307,21 +314,6 @@ SizedBox(height: screenHeight * 0.04),
                   },
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                                Center(
-                  child: _isLoading
-                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
-                    : CategoryDropdown(
-                       inquiryType: 'Horoscope',
-                        categoryTypeId: 1,
-                        onQuestionsFetched: (categoryId, questions) {
-                          // Handle fetched questions
-                        },
-                        // Conditionally pass editedProfile based on isEditing flag
-                        editedProfile: isEditing ? getEditedProfile() : null,
-                    ),
-                ),
-
-                                SizedBox(height: screenHeight * 0.02),
 
                    // Add Date selector button
                   Center(
@@ -331,7 +323,7 @@ SizedBox(height: screenHeight * 0.04),
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(
-          'Select Date range',
+          'Select Date',
           style: TextStyle(
             color: Color(0xFFFF9933),
             fontSize: screenWidth * 0.04,
@@ -346,13 +338,13 @@ SizedBox(height: screenHeight * 0.04),
                    SizedBox(height: screenHeight * 0.01),
                           
                          // Display the selected date range
-Center(
+ Center(
   child: GestureDetector(
-    onTap: () => _selectDateRange(context),
+    onTap: () => _selectDate(context), // Call the DatePicker on tap
     child: Container(
       padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.008, // Reduced padding for a smaller container
-        horizontal: screenWidth * 0.04, // Reduced horizontal padding
+        vertical: screenHeight * 0.008,
+        horizontal: screenWidth * 0.04,
       ),
       decoration: BoxDecoration(
         border: Border.all(
@@ -361,16 +353,38 @@ Center(
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Text(
-        '$formattedStartDate to $formattedEndDate',
+        formattedDate, // Show the selected date
         style: TextStyle(
-          color:  Color(0xFFFF9933),
-          fontSize: screenWidth * 0.035, // Reduced font size
+          color: Color(0xFFFF9933),
+          fontSize: screenWidth * 0.035,
           fontFamily: 'Inter',
         ),
       ),
     ),
   ),
-)
+),
+
+                   SizedBox(height: screenHeight * 0.02),
+                   Center(
+                  child: _isLoading
+                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
+                    : CategoryDropdown(
+                      inquiryType: 'Horoscope',
+                        categoryTypeId: 1,
+                         horoscopeFromDate: _horoscopeSelectedDate != null
+                          ? formattedDate
+                          : 'Please select a date', // Fallback message for unselected date
+                        onQuestionsFetched: (categoryId, questions) {
+                          if (_horoscopeSelectedDate == null) {
+                            _showDateSelectionMessage();
+                          } else {
+                            // Handle fetched questions
+                          }
+                        },
+                        editedProfile: isEditing ? getEditedProfile() : null,
+                    ),
+                ),
+                 SizedBox(height: screenHeight * 0.02),
                 ],
               ),
             ),

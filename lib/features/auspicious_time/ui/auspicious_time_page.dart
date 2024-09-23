@@ -41,7 +41,9 @@ class _AuspiciousPageState extends State<AuspiciousTimePage> {
   String? _errorMessage;
   // Add a DateTime variable to store the selected date
   DateTime? _selectedDate;
-  DateTimeRange? selectedDateRange;
+  DateTime? _auspiciousSelectedDate;
+
+
   
    String? _editedName = ProfileRepo().getName();
 String? _editedDob = '';
@@ -57,35 +59,35 @@ Color _iconColor = Colors.black; // Initial color
     });
   }
 
-  // Method to show DateRangePicker
-  Future<void> _selectDateRange(BuildContext context) async {
-    final DateTimeRange? picked = await showDateRangePicker(
-      context: context,
-      initialDateRange: selectedDateRange,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            primaryColor: Color(0xFFFF9933), // Customize the picker color
-            buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != selectedDateRange) {
-      setState(() {
-        selectedDateRange = picked;
-      });
-    }
+  // Method to show DatePicker
+Future<void> _selectDate(BuildContext context) async {
+  final DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: _auspiciousSelectedDate ?? DateTime.now(),
+    firstDate: DateTime(2000),
+    lastDate: DateTime(2100),
+    builder: (context, child) {
+      return Theme(
+        data: ThemeData.light().copyWith(
+          primaryColor: Color(0xFFFF9933), // Customize the picker color
+          buttonTheme: ButtonThemeData(textTheme: ButtonTextTheme.primary),
+        ),
+        child: child!,
+      );
+    },
+  );
+  if (picked != null && picked != _auspiciousSelectedDate) {
+    setState(() {
+      _auspiciousSelectedDate = picked;
+    });
   }
+}
 
 
 void _showDateSelectionMessage() {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
-      content: Text('Please select a date range before proceeding.'),
+      content: Text('Please select a date before proceeding.'),
       backgroundColor: Colors.red,
     ),
   );
@@ -146,18 +148,15 @@ void _showDateSelectionMessage() {
 
 
  
-@override
+
 @override
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
 
-  final String formattedStartDate = selectedDateRange != null
-      ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.start)
-      : 'Start date';
-  final String formattedEndDate = selectedDateRange != null
-      ? DateFormat('yyyy-MM-dd').format(selectedDateRange!.end)
-      : 'End date';
+  final String formattedDate = _auspiciousSelectedDate != null
+    ? DateFormat('yyyy-MM-dd').format(_auspiciousSelectedDate!)
+    : 'Select Date';
 
   return WillPopScope(
     onWillPop: () async {
@@ -303,25 +302,6 @@ Widget build(BuildContext context) {
                     },
                   ),
                    SizedBox(height: screenHeight * 0.02),
-                   Center(
-                  child: _isLoading
-                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
-                    : CategoryDropdown(
-                      inquiryType: 'auspicious_time',
-                        categoryTypeId: 3,
-                         auspiciousFromDate: selectedDateRange != null
-                          ? formattedStartDate
-                          : 'Please select a date', // Fallback message for unselected date
-                        onQuestionsFetched: (categoryId, questions) {
-                          if (selectedDateRange == null) {
-                            _showDateSelectionMessage();
-                          } else {
-                            // Handle fetched questions
-                          }
-                        },
-                        editedProfile: isEditing ? getEditedProfile() : null,
-                    ),
-                ),
 
                   SizedBox(height: screenHeight * 0.02),
                   Center(
@@ -331,7 +311,7 @@ Widget build(BuildContext context) {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Text(
-                            'Select Date range',
+                            'Select Date ',
                             style: TextStyle(
                               color: Color(0xFFFF9933),
                               fontSize: screenWidth * 0.04,
@@ -345,30 +325,52 @@ Widget build(BuildContext context) {
                   ),
                   SizedBox(height: screenHeight * 0.01),
                   Center(
-                    child: GestureDetector(
-                      onTap: () => _selectDateRange(context),
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: screenHeight * 0.008,
-                          horizontal: screenWidth * 0.04,
-                        ),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color(0xFFFF9933),
-                          ),
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        child: Text(
-                          '$formattedStartDate to $formattedEndDate',
-                          style: TextStyle(
-                            color: Color(0xFFFF9933),
-                            fontSize: screenWidth * 0.035,
-                            fontFamily: 'Inter',
-                          ),
-                        ),
-                      ),
+  child: GestureDetector(
+    onTap: () => _selectDate(context), // Call the DatePicker on tap
+    child: Container(
+      padding: EdgeInsets.symmetric(
+        vertical: screenHeight * 0.008,
+        horizontal: screenWidth * 0.04,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Color(0xFFFF9933),
+        ),
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Text(
+        formattedDate, // Show the selected date
+        style: TextStyle(
+          color: Color(0xFFFF9933),
+          fontSize: screenWidth * 0.035,
+          fontFamily: 'Inter',
+        ),
+      ),
+    ),
+  ),
+),
+
+                   SizedBox(height: screenHeight * 0.02),
+                   Center(
+                  child: _isLoading
+                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
+                    : CategoryDropdown(
+                      inquiryType: 'auspicious_time',
+                        categoryTypeId: 3,
+                         auspiciousFromDate: _auspiciousSelectedDate != null
+                          ? formattedDate
+                          : 'Please select a date', // Fallback message for unselected date
+                        onQuestionsFetched: (categoryId, questions) {
+                          if (_auspiciousSelectedDate == null) {
+                            _showDateSelectionMessage();
+                          } else {
+                            // Handle fetched questions
+                          }
+                        },
+                        editedProfile: isEditing ? getEditedProfile() : null,
                     ),
-                  ),
+                ),
+                 SizedBox(height: screenHeight * 0.02),
                 ],
               ),
             ),
