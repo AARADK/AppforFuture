@@ -5,8 +5,9 @@ import 'package:flutter_application_1/features/offer/ui/offer_page.dart';
 
 class OfferWidget extends StatefulWidget {
   final Offer? offer; // Changed to nullable
+  final bool tappable; // Added parameter to control tap behavior
 
-  const OfferWidget({this.offer});
+  const OfferWidget({this.offer, this.tappable = true}); // Default to true
 
   @override
   _OfferWidgetState createState() => _OfferWidgetState();
@@ -70,101 +71,107 @@ class _OfferWidgetState extends State<OfferWidget> {
       );
     }
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => OfferPage(offer: widget.offer!)),
-        );
-      },
-      child: Container(
-        margin: EdgeInsets.all(screenWidth * 0.02), // Responsive margin
-        padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(screenWidth * 0.02), // Responsive border radius
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Color(0xFFFF9933).withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with name and price
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    widget.offer?.name ?? 'No Name Available',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.04, // Responsive font size
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis, // Handle overflow
-                  ),
-                ),
-                Text(
-                  '\$${widget.offer?.price?.toStringAsFixed(2) ?? '0.00'}',
+    return widget.tappable // Check if the widget is tappable
+        ? GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OfferPage(offer: widget.offer!)),
+              );
+            },
+            child: _buildOfferContainer(screenWidth, screenHeight),
+          )
+        : _buildOfferContainer(screenWidth, screenHeight); // Render the container directly when not tappable
+  }
+
+  Widget _buildOfferContainer(double screenWidth, double screenHeight) {
+    return Container(
+      margin: EdgeInsets.all(screenWidth * 0.02), // Responsive margin
+      padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(screenWidth * 0.02), // Responsive border radius
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0xFFFF9933).withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with name and price
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.offer?.name ?? 'No Name Available',
                   style: TextStyle(
-                    fontSize: screenWidth * 0.05, // Responsive font size
-                    color: Colors.green,
+                    fontSize: screenWidth * 0.04, // Responsive font size
+                    fontWeight: FontWeight.bold,
                   ),
+                  overflow: TextOverflow.ellipsis, // Handle overflow
                 ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.01), // Responsive spacing
-            // Image container
-            widget.offer?.imageData != null
-                ? Image.memory(
-                    widget.offer!.imageData!,
-                    width: screenWidth * 0.9, // Full width
-                    height: screenHeight * 0.14, // Responsive height
-                    fit: BoxFit.cover,
-                  )
-                : Placeholder(
-                    fallbackHeight: screenHeight * 0.14, // Responsive height
-                    fallbackWidth: screenWidth * 0.9, // Full width
-                  ),
-            SizedBox(height: screenHeight * 0.01), // Responsive spacing
-            // Side-by-side counts
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    'Horoscope Questions: ${widget.offer?.horoscopeQuestionCount ?? 0}',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.03, // Responsive font size
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    'Compatibility Questions: ${widget.offer?.compatibilityQuestionCount ?? 0}',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.03, // Responsive font size
-                    ),
-                    textAlign: TextAlign.right, // Align text to the right
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: screenHeight * 0.01), // Responsive spacing
-            // Auspicious Question
-            Text(
-              'Auspicious Question: ${_auspiciousQuestion ?? 'Loading...'}',
-              style: TextStyle(
-                fontSize: screenWidth * 0.03, // Responsive font size
               ),
-              overflow: TextOverflow.ellipsis, // Handle overflow
+              Text(
+                '\$${widget.offer?.price?.toStringAsFixed(2) ?? '0.00'}',
+                style: TextStyle(
+                  fontSize: screenWidth * 0.05, // Responsive font size
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: screenHeight * 0.01), // Responsive spacing
+          // Image container
+          widget.offer?.imageData != null
+              ? Image.memory(
+                  widget.offer!.imageData!,
+                  width: screenWidth * 0.9, // Full width
+                  height: screenHeight * 0.14, // Responsive height
+                  fit: BoxFit.cover,
+                )
+              : Placeholder(
+                  fallbackHeight: screenHeight * 0.14, // Responsive height
+                  fallbackWidth: screenWidth * 0.9, // Full width
+                ),
+          SizedBox(height: screenHeight * 0.01), // Responsive spacing
+          // Side-by-side counts
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Horoscope Questions: ${widget.offer?.horoscopeQuestionCount ?? 0}',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.03, // Responsive font size
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  'Compatibility Questions: ${widget.offer?.compatibilityQuestionCount ?? 0}',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.03, // Responsive font size
+                  ),
+                  textAlign: TextAlign.right, // Align text to the right
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: screenHeight * 0.01), // Responsive spacing
+          // Auspicious Question
+          Text(
+            'Auspicious Question: ${_auspiciousQuestion ?? 'Loading...'}',
+            style: TextStyle(
+              fontSize: screenWidth * 0.03, // Responsive font size
             ),
-          ],
-        ),
+            overflow: TextOverflow.ellipsis, // Handle overflow
+          ),
+        ],
       ),
     );
   }

@@ -51,6 +51,7 @@ class _DashboardState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+     bool isTablet = MediaQuery.of(context).size.width > 600;
     final size = MediaQuery.of(context).size;
     final double iconSize = size.width * 0.12;
     final double circleSize = size.width * 0.22;
@@ -101,7 +102,7 @@ class _DashboardState extends State<DashboardPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    height: size.height * 0.31, // 31% of screen height
+                                    height:isTablet ? size.height * 0.38 : size.height * 0.31, // 31% of screen height
                                     child: PageView.builder(
                                       itemCount: offers.length,
                                       itemBuilder: (context, index) {

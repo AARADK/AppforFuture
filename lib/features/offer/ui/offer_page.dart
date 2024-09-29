@@ -60,7 +60,7 @@ class _OfferPageState extends State<OfferPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            OfferWidget(offer: widget.offer),
+            OfferWidget(offer: widget.offer,tappable: false,),
             SizedBox(height: 8),
             Text(
               widget.offer.description ?? 'No Description Available',
