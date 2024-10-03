@@ -4,8 +4,8 @@ import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart'; // Ensure Hive is set up for secure storage
 
 class AskQuestionRepository {
-  final String categoryUrl = 'https://52.66.24.172:7001/frontend/GuestQuestion/GetQuestionCategory'; // Replace with your actual base URL
-  final String questionUrl = 'http://52.66.24.172:7001/frontend/GuestQuestion/GetQuestion';
+  final String categoryUrl = 'https://45.117.153.217:3001/frontend/GuestQuestion/GetQuestionCategory'; // Replace with your actual base URL
+  final String questionUrl = 'http://45.117.153.217:3001/frontend/GuestQuestion/GetQuestion';
 
   
 

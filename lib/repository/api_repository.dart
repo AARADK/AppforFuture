@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 
 class ApiRepository {
-  final String baseUrl = 'http://52.66.24.172:7001.com'; // Your API base URL
+  final String baseUrl = 'http://45.117.153.217:3001.com'; // Your API base URL
 
   Future<List<Category>> fetchCategories(int typeId) async {
     try {

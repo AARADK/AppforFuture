@@ -95,7 +95,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
     try {
       final box = Hive.box('settings');
       String? token = await box.get('token');
-      final url = 'http://52.66.24.172:7001/frontend/Guests/Get';
+      final url = 'http://45.117.153.217:3001/frontend/Guests/Get';
 
       final response = await http.get(
         Uri.parse(url),
@@ -129,7 +129,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
   try {
     final box = Hive.box('settings');
     String? token = await box.get('token');
-    final url = 'http://52.66.24.172:7001/frontend/GuestInquiry/StartInquiryProcess';
+    final url = 'http://45.117.153.217:3001/frontend/GuestInquiry/StartInquiryProcess';
     final profile = widget.editedProfile ?? await _profileFuture;
     
     if (profile == null) {

@@ -11,7 +11,7 @@ Future<List<dynamic>> _fetchInquiries() async {
       throw Exception('Token is not available');
     }
 
-    final url = 'http://52.66.24.172:7001/frontend/GuestInquiry/MyInquiries'; // Replace with actual URL
+    final url = 'http://45.117.153.217:3001/frontend/GuestInquiry/MyInquiries'; // Replace with actual URL
 
     final response = await http.get(
       Uri.parse(url),

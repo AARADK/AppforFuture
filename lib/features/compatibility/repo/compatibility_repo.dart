@@ -10,7 +10,7 @@ class CompatibilityRepository {
       final box = Hive.box('settings');
       String? token = await box.get('token'); // Retrieve the token from Hive storage
 
-      final url = 'http://52.66.24.172:7001/frontend/Guests/GetDashboardData?date=$date';
+      final url = 'http://45.117.153.217:3001/frontend/Guests/GetDashboardData?date=$date';
       
       final response = await http.get(
         Uri.parse(url),

@@ -4,8 +4,8 @@ import 'package:hive/hive.dart';
 import 'package:flutter_application_1/features/offer/model/offer_model.dart';
 
 class OfferRepository {
-  final String offerApiUrl = "http://52.66.24.172:7001/frontend/GuestBundle/Get?sort_by=price";
-  final String questionApiUrl = "http://52.66.24.172:7001/frontend/GuestQuestion/GetQuestion?type_id=3";
+  final String offerApiUrl = "http://45.117.153.217:3001/frontend/GuestBundle/Get?sort_by=price";
+  final String questionApiUrl = "http://45.117.153.217:3001/frontend/GuestQuestion/GetQuestion?type_id=3";
 
   Future<String?> _getToken() async {
     final box = Hive.box('settings');

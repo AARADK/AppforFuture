@@ -3,7 +3,7 @@ import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:http/http.dart' as http;
 
 class UpdateProfileService {
-  final String apiUrl = 'http://52.66.24.172:7001/frontend/Guests/UpdateProfile';
+  final String apiUrl = 'http://45.117.153.217:3001/frontend/Guests/UpdateProfile';
 
   Future<bool> updateProfile(String name, String cityId, String dob, String tob) async {
     try {
