@@ -1,9 +1,12 @@
 import 'package:flutter_application_1/features/horoscope/model/horoscope_model.dart';
+import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:hive/hive.dart'; // Make sure you have hive dependency for secure storage
+import 'package:hive/hive.dart';
 
 class HoroscopeRepository {
+  final HiveService hiveService = HiveService(); // Create an instance of HiveService
+
   // Function to fetch horoscope data from the API
   Future<Horoscope> fetchHoroscopeData(String date) async {
     try {
@@ -11,9 +14,8 @@ class HoroscopeRepository {
       String? token = await box.get('token'); // Retrieve the token from Hive storage
 
       // final url = 'http://45.117.153.217:3001/frontend/Guests/GetDashboardData?date=$date';
-      final url = 'http://45.117.153.217:3001/frontend/Guests/GetDashboardData?date=2024-08-30';
+      final url = 'http://45.117.153.217:3001/frontend/Guests/GetDashboardData?date=2024-10-06';
 
-      
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -23,7 +25,12 @@ class HoroscopeRepository {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body)['data']['horoscope'];
-        return Horoscope.fromJson(data);
+        final horoscope = Horoscope.fromJson(data);
+
+        // Save horoscope data in Hive
+        await hiveService.saveHoroscopeData(horoscope); // Save the horoscope data
+
+        return horoscope;
       } else {
         throw Exception('Failed to load horoscope data');
       }

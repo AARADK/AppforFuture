@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
-import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
+// import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
 import 'package:flutter_application_1/features/dashboard/model/dashboard_model.dart';
 import 'package:flutter_application_1/features/dashboard/service/dashboard_service.dart';
 import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart';
-import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
+// import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 import 'package:flutter_application_1/features/menu/ui/menu_page.dart';
 import 'package:flutter_application_1/features/offer/model/offer_model.dart';
 import 'package:flutter_application_1/features/offer/service/offer_service.dart';
 import 'package:flutter_application_1/features/offer/ui/alloffers.dart';
 import 'package:flutter_application_1/features/offer/ui/offer_widget.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -23,10 +25,18 @@ class _DashboardState extends State<DashboardPage> {
   bool _isMenuOpen = false;
   late Future<DashboardData> _dashboardDataFuture;
   late Future<List<Offer>> _offersFuture;
+  bool _isConnected = true; // Track connection status
+  final Connectivity _connectivity = Connectivity(); // Connectivity instance
 
   @override
   void initState() {
     super.initState();
+    _checkInternetConnection(); // Check the initial connection status
+
+    // Listen for network changes
+    _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
+      _checkInternetConnection();
+    });
 
     // Get the current date
     final today = DateTime.now();
@@ -35,6 +45,16 @@ class _DashboardState extends State<DashboardPage> {
     // Fetch dashboard data for the current date
     _dashboardDataFuture = DashboardService().getDashboardData(formattedDate);
     _offersFuture = OfferService().getTopOffers(); // Fetch offers data
+  }
+
+  // Method to check the internet connection
+  Future<void> _checkInternetConnection() async {
+    var connectivityResult = await _connectivity.checkConnectivity();
+    bool isConnected = connectivityResult != ConnectivityResult.none;
+
+    setState(() {
+      _isConnected = isConnected;
+    });
   }
 
   void _openMenu() {
@@ -51,9 +71,8 @@ class _DashboardState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-     bool isTablet = MediaQuery.of(context).size.width > 600;
+    bool isTablet = MediaQuery.of(context).size.width > 600;
     final size = MediaQuery.of(context).size;
-    final double iconSize = size.width * 0.12;
     final double circleSize = size.width * 0.22;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -87,111 +106,169 @@ class _DashboardState extends State<DashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        
                         SizedBox(height: 16),
+                        // Offers Section
                         FutureBuilder<List<Offer>>(
-                          future: _offersFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            } else if (snapshot.hasData) {
-                              final offers = snapshot.data!;
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height:isTablet ? size.height * 0.38 : size.height * 0.31, // 31% of screen height
-                                    child: PageView.builder(
-                                      itemCount: offers.length,
-                                      itemBuilder: (context, index) {
-                                        final offer = offers[index];
-                                        return OfferWidget(offer: offer);
-                                      },
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) => AllOffersPage()),
-                                        );
-                                      },
-                                      child: Text(
-                                        'See More...',
-                                        style: TextStyle(
-                                          fontSize: size.width * 0.04,
-                                          fontFamily: 'Inter',
-                                          color: Color(0xFFFF9933),
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            } else {
-                              return Center(child: Text('No offers available'));
-                            }
-                          },
-                        ),
+  future: _offersFuture,
+  builder: (context, snapshot) {
+    if (!_isConnected) {
+      // Show this if no internet connection
+      return _noInternetContainer(size, isTablet);
+    } else if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      // Catch error and display a user-friendly message
+      return Center(
+        child: Text(
+          'Something went wrong while fetching offers. Please try again later.',
+          style: TextStyle(
+            fontSize: size.width * 0.04,
+            fontFamily: 'Inter',
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+      final offers = snapshot.data!;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: isTablet ? size.height * 0.38 : size.height * 0.31,
+            child: PageView.builder(
+              itemCount: offers.length,
+              itemBuilder: (context, index) {
+                final offer = offers[index];
+                return OfferWidget(offer: offer);
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AllOffersPage()),
+                );
+              },
+              child: Text(
+                'See More...',
+                style: TextStyle(
+                  fontSize: size.width * 0.04,
+                  fontFamily: 'Inter',
+                  color: Color(0xFFFF9933),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Container(
+        height: isTablet ? size.height * 0.38 : size.height * 0.31,
+        alignment: Alignment.center,
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Color(0xFFFF9933),
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'No bundles available at the moment',
+            style: TextStyle(
+              fontSize: size.width * 0.03,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFF9933),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+  },
+),
+
+
                         SizedBox(height: size.height * 0.01),
-                        FutureBuilder<DashboardData>(
-                          future: _dashboardDataFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return Center(child: CircularProgressIndicator());
-                            } else if (snapshot.hasError) {
-                              return Center(child: Text('Data is being generated, please wait...'));
-                            } else if (snapshot.hasData) {
-                              final data = snapshot.data!;
-                              return Container(
-                                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    _buildCircleSection(
-                                      context,
-                                      title: 'Horoscope',
-                                      imageUrl: 'assets/images/horoscope2.png',
-                                      imageWidth: circleSize * 0.67,
-                                      imageHeight: circleSize * 0.75,
-                                      page: HoroscopePage(),
-                                      description: data.horoscope.description,
-                                     
-                                    ),
-                                      SizedBox(height: size.height * 0.03),
-                                    _buildCircleSection(
-                                      context,
-                                      title: 'Compatibility',
-                                      imageUrl: 'assets/images/compatibility2.png',
-                                      imageWidth: circleSize * 0.67,
-                                      imageHeight: circleSize * 0.55,
-                                      page: CompatibilityPage(),
-                                      compatibility: data.compatibility,
-                                    ),
-                                     SizedBox(height: size.height * 0.03),
-                                    _buildCircleSection(
-                                      context,
-                                      title: 'Auspicious Time',
-                                      imageUrl: 'assets/images/auspicious2.png',
-                                      imageWidth: circleSize * 0.67,
-                                      imageHeight: circleSize * 0.75,
-                                      page: AuspiciousTimePage(),
-                                      description: data.auspicious.description,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            } else {
-                              return Center(child: Text('Data is being generated, please wait...'));
-                            }
-                          },
-                        ),
-                          SizedBox(height: size.height * 0.03),
+
+                        // Dashboard Data Section
+                       FutureBuilder<DashboardData>(
+  future: _dashboardDataFuture,
+  builder: (context, snapshot) {
+    if (!_isConnected) {
+      // Show this if no internet connection
+      return _noInternetDashboard(size);
+    } else if (snapshot.connectionState == ConnectionState.waiting) {
+      return Center(child: CircularProgressIndicator());
+    } else if (snapshot.hasError) {
+      // Catch error and display a user-friendly message
+      return Center(
+        child: Text(
+          'No data available at the moment..',
+          style: TextStyle(
+            fontSize: size.width * 0.04,
+            fontFamily: 'Inter',
+            color: Colors.red,
+            fontWeight: FontWeight.w300,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
+    } else if (snapshot.hasData) {
+      final data = snapshot.data!;
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildCircleSection(
+              context,
+              title: 'Horoscope',
+              imageUrl: 'assets/images/horoscope2.png',
+              imageWidth: circleSize * 0.67,
+              imageHeight: circleSize * 0.75,
+              page: HoroscopePage(),
+              description: data.horoscope.description,
+            ),
+            SizedBox(height: size.height * 0.03),
+            _buildCircleSection(
+              context,
+              title: 'Compatibility',
+              imageUrl: 'assets/images/compatibility2.png',
+              imageWidth: circleSize * 0.67,
+              imageHeight: circleSize * 0.55,
+              page: CompatibilityPage(),
+              compatibility: data.compatibility,
+            ),
+            SizedBox(height: size.height * 0.03),
+            _buildCircleSection(
+              context,
+              title: 'Auspicious Time',
+              imageUrl: 'assets/images/auspicious2.png',
+              imageWidth: circleSize * 0.67,
+              imageHeight: circleSize * 0.75,
+              page: AuspiciousTimePage(),
+              description: data.auspicious.description,
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Center(child: Text('No data available at the moment.'));
+    }
+  },
+),
+
+                        SizedBox(height: size.height * 0.03),
                       ],
                     ),
                   ),
@@ -211,6 +288,64 @@ class _DashboardState extends State<DashboardPage> {
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
     );
   }
+
+  // Widget for no internet connection in offers section
+  Widget _noInternetContainer(Size size, bool isTablet) {
+    return Container(
+      height: isTablet ? size.height * 0.38 : size.height * 0.31,
+      alignment: Alignment.center,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Color(0xFFFF9933),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'No internet connection',
+          style: TextStyle(
+            fontSize: size.width * 0.03,
+            fontFamily: 'Inter',
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFFF9933),
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
+  // Widget for no internet connection in dashboard section
+  Widget _noInternetDashboard(Size size) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Icon(
+            Icons.wifi_off,
+            size: 50,
+            color: Colors.red,
+          ),
+          SizedBox(height: 10),
+          Text(
+            'No internet connection. Please check your connection.',
+            style: TextStyle(
+              fontSize: size.width * 0.04,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.bold,
+              color: Colors.red,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
 
   Widget _buildCircleSection(
   BuildContext context, {

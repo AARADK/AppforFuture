@@ -1,3 +1,4 @@
+import 'package:flutter_application_1/features/horoscope/model/horoscope_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class HiveService {
@@ -95,4 +96,26 @@ class HiveService {
     var box = Hive.box(_boxName);
     await box.delete('inquiry_numbers');
   }
+ // Save Horoscope data
+  Future<void> saveHoroscopeData(Horoscope horoscope) async {
+    var box = Hive.box(_boxName);
+    await box.put('horoscope', horoscope.toJson()); // Assuming Horoscope has a toJson() method
+  }
+
+  // Retrieve Horoscope data
+  Future<Horoscope?> getHoroscopeData() async {
+    var box = Hive.box(_boxName);
+    final jsonData = box.get('horoscope');
+    if (jsonData != null) {
+      return Horoscope.fromJson(jsonData); // Assuming Horoscope has a fromJson() method
+    }
+    return null; // Return null if no data found
+  }
+
+  // Clear Horoscope data
+  Future<void> clearHoroscopeData() async {
+    var box = Hive.box(_boxName);
+    await box.delete('horoscope');
+  }
+  
 }

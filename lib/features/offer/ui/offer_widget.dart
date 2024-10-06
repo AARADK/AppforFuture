@@ -4,8 +4,8 @@ import 'package:flutter_application_1/features/offer/repo/offer_repo.dart';
 import 'package:flutter_application_1/features/offer/ui/offer_page.dart';
 
 class OfferWidget extends StatefulWidget {
-  final Offer? offer; // Changed to nullable
-  final bool tappable; // Added parameter to control tap behavior
+  final Offer? offer; // Nullable offer
+  final bool tappable; // Control tap behavior
 
   const OfferWidget({this.offer, this.tappable = true}); // Default to true
 
@@ -44,34 +44,10 @@ class _OfferWidgetState extends State<OfferWidget> {
     final screenHeight = MediaQuery.of(context).size.height;
 
     if (widget.offer == null) {
-      return Container(
-        margin: EdgeInsets.all(screenWidth * 0.02), // Responsive margin
-        padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(screenWidth * 0.02), // Responsive border radius
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Color(0xFFFF9933).withOpacity(0.5),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
-        child: Center(
-          child: Text(
-            'Bundle Not Available',
-            style: TextStyle(
-              fontSize: screenWidth * 0.05, // Responsive font size
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
-            ),
-          ),
-        ),
-      );
+      return _buildNoBundleContainer(screenWidth, screenHeight);
     }
 
-    return widget.tappable // Check if the widget is tappable
+    return widget.tappable
         ? GestureDetector(
             onTap: () {
               Navigator.push(
@@ -81,23 +57,45 @@ class _OfferWidgetState extends State<OfferWidget> {
             },
             child: _buildOfferContainer(screenWidth, screenHeight),
           )
-        : _buildOfferContainer(screenWidth, screenHeight); // Render the container directly when not tappable
+        : _buildOfferContainer(screenWidth, screenHeight);
+  }
+
+  Widget _buildNoBundleContainer(double screenWidth, double screenHeight) {
+    return Container(
+      margin: EdgeInsets.all(screenWidth * 0.02),
+      padding: EdgeInsets.all(screenWidth * 0.04),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(screenWidth * 0.02),
+        border: Border.all(
+          color: Color(0xFFFF9933), // Orange border
+          width: 2.0, // Set border width
+        ),
+        color: Colors.white,
+      ),
+      child: Center(
+        child: Text(
+          'No bundles available at the moment',
+          style: TextStyle(
+            fontSize: screenWidth * 0.05, // Responsive font size
+            fontWeight: FontWeight.bold,
+            color: Colors.red,
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildOfferContainer(double screenWidth, double screenHeight) {
     return Container(
-      margin: EdgeInsets.all(screenWidth * 0.02), // Responsive margin
-      padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
+      margin: EdgeInsets.all(screenWidth * 0.02),
+      padding: EdgeInsets.all(screenWidth * 0.04),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(screenWidth * 0.02), // Responsive border radius
+        borderRadius: BorderRadius.circular(screenWidth * 0.02),
+        border: Border.all(
+          color: Color(0xFFFF9933), // Orange border
+          width: 2.0, // Set border width
+        ),
         color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0xFFFF9933).withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,35 +108,35 @@ class _OfferWidgetState extends State<OfferWidget> {
                 child: Text(
                   widget.offer?.name ?? 'No Name Available',
                   style: TextStyle(
-                    fontSize: screenWidth * 0.04, // Responsive font size
+                    fontSize: screenWidth * 0.04,
                     fontWeight: FontWeight.bold,
                   ),
-                  overflow: TextOverflow.ellipsis, // Handle overflow
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Text(
                 '\$${widget.offer?.price?.toStringAsFixed(2) ?? '0.00'}',
                 style: TextStyle(
-                  fontSize: screenWidth * 0.05, // Responsive font size
+                  fontSize: screenWidth * 0.05,
                   color: Colors.green,
                 ),
               ),
             ],
           ),
-          SizedBox(height: screenHeight * 0.01), // Responsive spacing
+          SizedBox(height: screenHeight * 0.01),
           // Image container
           widget.offer?.imageData != null
               ? Image.memory(
                   widget.offer!.imageData!,
-                  width: screenWidth * 0.9, // Full width
-                  height: screenHeight * 0.14, // Responsive height
+                  width: screenWidth * 0.9,
+                  height: screenHeight * 0.14,
                   fit: BoxFit.cover,
                 )
               : Placeholder(
-                  fallbackHeight: screenHeight * 0.14, // Responsive height
-                  fallbackWidth: screenWidth * 0.9, // Full width
+                  fallbackHeight: screenHeight * 0.14,
+                  fallbackWidth: screenWidth * 0.9,
                 ),
-          SizedBox(height: screenHeight * 0.01), // Responsive spacing
+          SizedBox(height: screenHeight * 0.01),
           // Side-by-side counts
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,7 +145,7 @@ class _OfferWidgetState extends State<OfferWidget> {
                 child: Text(
                   'Horoscope Questions: ${widget.offer?.horoscopeQuestionCount ?? 0}',
                   style: TextStyle(
-                    fontSize: screenWidth * 0.03, // Responsive font size
+                    fontSize: screenWidth * 0.03,
                   ),
                 ),
               ),
@@ -155,21 +153,21 @@ class _OfferWidgetState extends State<OfferWidget> {
                 child: Text(
                   'Compatibility Questions: ${widget.offer?.compatibilityQuestionCount ?? 0}',
                   style: TextStyle(
-                    fontSize: screenWidth * 0.03, // Responsive font size
+                    fontSize: screenWidth * 0.03,
                   ),
-                  textAlign: TextAlign.right, // Align text to the right
+                  textAlign: TextAlign.right,
                 ),
               ),
             ],
           ),
-          SizedBox(height: screenHeight * 0.01), // Responsive spacing
+          SizedBox(height: screenHeight * 0.01),
           // Auspicious Question
           Text(
             'Auspicious Question: ${_auspiciousQuestion ?? 'Loading...'}',
             style: TextStyle(
-              fontSize: screenWidth * 0.03, // Responsive font size
+              fontSize: screenWidth * 0.03,
             ),
-            overflow: TextOverflow.ellipsis, // Handle overflow
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
