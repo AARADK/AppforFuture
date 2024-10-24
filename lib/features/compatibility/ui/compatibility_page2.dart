@@ -35,7 +35,7 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
   String? _person2Name = 'Person 2'; // Variable to store Person 2's name
   late Future<List<Question>> _questionsFuture; // Future for Horoscope questions
   final AskQuestionRepository _askQuestionRepository = AskQuestionRepository(); // Instantiate the repository
-   String? _editedName = '';
+   String? _editedName = ProfileRepo().getName();
 String? _editedDob = '';
 String? _editedCityId = '';
 String? _editedTob = '';
@@ -141,7 +141,7 @@ Widget build(BuildContext context) {
                       children: [
                         CircleWithNameWidget(
                           assetPath: 'assets/images/virgo.png',
-                          name: _profile?.name ?? 'no name available',
+                          name: _editedName?? _profile?.name ?? 'no name available',
                           screenWidth: screenWidth,
                           onTap: () {
                             if (_profile?.name != null) {
@@ -190,7 +190,7 @@ Widget build(BuildContext context) {
                               onPressed: () {
                                 _updateIconColor();
                                 if (_profile != null) {
-                                  _showEditableProfileDialog(context);
+                                  _showEditableProfileDialog2(context);
                                 }
                               },
                             ),
@@ -413,6 +413,8 @@ Widget _buildTextField(String label, TextEditingController controller) {
         TextButton(
           onPressed: () {
              isEditing2 = true;
+            
+
 
             setState(() {
               // Store the data entered in the dialog to the variables
@@ -421,7 +423,7 @@ Widget _buildTextField(String label, TextEditingController controller) {
               _editedCityId2 = cityId2Controller.text;
               _editedTob2 = tob2Controller.text;
             });
-
+                _person2Name = _editedName2 ;
 
             // Print the edited details
               print('Edited Name: $_editedName2');
