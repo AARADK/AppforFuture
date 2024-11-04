@@ -69,14 +69,11 @@ class PaymentPage extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
-                        );
-                      },
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
                       child: Text(
-                        'Done',
+                        'Back',
                         style: TextStyle(
                           fontSize: screenWidth * 0.06,
                           fontWeight: FontWeight.normal,
