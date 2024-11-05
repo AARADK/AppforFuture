@@ -80,6 +80,7 @@ flutter:
   assets:
    - assets/images/orange_wheel.png  
    - assets/images/logo.png
+   - assets/images/logonaya.png
    - assets/images/Next.png
    - assets/images/horoscope2.png
    - assets/images/compatibility2.png

@@ -27,6 +27,7 @@ class _DashboardState extends State<DashboardPage> {
   late Future<List<Offer>> _offersFuture;
   bool _isConnected = true; // Track connection status
   final Connectivity _connectivity = Connectivity(); // Connectivity instance
+  bool _showOffers = false; // Toggle this to switch between offers and image.
 
   @override
   void initState() {
@@ -70,132 +71,145 @@ class _DashboardState extends State<DashboardPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    bool isTablet = MediaQuery.of(context).size.width > 600;
-    final size = MediaQuery.of(context).size;
-    final double circleSize = size.width * 0.22;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+Widget build(BuildContext context) {
+  bool isTablet = MediaQuery.of(context).size.width > 600;
+  final size = MediaQuery.of(context).size;
+  final double circleSize = size.width * 0.22;
+  final screenHeight = MediaQuery.of(context).size.height;
+  final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          GestureDetector(
-            onTap: () {
-              if (_isMenuOpen) {
-                _closeMenu();
-              }
-            },
-            onHorizontalDragUpdate: (details) {
-              if (details.delta.dx < -6 && _isMenuOpen) {
-                _closeMenu();
-              } else if (details.delta.dx > 6 && !_isMenuOpen) {
-                _openMenu();
-              }
-            },
-            child: Column(
-              children: [
-                TopNavBar(
-                  title: 'myFutureTime',
-                  leftIcon: Icons.menu,
-                  onLeftButtonPressed: _openMenu,
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 16),
-                        // Offers Section
-                        FutureBuilder<List<Offer>>(
-  future: _offersFuture,
-  builder: (context, snapshot) {
-    if (!_isConnected) {
-      // Show this if no internet connection
-      return _noInternetContainer(size, isTablet);
-    } else if (snapshot.connectionState == ConnectionState.waiting) {
-      return Center(child: CircularProgressIndicator());
-    } else if (snapshot.hasError) {
-      // Catch error and display a user-friendly message
-      return Center(
-        child: Text(
-          'Something went wrong while fetching offers. Please try again later.',
-          style: TextStyle(
-            fontSize: size.width * 0.04,
-            fontFamily: 'Inter',
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      );
-    } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-      final offers = snapshot.data!;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: isTablet ? size.height * 0.38 : size.height * 0.31,
-            child: PageView.builder(
-              itemCount: offers.length,
-              itemBuilder: (context, index) {
-                final offer = offers[index];
-                return OfferWidget(offer: offer);
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AllOffersPage()),
-                );
-              },
-              child: Text(
-                'See More...',
-                style: TextStyle(
-                  fontSize: size.width * 0.04,
-                  fontFamily: 'Inter',
-                  color: Color(0xFFFF9933),
-                  fontWeight: FontWeight.bold,
-                ),
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Stack(
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (_isMenuOpen) {
+              _closeMenu();
+            }
+          },
+          onHorizontalDragUpdate: (details) {
+            if (details.delta.dx < -6 && _isMenuOpen) {
+              _closeMenu();
+            } else if (details.delta.dx > 6 && !_isMenuOpen) {
+              _openMenu();
+            }
+          },
+          child: Column(
+            children: [
+              TopNavBar(
+                title: 'myFutureTime',
+                leftIcon: Icons.menu,
+                onLeftButtonPressed: _openMenu,
               ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return Container(
-        height: isTablet ? size.height * 0.38 : size.height * 0.31,
-        alignment: Alignment.center,
-        margin: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Color(0xFFFF9933),
-            width: 2,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'No bundles available at the moment',
-            style: TextStyle(
-              fontSize: size.width * 0.03,
-              fontFamily: 'Inter',
-              fontWeight: FontWeight.bold,
-              color: Color(0xFFFF9933),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      );
-    }
-  },
-),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 16),
+                      
+                      // Offers Section or Placeholder Image
+                      _showOffers
+                          ? FutureBuilder<List<Offer>>(
+                              future: _offersFuture,
+                              builder: (context, snapshot) {
+                                if (!_isConnected) {
+                                  return _noInternetContainer(size, isTablet);
+                                } else if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Center(child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text(
+                                      'Something went wrong while fetching offers. Please try again later.',
+                                      style: TextStyle(
+                                        fontSize: size.width * 0.04,
+                                        fontFamily: 'Inter',
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  );
+                                } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                  final offers = snapshot.data!;
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        height: isTablet ? size.height * 0.38 : size.height * 0.31,
+                                        child: PageView.builder(
+                                          itemCount: offers.length,
+                                          itemBuilder: (context, index) {
+                                            final offer = offers[index];
+                                            return OfferWidget(offer: offer);
+                                          },
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => AllOffersPage()),
+                                            );
+                                          },
+                                          child: Text(
+                                            'See More...',
+                                            style: TextStyle(
+                                              fontSize: size.width * 0.04,
+                                              fontFamily: 'Inter',
+                                              color: Color(0xFFFF9933),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Container(
+                                    height: isTablet ? size.height * 0.38 : size.height * 0.31,
+                                    alignment: Alignment.center,
+                                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Color(0xFFFF9933),
+                                        width: 2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Text(
+                                        'No bundles available at the moment',
+                                        style: TextStyle(
+                                          fontSize: size.width * 0.03,
+                                          fontFamily: 'Inter',
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFFFF9933),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            )
+                           : Center(
+                              child: Container(
+                                height: isTablet ? size.height * 0.38 : size.height * 0.25,
+                                width: isTablet ? size.height * 0.38 : size.height * 0.25,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  image: const DecorationImage(
+                                    image: AssetImage('assets/images/logonaya.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            ),
 
 
                         SizedBox(height: size.height * 0.01),
@@ -204,14 +218,23 @@ class _DashboardState extends State<DashboardPage> {
                        FutureBuilder<DashboardData>(
   future: _dashboardDataFuture,
   builder: (context, snapshot) {
-    if (!_isConnected) {
-      // Show this if no internet connection
-      return _noInternetDashboard(size);
-    } else if (snapshot.connectionState == ConnectionState.waiting) {
-      return Center(child: CircularProgressIndicator());
-    } else if (snapshot.hasError) {
+   if (!_isConnected) {
+  // Show this if no internet connection
+  return _noInternetDashboard(size);
+} else if (snapshot.connectionState == ConnectionState.waiting) {
+  return Column(
+    children: [
+      SizedBox(height: size.height * 0.2),
+      Center(child: CircularProgressIndicator()),
+    ],
+  );
+}
+ else if (snapshot.hasError) {
       // Catch error and display a user-friendly message
-      return Center(
+      return Column(
+        children: [
+           SizedBox(height: size.height * 0.2),
+      Center(
         child: Text(
           'No data available at the moment..',
           style: TextStyle(
@@ -222,7 +245,7 @@ class _DashboardState extends State<DashboardPage> {
           ),
           textAlign: TextAlign.center,
         ),
-      );
+      )]);
     } else if (snapshot.hasData) {
       final data = snapshot.data!;
       return Container(
