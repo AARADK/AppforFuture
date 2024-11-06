@@ -86,7 +86,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully!')),
+        SnackBar(content: Text('Profile updated successfully!'),
+        backgroundColor: Color(0xFFFF9933),),
       );
       _fetchProfileData();
       setState(() {
@@ -138,7 +139,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
   }
 
   Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding, double screenWidth) {
-    return SingleChildScrollView(
+    return (SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -165,7 +166,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text('Update Profile', style: TextStyle(fontSize: fontSize)),
+                    child: Text('Update Profile', style: TextStyle(fontSize: fontSize, color: Colors.white),),
                   ),
                 )
               : Center(
@@ -187,7 +188,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                 ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildGuestProfileUI(double fontSize, double spacing, double screenWidth) {

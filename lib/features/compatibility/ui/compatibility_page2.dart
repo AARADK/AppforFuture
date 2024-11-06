@@ -49,6 +49,18 @@ bool isEditing2 = false;
 
 Color _iconColor = Colors.black; // Initial color
 
+//For editable dialog 1
+final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController cityIdController = TextEditingController();
+  final TextEditingController tobController = TextEditingController();
+  
+  //For editable dialog 2
+  final TextEditingController name2Controller = TextEditingController();
+  final TextEditingController dob2Controller = TextEditingController();
+  final TextEditingController cityId2Controller = TextEditingController();
+  final TextEditingController tob2Controller = TextEditingController();
+
   void _updateIconColor() {
     setState(() {
       _iconColor = _iconColor == Colors.black ? Color(0xFFFF9933) : Colors.black;
@@ -199,20 +211,20 @@ Widget build(BuildContext context) {
                     ),
                   ],
                 ),
-                SizedBox(height: screenHeight * 0.02),
-                _isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : _errorMessage != null
-                        ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
-                        : Padding(
-                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: _compatibilityData?.entries.map((entry) {
-                                return _buildCompatibilityRow(entry.key, entry.value);
-                              }).toList() ?? [],
-                            ),
-                          ),
+                // SizedBox(height: screenHeight * 0.02),
+                // _isLoading
+                //     ? Center(child: CircularProgressIndicator())
+                //     : _errorMessage != null
+                //         ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
+                //         : Padding(
+                //             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
+                //             child: Column(
+                //               crossAxisAlignment: CrossAxisAlignment.start,
+                //               children: _compatibilityData?.entries.map((entry) {
+                //                 return _buildCompatibilityRow(entry.key, entry.value);
+                //               }).toList() ?? [],
+                //             ),
+                //           ),
                 SizedBox(height: screenHeight * 0.02),
                                 Center(
                   child: _isLoading
@@ -293,10 +305,6 @@ Widget _buildTextRow(String label, String value) {
 }
 
   void _showEditableProfileDialog(BuildContext context) {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController dobController = TextEditingController();
-  final TextEditingController cityIdController = TextEditingController();
-  final TextEditingController tobController = TextEditingController();
 
   showDialog(
     context: context,
@@ -354,6 +362,11 @@ void _saveProfile(String editedName , String editedCityId, String editedDob, Str
     this._editedCityId = editedCityId;
     this._editedDob = editedDob;
     this._editedTob = editedTob;
+
+  nameController.text = _editedName?? "";
+  dobController.text = _editedDob?? "";
+  cityIdController.text = _editedCityId?? "";
+  tobController.text = _editedTob?? "";
   }
 
  Map<String, dynamic> getEditedProfile() {
@@ -382,12 +395,7 @@ Widget _buildTextField(String label, TextEditingController controller) {
   );
 }
 
-
   void _showEditableProfileDialog2(BuildContext context) {
-  final TextEditingController name2Controller = TextEditingController();
-  final TextEditingController dob2Controller = TextEditingController();
-  final TextEditingController cityId2Controller = TextEditingController();
-  final TextEditingController tob2Controller = TextEditingController();
 
   showDialog(
     context: context,
@@ -447,6 +455,12 @@ void _saveProfile2(String editedName2 , String editedCityId2, String editedDob2,
     this._editedCityId2 = editedCityId2;
     this._editedDob2 = editedDob2;
     this._editedTob2 = editedTob2;
+
+    
+  name2Controller.text = _editedName2?? "";
+  dob2Controller.text = _editedDob2?? "";
+  cityId2Controller.text = _editedCityId2?? "";
+  tob2Controller.text = _editedTob2?? "";
   }
 
  Map<String, dynamic> getEditedProfile2() {
