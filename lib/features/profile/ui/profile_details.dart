@@ -5,7 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProfileDetails extends StatefulWidget {
+  const ProfileDetails({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _ProfileDetailsState createState() => _ProfileDetailsState();
 }
 
@@ -85,17 +88,22 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     );
 
     if (success) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile updated successfully!'),
-        backgroundColor: Color(0xFFFF9933),),
+        const SnackBar(
+          content: Text('Profile updated successfully!'),
+          backgroundColor: Color(0xFFFF9933),
+        ),
       );
       _fetchProfileData();
       setState(() {
         _isEditing = false;
       });
     } else {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile. Please try again.')),
+        const SnackBar(
+            content: Text('Failed to update profile. Please try again.')),
       );
     }
   }
@@ -113,14 +121,14 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Profile Details',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Color(0xFFFF9933),
+        backgroundColor: const Color(0xFFFF9933),
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -130,29 +138,41 @@ class _ProfileDetailsState extends State<ProfileDetails> {
         color: Colors.white,
         padding: EdgeInsets.all(padding),
         child: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : _errorMessage != null
-                ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red, fontSize: fontSize)))
-                : _buildProfileUI(fontSize, spacing, buttonPadding, screenWidth),
+                ? Center(
+                    child: Text(_errorMessage!,
+                        style:
+                            TextStyle(color: Colors.red, fontSize: fontSize)))
+                : _buildProfileUI(
+                    fontSize, spacing, buttonPadding, screenWidth),
       ),
     );
   }
 
-  Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding, double screenWidth) {
+  Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding,
+      double screenWidth) {
     return (SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField('Name', _nameController, Icons.person, _isEditing, fontSize),
+          _buildTextField(
+              'Name', _nameController, Icons.person, _isEditing, fontSize),
           SizedBox(height: spacing),
-          _buildTextField('City ID', _locationController, Icons.location_city, _isEditing, fontSize),
+          _buildTextField('City ID', _locationController, Icons.location_city,
+              _isEditing, fontSize),
           SizedBox(height: spacing),
-          _buildTextField('Date of Birth (YYYY-MM-DD)', _dobController, Icons.cake, _isEditing, fontSize),
+          _buildTextField('Date of Birth (YYYY-MM-DD)', _dobController,
+              Icons.cake, _isEditing, fontSize),
           SizedBox(height: spacing),
-          _buildTextField('Time of Birth (HH:mm)', _tobController, Icons.access_time, _isEditing, fontSize),
+          _buildTextField('Time of Birth (HH:mm)', _tobController,
+              Icons.access_time, _isEditing, fontSize),
           SizedBox(height: spacing * 1.5),
           _guestProfileData == null
-              ? Center(child: Text('Profile is being generated...', style: TextStyle(color: Colors.orange, fontSize: fontSize)))
+              ? Center(
+                  child: Text('Profile is being generated...',
+                      style:
+                          TextStyle(color: Colors.orange, fontSize: fontSize)))
               : _buildGuestProfileUI(fontSize, spacing, screenWidth),
           SizedBox(height: spacing * 1.5),
           _isEditing
@@ -160,13 +180,17 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                   child: ElevatedButton(
                     onPressed: _updateProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: buttonPadding, vertical: spacing),
+                      backgroundColor: const Color(0xFFFF9933),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: buttonPadding, vertical: spacing),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text('Update Profile', style: TextStyle(fontSize: fontSize, color: Colors.white),),
+                    child: Text(
+                      'Update Profile',
+                      style: TextStyle(fontSize: fontSize, color: Colors.white),
+                    ),
                   ),
                 )
               : Center(
@@ -177,13 +201,16 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                       });
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(horizontal: buttonPadding, vertical: spacing),
+                      backgroundColor: const Color(0xFFFF9933),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: buttonPadding, vertical: spacing),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    child: Text('Edit Profile', style:  TextStyle(fontSize: fontSize, color: Colors.white)),
+                    child: Text('Edit Profile',
+                        style:
+                            TextStyle(fontSize: fontSize, color: Colors.white)),
                   ),
                 ),
         ],
@@ -191,7 +218,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     ));
   }
 
-  Widget _buildGuestProfileUI(double fontSize, double spacing, double screenWidth) {
+  Widget _buildGuestProfileUI(
+      double fontSize, double spacing, double screenWidth) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -256,7 +284,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     double? screenWidth,
   }) {
     if (isExpandable) {
-      final int maxLength = 100; // Define the maximum number of characters before truncating
+      const int maxLength =
+          100; // Define the maximum number of characters before truncating
       bool isTruncated = value.length > maxLength && !_isExpanded;
 
       return Padding(
@@ -269,7 +298,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
               children: [
                 Text(
                   '$label: ',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: fontSize),
                 ),
                 Flexible(
                   child: Text(
@@ -282,14 +312,18 @@ class _ProfileDetailsState extends State<ProfileDetails> {
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _isExpanded = !_isExpanded; // Toggle between expanded and collapsed
+                  _isExpanded =
+                      !_isExpanded; // Toggle between expanded and collapsed
                 });
               },
               child: Padding(
                 padding: EdgeInsets.only(top: fontSize * 0.4),
                 child: Text(
-                  _isExpanded ? 'View Less' : 'View More', // Switch text between "View More" and "View Less"
-                  style: TextStyle(color: Color(0xFFFF9933), fontSize: fontSize),
+                  _isExpanded
+                      ? 'View Less'
+                      : 'View More', // Switch text between "View More" and "View Less"
+                  style: TextStyle(
+                      color: const Color(0xFFFF9933), fontSize: fontSize),
                 ),
               ),
             ),
@@ -318,27 +352,31 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     }
   }
 
- Widget _buildTextField(String label, TextEditingController controller, IconData icon, bool isEnabled, double fontSize) {
-  return TextFormField(
-    controller: controller,
-    enabled: isEnabled,
-    decoration: InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon),
-      labelStyle: TextStyle(fontSize: fontSize),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        borderSide: BorderSide(color: Color(0xFFFF9933)), // Set border color
+  Widget _buildTextField(String label, TextEditingController controller,
+      IconData icon, bool isEnabled, double fontSize) {
+    return TextFormField(
+      controller: controller,
+      enabled: isEnabled,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        labelStyle: TextStyle(fontSize: fontSize),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide:
+              const BorderSide(color: Color(0xFFFF9933)), // Set border color
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+              color: Color(0xFFFF9933)), // Set border color for enabled state
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(
+              color: Color(0xFFFF9933)), // Set border color for focused state
+        ),
       ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        borderSide: BorderSide(color: Color(0xFFFF9933)), // Set border color for enabled state
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        borderSide: BorderSide(color: Color(0xFFFF9933)), // Set border color for focused state
-      ),
-    ),
-  );
-}
+    );
+  }
 }
