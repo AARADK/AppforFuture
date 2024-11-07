@@ -134,18 +134,59 @@ class _ProfileDetailsState extends State<ProfileDetails> {
           },
         ),
       ),
-      body: Container(
-        color: Colors.white,
-        padding: EdgeInsets.all(padding),
-        child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : _errorMessage != null
-                ? Center(
-                    child: Text(_errorMessage!,
-                        style:
-                            TextStyle(color: Colors.red, fontSize: fontSize)))
-                : _buildProfileUI(
-                    fontSize, spacing, buttonPadding, screenWidth),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.all(padding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : _errorMessage != null
+                        ? Center(
+                            child: Text(_errorMessage!,
+                                style: TextStyle(
+                                    color: Colors.red, fontSize: fontSize)),
+                          )
+                        : _buildProfileUI(
+                            fontSize, spacing, screenWidth,padding),
+                SizedBox(height: screenHeight * 0.1), // Extra space for buttons
+              ],
+            ),
+          ),
+          Positioned(
+            bottom: 20, // Position slightly above the bottom edge
+            left: 20,
+            right: 20,
+            child: _isEditing
+                ? _buildButton('Update Profile', _updateProfile, fontSize)
+                : _buildButton('Edit Profile', () {
+                    setState(() {
+                      _isEditing = true;
+                    });
+                  }, fontSize),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButton(String text, VoidCallback onPressed, double fontSize) {
+    return Center(
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFFF9933),
+          padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(fontSize: fontSize, color: Colors.white),
+        ),
       ),
     );
   }

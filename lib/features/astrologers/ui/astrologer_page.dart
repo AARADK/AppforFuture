@@ -14,6 +14,8 @@ import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart'
 import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 
 class OurAstrologersPage extends StatefulWidget {
+
+
   @override
   _OurAstrologersPageState createState() => _OurAstrologersPageState();
 }

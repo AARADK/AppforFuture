@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/bottom_nav_bar.dart';
+import 'package:flutter_application_1/components/topnavbar.dart';
+import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/inbox/ui/chat_box_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -137,71 +140,85 @@ class _InboxPageState extends State<InboxPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Use MediaQuery to get screen size for responsive design
-    double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
+Widget build(BuildContext context) {
+  double screenHeight = MediaQuery.of(context).size.height;
+  double screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text('Inbox'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 15.0),
-            child: Icon(Icons.inbox, color: Color(0xFFFF9933)),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search inquiries...',
-                prefixIcon: Icon(Icons.search, color: Color(0xFFFF9933)),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
+  return Scaffold(
+    backgroundColor: Colors.white,
+    body: Column(
+      children: [
+        // Custom TopNavBar replacing the default AppBar
+        TopNavBar(
+          title: 'Inbox',
+          onLeftButtonPressed: () {
+            // Define navigation logic, such as going back to Dashboard or any other action
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardPage()),
+            );
+          },
+          leftIcon: Icons.arrow_back, // Set your preferred icon for the left side
+        ),
+        // Search bar section
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search inquiries...',
+              prefixIcon: Icon(Icons.search, color: Color(0xFFFF9933)),
+              filled: true,
+              fillColor: const Color.fromARGB(255, 212, 210, 210),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide.none,
               ),
             ),
           ),
         ),
-      ),
-      body: FutureBuilder<List<dynamic>>(
-        future: _fetchInquiries(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final inquiries = snapshot.data!;
-            final filteredInquiries = _buildSearchableList(inquiries);
+        // FutureBuilder for inquiries
+        Expanded(
+          child: FutureBuilder<List<dynamic>>(
+            future: _fetchInquiries(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (snapshot.hasData) {
+                final inquiries = snapshot.data!;
+                final filteredInquiries = _buildSearchableList(inquiries);
 
-            if (filteredInquiries.isEmpty) {
-              return Center(child: Text('No inquiries found.'));
-            }
+                if (filteredInquiries.isEmpty) {
+                  return Center(child: Text('No inquiries found.'));
+                }
 
-            return ListView.builder(
-              controller: _scrollController,
-              itemCount: filteredInquiries.length,
-              itemBuilder: (context, index) {
-                final inquiry = filteredInquiries[index];
-                return _buildInquiryCard(inquiry, index, screenHeight, screenWidth); // Pass the screenHeight
-              },
-            );
-          } else {
-            return Center(child: Text('No data available.'));
-          }
-        },
-      ),
-    );
-  }
+                return ListView.builder(
+                  controller: _scrollController,
+                  itemCount: filteredInquiries.length,
+                  itemBuilder: (context, index) {
+                    final inquiry = filteredInquiries[index];
+                    return _buildInquiryCard(inquiry, index, screenHeight, screenWidth);
+                  },
+                );
+              } else {
+                return Center(child: Text('No data available.'));
+              }
+            },
+          ),
+        ),
+      ],
+    ),
+    // Custom BottomNavBar added as bottom navigation
+    bottomNavigationBar: BottomNavBar(
+      screenWidth: screenWidth,
+      screenHeight: screenHeight,
+      currentPageIndex: 3, // Assuming index 1 represents Inbox
+    ),
+  );
+}
+
 
   Widget _buildInquiryCard(dynamic inquiry, int index, double screenHeight, double screenWidth) {
   bool isRead = inquiry['is_read'] ?? false;

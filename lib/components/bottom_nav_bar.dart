@@ -33,17 +33,18 @@ class BottomNavBar extends StatelessWidget {
           _buildNavItem(
             context,
             index: 0,
-            iconImage: 'assets/images/compatibility2.png',
-            label: 'Compatibility',
-            targetPage: CompatibilityPage(),
-          ),
-          _buildNavItem(
-            context,
-            index: 1,
             iconImage: 'assets/images/horoscope2.png',
             label: 'Horoscope',
             targetPage: HoroscopePage(),
           ),
+          _buildNavItem(
+            context,
+            index: 1,
+            iconImage: 'assets/images/compatibility2.png',
+            label: 'Compatibility',
+            targetPage: CompatibilityPage(),
+          ),
+        
           _buildAskButton(context),
           _buildNavItem(
             context,

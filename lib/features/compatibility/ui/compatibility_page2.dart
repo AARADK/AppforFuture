@@ -256,7 +256,7 @@ Widget build(BuildContext context) {
         ),
       ],
     ),
-    bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 0),
+    bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 1),
   );
 }
 

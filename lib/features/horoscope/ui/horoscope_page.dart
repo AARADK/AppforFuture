@@ -405,7 +405,7 @@ SizedBox(height: screenHeight * 0.04),
         ],
       ),
       
-      bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 1), 
+      bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight,currentPageIndex: 0), 
   )
   );
 }
