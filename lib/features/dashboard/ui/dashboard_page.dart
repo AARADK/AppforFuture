@@ -79,7 +79,10 @@ Widget build(BuildContext context) {
   final screenWidth = MediaQuery.of(context).size.width;
 
   return Scaffold(
+
     backgroundColor: Colors.white,
+    bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
+
     body: Stack(
       children: [
         GestureDetector(
@@ -199,8 +202,8 @@ Widget build(BuildContext context) {
                             )
                            : Center(
                               child: Container(
-                                height: isTablet ? size.height * 0.38 : size.height * 0.25,
-                                width: isTablet ? size.height * 0.38 : size.height * 0.25,
+                                height: isTablet ? size.height * 0.19 : size.height * 0.19,
+                                width: isTablet ? size.height * 0.19 : size.height * 0.19,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
                                   image: const DecorationImage(
@@ -212,7 +215,7 @@ Widget build(BuildContext context) {
                             ),
 
 
-                        SizedBox(height: size.height * 0.01),
+                        SizedBox(height: size.height * 0.1),
 
                         // Dashboard Data Section
                        FutureBuilder<DashboardData>(
@@ -257,8 +260,8 @@ Widget build(BuildContext context) {
               context,
               title: 'Horoscope',
               imageUrl: 'assets/images/horoscope2.png',
-              imageWidth: circleSize * 0.67,
-              imageHeight: circleSize * 0.75,
+              imageWidth: circleSize * 7,
+              imageHeight: circleSize * 7,
               page: HoroscopePage(),
               description: data.horoscope.description,
             ),
@@ -267,8 +270,8 @@ Widget build(BuildContext context) {
               context,
               title: 'Compatibility',
               imageUrl: 'assets/images/compatibility2.png',
-              imageWidth: circleSize * 0.67,
-              imageHeight: circleSize * 0.55,
+              imageWidth: circleSize * 0.1,
+              imageHeight: circleSize * 0.8,
               page: CompatibilityPage(),
               compatibility: data.compatibility,
             ),
@@ -277,8 +280,8 @@ Widget build(BuildContext context) {
               context,
               title: 'Auspicious Time',
               imageUrl: 'assets/images/auspicious2.png',
-              imageWidth: circleSize * 0.67,
-              imageHeight: circleSize * 0.75,
+              imageWidth: circleSize * 0.70,
+              imageHeight: circleSize * 0.8,
               page: AuspiciousTimePage(),
               description: data.auspicious.description,
             ),
@@ -308,7 +311,6 @@ Widget build(BuildContext context) {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
     );
   }
 

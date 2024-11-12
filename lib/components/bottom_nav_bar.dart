@@ -8,60 +8,92 @@ import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 class BottomNavBar extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
-  final int? currentPageIndex; // Nullable, default to null
+  final int? currentPageIndex;
 
   BottomNavBar({
     required this.screenWidth,
     required this.screenHeight,
-    this.currentPageIndex, // No requirement to pass this
+    this.currentPageIndex,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFFF9933), width: 2)),
-      ),
-      padding: EdgeInsets.symmetric(
-        // vertical: screenHeight * 0.01,
-        horizontal: screenWidth * 0.05,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end, // Align all children at the bottom
-        children: [
-          _buildNavItem(
-            context,
-            index: 0,
-            iconImage: 'assets/images/horoscope2.png',
-            label: 'Horoscope',
-            targetPage: HoroscopePage(),
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        CustomPaint(
+          size: Size(screenWidth, screenHeight * 0.08),
+          painter: _CurvedBorderPainter(),
+        ),
+        Positioned(
+          bottom: screenHeight * 0.04, // Adjust height to fit inside the curve
+          child: GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AskQuestionPage()),
+              );
+            },
+            child: Container(
+              width: screenWidth * 0.15,
+              height: screenWidth * 0.15,
+              decoration: BoxDecoration(
+                color: Color(0xFFFF9933),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 6,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
+                size: screenWidth * 0.08, // Adjust icon size to fit in the circle
+              ),
+            ),
           ),
-          _buildNavItem(
-            context,
-            index: 1,
-            iconImage: 'assets/images/compatibility2.png',
-            label: 'Compatibility',
-            targetPage: CompatibilityPage(),
+        ),
+        Positioned.fill(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _buildNavItem(
+                context,
+                index: 0,
+                iconImage: 'assets/images/horoscope2.png',
+                label: 'Horoscope',
+                targetPage: HoroscopePage(),
+              ),
+              _buildNavItem(
+                context,
+                index: 1,
+                iconImage: 'assets/images/compatibility2.png',
+                label: 'Compatibility',
+                targetPage: CompatibilityPage(),
+              ),
+              SizedBox(width: screenWidth * 0.2),
+              _buildNavItem(
+                context,
+                index: 2,
+                iconImage: 'assets/images/auspicious2.png',
+                label: 'Auspicious',
+                targetPage: AuspiciousTimePage(),
+              ),
+              _buildNavItem(
+                context,
+                index: 3,
+                iconImage: 'assets/images/Inbox.png',
+                label: 'Inbox',
+                targetPage: InboxPage(),
+              ),
+            ],
           ),
-        
-          _buildAskButton(context),
-          _buildNavItem(
-            context,
-            index: 2,
-            iconImage: 'assets/images/auspicious2.png',
-            label: 'Auspicious',
-            targetPage: AuspiciousTimePage(),
-          ),
-          _buildNavItem(
-            context,
-            index: 3,
-            iconImage: 'assets/images/Inbox.png',
-            label: 'Inbox',
-            targetPage: InboxPage(),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -85,28 +117,21 @@ class BottomNavBar extends StatelessWidget {
       behavior: HitTestBehavior.translucent,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end, // Align the icon and text at the bottom
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(
-            padding: EdgeInsets.all(screenWidth * 0.02),
-            decoration: BoxDecoration(
-              color: isSelected ? Color(0xFFFF9933).withOpacity(0.2) : Colors.transparent,
-              shape: BoxShape.circle,
-            ),
-            child: iconImage != null
-                ? Image.asset(
-                    iconImage,
-                    width: screenWidth * 0.07,
-                    height: screenWidth * 0.07,
-                    color: isSelected ? Color(0xFFFF9933) : null,
-                  )
-                : Icon(
-                    icon,
-                    color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
-                    size: screenWidth * 0.07,
-                  ),
-          ),
-          SizedBox(height: 2), // Consistent spacing
+          iconImage != null
+              ? Image.asset(
+                  iconImage,
+                  width: screenWidth * 0.07,
+                  height: screenWidth * 0.07,
+                  color: isSelected ? Color(0xFFFF9933) : null,
+                )
+              : Icon(
+                  icon,
+                  color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
+                  size: screenWidth * 0.07,
+                ),
+          SizedBox(height: 2),
           Text(
             label,
             style: TextStyle(
@@ -118,45 +143,34 @@ class BottomNavBar extends StatelessWidget {
       ),
     );
   }
+}
+class _CurvedBorderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Color(0xFFFF9933)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
 
-  Widget _buildAskButton(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end, // Align button and text at the bottom
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AskQuestionPage()),
-            );
-          },
-          child: Container(
-            width: screenWidth * 0.09,
-            height: screenWidth * 0.09,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color.fromARGB(255, 2, 2, 2),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              Icons.add,
-              color: Color(0xFFFF9933),
-              size: screenWidth * 0.06,
-            ),
-          ),
+    Path path = Path()
+      ..moveTo(0, 0) // Start at the left edge
+      ..lineTo(size.width * 0.4, 0) // Draw a straight line until 40% width
+      ..arcTo(
+        Rect.fromCircle(
+          center: Offset(size.width * 0.5, 0), // Center the curve horizontally
+          radius: size.height * 0.6, // Radius of the curve
         ),
-        SizedBox(height: 2), // Consistent spacing
-        Text(
-          'Ask',
-          style: TextStyle(
-            fontSize: 10,
-            color: const Color.fromARGB(255, 2, 2, 2),
-          ),
-        ),
-      ],
-    );
+        3.14, // Start angle (pi, for half circle)
+        -3.14, // Sweep angle (negative pi to curve downward)
+        false,
+      )
+      ..lineTo(size.width, 0); // Continue a straight line to the right edge
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

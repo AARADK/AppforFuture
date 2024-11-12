@@ -12,7 +12,7 @@ class DetailSection extends StatelessWidget {
     required this.hintText,
     required this.keyboardType,
     this.onTap,
-    required this.controller,
+    required this.controller, required TextStyle labelStyle, required TextStyle hintStyle,
   });
 
   @override
