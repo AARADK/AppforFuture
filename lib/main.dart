@@ -21,11 +21,11 @@ void main() async {
     final existingOtpApiUrl = await hiveService.getOtpApiUrl();
 
     if (existingApiUrl == null) {
-      await hiveService.saveApiData('http://45.117.153.217:3001/frontend/Guests/login', ''); // signup URL
+      await hiveService.saveApiData('http://145.223.23.200:3002/frontend/Guests/login', ''); // signup URL
     }
 
     if (existingOtpApiUrl == null) {
-      await hiveService.saveOtpApiUrl('http://45.117.153.217:3001/frontend/Guests/ValidateOTP'); //  OTP validation URL
+      await hiveService.saveOtpApiUrl('http://145.223.23.200:3002/frontend/Guests/ValidateOTP'); //  OTP validation URL
     }
 
     runApp(MyApp(existingToken: existingToken));

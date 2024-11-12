@@ -12,8 +12,8 @@ class ProfileRepo {
   String? cityId;
 
   // API URLs
-  static const String _updateProfileUrl = 'http://45.117.153.217:3001/frontend/Guests/UpdateGuestProfile';
-  static const String _getProfileUrl = 'http://45.117.153.217:3001/frontend/Guests/Get';
+  static const String _updateProfileUrl = 'http://145.223.23.200:3002/frontend/Guests/UpdateGuestProfile';
+  static const String _getProfileUrl = 'http://145.223.23.200:3002/frontend/Guests/Get';
 
   // Method to update guest profile
   Future<bool> updateGuestProfile(Map<String, dynamic> updateData) async {

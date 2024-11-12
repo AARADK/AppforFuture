@@ -85,7 +85,7 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
       final box = Hive.box('settings');
       String? token = await box.get('token'); // Retrieve the token from Hive storage
 
-      final url = 'http://45.117.153.217:3001/frontend/GuestInquiry/StartInquiryProcess'; // Use your API URL
+      final url = 'http://145.223.23.200:3002/frontend/GuestInquiry/StartInquiryProcess'; // Use your API URL
       final body = jsonEncode({
         "inquiry_type": 0,
         "inquiry_regular": {

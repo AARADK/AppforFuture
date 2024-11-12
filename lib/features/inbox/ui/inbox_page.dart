@@ -27,7 +27,7 @@ class _InboxPageState extends State<InboxPage> {
         throw Exception('Token is not available');
       }
 
-      final url = 'http://45.117.153.217:3001/frontend/GuestInquiry/MyInquiries';
+      final url = 'http://145.223.23.200:3002/frontend/GuestInquiry/MyInquiries';
 
       final response = await http.get(
         Uri.parse(url),
@@ -67,7 +67,7 @@ class _InboxPageState extends State<InboxPage> {
         throw Exception('Token is not available');
       }
 
-      final url = 'http://45.117.153.217:3001/frontend/GuestInquiry/MarkAsRead?inquiry_id=$inquiryId';
+      final url = 'http://145.223.23.200:3002/frontend/GuestInquiry/MarkAsRead?inquiry_id=$inquiryId';
 
       final response = await http.get(
         Uri.parse(url),

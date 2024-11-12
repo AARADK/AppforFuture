@@ -120,7 +120,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
     try {
       final box = Hive.box('settings');
       String? token = await box.get('token');
-      final url = 'http://45.117.153.217:3001/frontend/Guests/Get';
+      final url = 'http://145.223.23.200:3002/frontend/Guests/Get';
 
       final response = await http.get(
         Uri.parse(url),
@@ -155,7 +155,7 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       final box = Hive.box('settings');
       String? token = await box.get('token');
       final url =
-          'http://45.117.153.217:3001/frontend/GuestInquiry/StartInquiryProcess';
+          'http://145.223.23.200:3002/frontend/GuestInquiry/StartInquiryProcess';
       final profile = widget.editedProfile ?? await _profileFuture;
 
       if (profile == null) {
@@ -190,6 +190,11 @@ class _CategoryDropdownState extends State<CategoryDropdown> {
       if (widget.inquiryType == 'auspicious_time' &&
           widget.auspiciousFromDate != null) {
         body['auspicious_from_date'] = widget.auspiciousFromDate!;
+      }
+
+      if (widget.inquiryType == 'horoscope' &&
+          widget.auspiciousFromDate != null) {
+        body['horoscope_from_date'] = widget.horoscopeFromDate!;
       }
 
       // Convert body to JSON string

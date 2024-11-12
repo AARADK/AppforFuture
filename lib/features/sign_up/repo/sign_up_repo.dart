@@ -6,7 +6,7 @@ import '../model/user_model.dart';
 class SignUpRepo {
   final HiveService _hiveService = HiveService();
   String? _otp; // Variable to store the OTP
-  final String apiUrl = 'http://45.117.153.217:3001/frontend/Guests/login'; // API URL for both signup and login
+  final String apiUrl = 'http://145.223.23.200:3002/frontend/Guests/login'; // API URL for both signup and login
   bool state = false;
 
   // Method to handle user signup

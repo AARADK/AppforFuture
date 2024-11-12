@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart'; // Ensure Hive is set up for secure storage
 
 class AskQuestionRepository {
-  final String categoryUrl = "http://45.117.153.217:3001/frontend/GuestQuestion/GetQuestionCategory?type_id=0";
-  final String questionUrl = "http://45.117.153.217:3001/frontend/GuestQuestion/GetQuestion?question_category_id=";
+  final String categoryUrl = "http://145.223.23.200:3002/frontend/GuestQuestion/GetQuestionCategory?type_id=0";
+  final String questionUrl = "http://145.223.23.200:3002/frontend/GuestQuestion/GetQuestion?question_category_id=";
 
   /// Fetch all categories with type_id=0
   Future<List<QuestionCategory>> fetchCategories() async {
@@ -38,7 +38,7 @@ class AskQuestionRepository {
       final box = Hive.box('settings');
       String? token = await box.get('token'); // Retrieve the token from Hive storage
 
-      final String url = "http://45.117.153.217:3001/frontend/GuestQuestion/GetQuestionCategory?type_id=$typeId";
+      final String url = "http://145.223.23.200:3002/frontend/GuestQuestion/GetQuestionCategory?type_id=$typeId";
 
       final response = await http.get(
         Uri.parse(url),
