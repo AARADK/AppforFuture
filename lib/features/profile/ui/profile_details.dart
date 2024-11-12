@@ -216,44 +216,44 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                           TextStyle(color: Colors.orange, fontSize: fontSize)))
               : _buildGuestProfileUI(fontSize, spacing, screenWidth),
           SizedBox(height: spacing * 1.5),
-          _isEditing
-              ? Center(
-                  child: ElevatedButton(
-                    onPressed: _updateProfile,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: buttonPadding, vertical: spacing),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text(
-                      'Update Profile',
-                      style: TextStyle(fontSize: fontSize, color: Colors.white),
-                    ),
-                  ),
-                )
-              : Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isEditing = true;
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFF9933),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: buttonPadding, vertical: spacing),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    child: Text('Edit Profile',
-                        style:
-                            TextStyle(fontSize: fontSize, color: Colors.white)),
-                  ),
-                ),
+          // _isEditing
+          //     ? Center(
+          //         child: ElevatedButton(
+          //           onPressed: _updateProfile,
+          //           style: ElevatedButton.styleFrom(
+          //             backgroundColor: const Color(0xFFFF9933),
+          //             padding: EdgeInsets.symmetric(
+          //                 horizontal: buttonPadding, vertical: spacing),
+          //             shape: RoundedRectangleBorder(
+          //               borderRadius: BorderRadius.circular(30),
+          //             ),
+          //           ),
+          //           child: Text(
+          //             'Update Profile',
+          //             style: TextStyle(fontSize: fontSize, color: Colors.white),
+          //           ),
+          //         ),
+          //       )
+          //     : Center(
+          //         child: ElevatedButton(
+          //           onPressed: () {
+          //             setState(() {
+          //               _isEditing = true;
+          //             });
+          //           },
+          //           style: ElevatedButton.styleFrom(
+          //             backgroundColor: const Color(0xFFFF9933),
+          //             padding: EdgeInsets.symmetric(
+          //                 horizontal: buttonPadding, vertical: spacing),
+          //             shape: RoundedRectangleBorder(
+          //               borderRadius: BorderRadius.circular(30),
+          //             ),
+          //           ),
+          //           child: Text('Edit Profile',
+          //               style:
+          //                   TextStyle(fontSize: fontSize, color: Colors.white)),
+          //         ),
+          //       ),
         ],
       ),
     ));
