@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/animated_text.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
 // import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
@@ -14,7 +15,7 @@ import 'package:flutter_application_1/features/offer/service/offer_service.dart'
 import 'package:flutter_application_1/features/offer/ui/alloffers.dart';
 import 'package:flutter_application_1/features/offer/ui/offer_widget.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 
 class DashboardPage extends StatefulWidget {
   @override
@@ -41,10 +42,11 @@ class _DashboardState extends State<DashboardPage> {
 
     // Get the current date
     final today = DateTime.now();
-    final formattedDate = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+    final formattedDate =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     // Fetch dashboard data for the current date
-    _dashboardDataFuture = DashboardService().getDashboardData(formattedDate);
+    _dashboardDataFuture = DashboardService().getDashboardData('2024-11-17');
     _offersFuture = OfferService().getTopOffers(); // Fetch offers data
   }
 
@@ -71,228 +73,282 @@ class _DashboardState extends State<DashboardPage> {
   }
 
   @override
-Widget build(BuildContext context) {
-  bool isTablet = MediaQuery.of(context).size.width > 600;
-  final size = MediaQuery.of(context).size;
-  final double circleSize = size.width * 0.22;
-  final screenHeight = MediaQuery.of(context).size.height;
-  final screenWidth = MediaQuery.of(context).size.width;
+  Widget build(BuildContext context) {
+    bool isTablet = MediaQuery.of(context).size.width > 600;
+    final size = MediaQuery.of(context).size;
+    final double circleSize = size.width * 0.22;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-  return Scaffold(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      bottomNavigationBar:
+          BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (_isMenuOpen) {
+                _closeMenu();
+              }
+            },
+            onHorizontalDragUpdate: (details) {
+              if (details.delta.dx < -6 && _isMenuOpen) {
+                _closeMenu();
+              } else if (details.delta.dx > 6 && !_isMenuOpen) {
+                _openMenu();
+              }
+            },
+            child: Column(
+              children: [
+                TopNavBar(
+                  title: 'myTime',
+                  onLeftButtonPressed: () {
+                    _openMenu();
+                  },
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.menu, // Icon for the left side
+                  rightIcon: Icons.help, // Icon for the right side
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 16),
 
-    backgroundColor: Colors.white,
-    bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
-
-    body: Stack(
-      children: [
-        GestureDetector(
-          onTap: () {
-            if (_isMenuOpen) {
-              _closeMenu();
-            }
-          },
-          onHorizontalDragUpdate: (details) {
-            if (details.delta.dx < -6 && _isMenuOpen) {
-              _closeMenu();
-            } else if (details.delta.dx > 6 && !_isMenuOpen) {
-              _openMenu();
-            }
-          },
-          child: Column(
-            children: [
-              TopNavBar(
-                title: 'myFutureTime',
-                leftIcon: Icons.menu,
-                onLeftButtonPressed: _openMenu,
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 16),
-                      
-                      // Offers Section or Placeholder Image
-                      _showOffers
-                          ? FutureBuilder<List<Offer>>(
-                              future: _offersFuture,
-                              builder: (context, snapshot) {
-                                if (!_isConnected) {
-                                  return _noInternetContainer(size, isTablet);
-                                } else if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return Center(child: CircularProgressIndicator());
-                                } else if (snapshot.hasError) {
-                                  return Center(
-                                    child: Text(
-                                      'Something went wrong while fetching offers. Please try again later.',
-                                      style: TextStyle(
-                                        fontSize: size.width * 0.04,
-                                        fontFamily: 'Inter',
-                                        color: Colors.red,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  );
-                                } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                                  final offers = snapshot.data!;
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        height: isTablet ? size.height * 0.38 : size.height * 0.31,
-                                        child: PageView.builder(
-                                          itemCount: offers.length,
-                                          itemBuilder: (context, index) {
-                                            final offer = offers[index];
-                                            return OfferWidget(offer: offer);
-                                          },
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(builder: (context) => AllOffersPage()),
-                                            );
-                                          },
-                                          child: Text(
-                                            'See More...',
-                                            style: TextStyle(
-                                              fontSize: size.width * 0.04,
-                                              fontFamily: 'Inter',
-                                              color: Color(0xFFFF9933),
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Container(
-                                    height: isTablet ? size.height * 0.38 : size.height * 0.31,
-                                    alignment: Alignment.center,
-                                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color(0xFFFF9933),
-                                        width: 2,
-                                      ),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
+                        // Offers Section or Placeholder Image
+                        _showOffers
+                            ? FutureBuilder<List<Offer>>(
+                                future: _offersFuture,
+                                builder: (context, snapshot) {
+                                  if (!_isConnected) {
+                                    return _noInternetContainer(size, isTablet);
+                                  } else if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    return Center(
                                       child: Text(
-                                        'No bundles available at the moment',
+                                        'Something went wrong while fetching offers. Please try again later.',
                                         style: TextStyle(
-                                          fontSize: size.width * 0.03,
+                                          fontSize: size.width * 0.04,
                                           fontFamily: 'Inter',
+                                          color: Colors.red,
                                           fontWeight: FontWeight.bold,
-                                          color: Color(0xFFFF9933),
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
+                                    );
+                                  } else if (snapshot.hasData &&
+                                      snapshot.data!.isNotEmpty) {
+                                    final offers = snapshot.data!;
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          height: isTablet
+                                              ? size.height * 0.38
+                                              : size.height * 0.31,
+                                          child: PageView.builder(
+                                            itemCount: offers.length,
+                                            itemBuilder: (context, index) {
+                                              final offer = offers[index];
+                                              return OfferWidget(offer: offer);
+                                            },
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16, vertical: 8),
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        AllOffersPage()),
+                                              );
+                                            },
+                                            child: Text(
+                                              'See More...',
+                                              style: TextStyle(
+                                                fontSize: size.width * 0.04,
+                                                fontFamily: 'Inter',
+                                                color: Color(0xFFFF9933),
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  } else {
+                                    return Container(
+                                      height: isTablet
+                                          ? size.height * 0.38
+                                          : size.height * 0.31,
+                                      alignment: Alignment.center,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Color(0xFFFF9933),
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(16.0),
+                                        child: Text(
+                                          'No bundles available at the moment',
+                                          style: TextStyle(
+                                            fontSize: size.width * 0.03,
+                                            fontFamily: 'Inter',
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFFFF9933),
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                              )
+                            : Center(
+                                child: Container(
+                                  height: isTablet
+                                      ? size.height * 0.19
+                                      : size.height * 0.19,
+                                  width: isTablet
+                                      ? size.height * 0.19
+                                      : size.height * 0.19,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    image: const DecorationImage(
+                                      image: AssetImage(
+                                          'assets/images/logonaya.png'),
+                                      fit: BoxFit.cover,
                                     ),
-                                  );
-                                }
-                              },
-                            )
-                           : Center(
-                              child: Container(
-                                height: isTablet ? size.height * 0.19 : size.height * 0.19,
-                                width: isTablet ? size.height * 0.19 : size.height * 0.19,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  image: const DecorationImage(
-                                    image: AssetImage('assets/images/logonaya.png'),
-                                    fit: BoxFit.cover,
                                   ),
                                 ),
                               ),
+                        Positioned(
+                          bottom: MediaQuery.of(context).size.height * 0.6,
+                          left: MediaQuery.of(context).size.width *
+                              0.1, // Add a small padding if needed
+                          right: MediaQuery.of(context).size.width * 0.1,
+                          child: Center(
+                            // Ensures the widget centers properly
+                            child: AnimatedTextWidget(
+                              texts: [
+                                "love",
+                                "career",
+                                "friendship",
+                                "business",
+                                "education",
+                                "partnership",
+                                "marriage"
+                              ],
+                              textStyle: TextStyle(
+                                fontSize: 17,
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w200,
+                                fontFamily: 'Inter',
+                              ),
                             ),
-
+                          ),
+                        ),
 
                         SizedBox(height: size.height * 0.1),
 
                         // Dashboard Data Section
-                       FutureBuilder<DashboardData>(
-  future: _dashboardDataFuture,
-  builder: (context, snapshot) {
-   if (!_isConnected) {
-  // Show this if no internet connection
-  return _noInternetDashboard(size);
-} else if (snapshot.connectionState == ConnectionState.waiting) {
-  return Column(
-    children: [
-      SizedBox(height: size.height * 0.2),
-      Center(child: CircularProgressIndicator()),
-    ],
-  );
-}
- else if (snapshot.hasError) {
-      // Catch error and display a user-friendly message
-      return Column(
-        children: [
-           SizedBox(height: size.height * 0.2),
-      Center(
-        child: Text(
-          'No data available at the moment..',
-          style: TextStyle(
-            fontSize: size.width * 0.04,
-            fontFamily: 'Inter',
-            color: Colors.red,
-            fontWeight: FontWeight.w300,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      )]);
-    } else if (snapshot.hasData) {
-      final data = snapshot.data!;
-      return Container(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildCircleSection(
-              context,
-              title: 'Horoscope',
-              imageUrl: 'assets/images/horoscope2.png',
-              imageWidth: circleSize * 7,
-              imageHeight: circleSize * 7,
-              page: HoroscopePage(),
-              description: data.horoscope.description,
-            ),
-            SizedBox(height: size.height * 0.03),
-            _buildCircleSection(
-              context,
-              title: 'Compatibility',
-              imageUrl: 'assets/images/compatibility2.png',
-              imageWidth: circleSize * 0.1,
-              imageHeight: circleSize * 0.8,
-              page: CompatibilityPage(),
-              compatibility: data.compatibility,
-            ),
-            SizedBox(height: size.height * 0.03),
-            _buildCircleSection(
-              context,
-              title: 'Auspicious Time',
-              imageUrl: 'assets/images/auspicious2.png',
-              imageWidth: circleSize * 0.70,
-              imageHeight: circleSize * 0.8,
-              page: AuspiciousTimePage(),
-              description: data.auspicious.description,
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Center(child: Text('No data available at the moment.'));
-    }
-  },
-),
+                        FutureBuilder<DashboardData>(
+                          future: _dashboardDataFuture,
+                          builder: (context, snapshot) {
+                            if (!_isConnected) {
+                              // Show this if no internet connection
+                              return _noInternetDashboard(size);
+                            } else if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Column(
+                                children: [
+                                  SizedBox(height: size.height * 0.2),
+                                  Center(child: CircularProgressIndicator()),
+                                ],
+                              );
+                            } else if (snapshot.hasError) {
+                              // Catch error and display a user-friendly message
+                              return Column(children: [
+                                SizedBox(height: size.height * 0.2),
+                                Center(
+                                  child: Text(
+                                    'No data available at the moment..',
+                                    style: TextStyle(
+                                      fontSize: size.width * 0.04,
+                                      fontFamily: 'Inter',
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                )
+                              ]);
+                            } else if (snapshot.hasData) {
+                              final data = snapshot.data!;
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 20, horizontal: 15),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    _buildCircleSection(
+                                      context,
+                                      title: 'Horoscope',
+                                      imageUrl: 'assets/images/horoscope2.png',
+                                      imageWidth: circleSize * 7,
+                                      imageHeight: circleSize * 7,
+                                      page: HoroscopePage(),
+                                      description: data.horoscope.description,
+                                    ),
+                                    SizedBox(height: size.height * 0.03),
+                                    _buildCircleSection(
+                                      context,
+                                      title: 'Compatibility',
+                                      imageUrl:
+                                          'assets/images/compatibility2.png',
+                                      imageWidth: circleSize * 0.1,
+                                      imageHeight: circleSize * 0.8,
+                                      page: CompatibilityPage(),
+                                      compatibility: data.compatibility,
+                                    ),
+                                    SizedBox(height: size.height * 0.03),
+                                    _buildCircleSection(
+                                      context,
+                                      title: 'Auspicious Time',
+                                      imageUrl: 'assets/images/auspicious2.png',
+                                      imageWidth: circleSize * 0.70,
+                                      imageHeight: circleSize * 0.8,
+                                      page: AuspiciousTimePage(),
+                                      description: data.auspicious.description,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return Center(
+                                  child:
+                                      Text('No data available at the moment.'));
+                            }
+                          },
+                        ),
 
                         SizedBox(height: size.height * 0.03),
                       ],
@@ -371,102 +427,102 @@ Widget build(BuildContext context) {
     );
   }
 
-
   Widget _buildCircleSection(
-  BuildContext context, {
-  required String title,
-  required String imageUrl,
-  required double imageWidth,
-  required double imageHeight,
-  required Widget page,
-  int? rating,
-  String? compatibility,
-  String? description,
-}) {
-  final size = MediaQuery.of(context).size;
-  final double circleSize = size.width * 0.18;
+    BuildContext context, {
+    required String title,
+    required String imageUrl,
+    required double imageWidth,
+    required double imageHeight,
+    required Widget page,
+    int? rating,
+    String? compatibility,
+    String? description,
+  }) {
+    final size = MediaQuery.of(context).size;
+    final double circleSize = size.width * 0.18;
 
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => page),
-      );
-    },
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: circleSize,
-              height: circleSize,
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFFF9933)),
-                shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => page),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: circleSize,
+                height: circleSize,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Color(0xFFFF9933)),
+                  shape: BoxShape.circle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Image.asset(imageUrl,
+                      width: imageWidth, height: imageHeight),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Image.asset(imageUrl, width: imageWidth, height: imageHeight),
-              ),
-            ),
-            SizedBox(width: size.width * 0.03),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title in #FF9933
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: size.width * 0.04,
-                      fontFamily: 'Inter',
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF9933), // Title color set to #FF9933
-                    ),
-                  ),
-                  if (description != null)
-                    // Rating in black
+              SizedBox(width: size.width * 0.03),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title in #FF9933
                     Text(
-                          description,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            fontSize: size.width * 0.03,
-                            fontFamily: 'Inter',
-                            color: Colors.black, // Black for compatibility details
-                            fontWeight: FontWeight.normal,
-                          ),
-                          maxLines: 3, // Allow text to wrap
-                        ),
-                  if (compatibility != null)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 4),
-                        // Compatibility data in black
-                        Text(
-                          compatibility,
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                            fontSize: size.width * 0.03,
-                            fontFamily: 'Inter',
-                            color: Colors.black, // Black for compatibility details
-                            fontWeight: FontWeight.normal,
-                          ),
-                          maxLines: 3, // Allow text to wrap
-                        ),
-                      ],
+                      title,
+                      style: TextStyle(
+                        fontSize: size.width * 0.04,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFF9933), // Title color set to #FF9933
+                      ),
                     ),
-                ],
+                    if (description != null)
+                      // Rating in black
+                      Text(
+                        description,
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                          fontSize: size.width * 0.03,
+                          fontFamily: 'Inter',
+                          color:
+                              Colors.black, // Black for compatibility details
+                          fontWeight: FontWeight.normal,
+                        ),
+                        maxLines: 3, // Allow text to wrap
+                      ),
+                    if (compatibility != null)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 4),
+                          // Compatibility data in black
+                          Text(
+                            compatibility,
+                            textAlign: TextAlign.justify,
+                            style: TextStyle(
+                              fontSize: size.width * 0.03,
+                              fontFamily: 'Inter',
+                              color: Colors
+                                  .black, // Black for compatibility details
+                              fontWeight: FontWeight.normal,
+                            ),
+                            maxLines: 3, // Allow text to wrap
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
+            ],
+          ),
+        ],
+      ),
+    );
   }
-
+}

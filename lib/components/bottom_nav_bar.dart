@@ -148,10 +148,11 @@ class _CurvedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = Color(0xFFFF9933)
+      ..color = Color(0xFFD3D3D3) // Very light gray color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
 
+    // Create the path for the curve (only the top border line)
     Path path = Path()
       ..moveTo(0, 0) // Start at the left edge
       ..lineTo(size.width * 0.4, 0) // Draw a straight line until 40% width
@@ -166,6 +167,10 @@ class _CurvedBorderPainter extends CustomPainter {
       )
       ..lineTo(size.width, 0); // Continue a straight line to the right edge
 
+    // Add a shadow only to the path (the line itself)
+    canvas.drawShadow(path, Colors.black.withOpacity(0.2), 4.0, false);
+
+    // Draw the light gray path (the top border line itself)
     canvas.drawPath(path, paint);
   }
 
@@ -174,3 +179,5 @@ class _CurvedBorderPainter extends CustomPainter {
     return false;
   }
 }
+
+  

@@ -3,6 +3,7 @@ import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/inbox/ui/chat_box_page.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
@@ -150,16 +151,23 @@ Widget build(BuildContext context) {
       children: [
         // Custom TopNavBar replacing the default AppBar
         TopNavBar(
-          title: 'Inbox',
-          onLeftButtonPressed: () {
-            // Define navigation logic, such as going back to Dashboard or any other action
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => DashboardPage()),
-            );
-          },
-          leftIcon: Icons.arrow_back, // Set your preferred icon for the left side
-        ),
+                  title: 'Inbox',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  },
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
+                ),
+
         // Search bar section
         Padding(
           padding: const EdgeInsets.all(8.0),

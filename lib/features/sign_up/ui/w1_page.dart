@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/animated_text.dart';
 import 'package:flutter_application_1/features/sign_up/model/user_model.dart';
 import 'package:flutter_application_1/features/sign_up/repo/sign_up_repo.dart';
 import 'package:flutter_application_1/features/sign_up/ui/detail_input_field.dart';
@@ -26,13 +27,10 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
 
   // Animation controllers for logo rotation and text animation
   late AnimationController _animationController;
-  late AnimationController _textAnimationController;
   late Animation<double> _rotationAnimation;
-  late Animation<Offset> _textPositionAnimation;
-  late Animation<double> _textFadeAnimation;
   
-  final List<String> animatedTexts = ["love", "career", "friendship", "business"];
-  int currentTextIndex = 0;
+  
+  
 
   @override
   void initState() {
@@ -52,43 +50,22 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
       ),
     );
 
-    // Initialize text animation controller
-    _textAnimationController = AnimationController(
-      duration: Duration(seconds: 2),
-      vsync: this,
-    );
+   
 
-    // Define position and fade animations for the animated text
-    _textPositionAnimation = Tween<Offset>(begin: Offset(0, 0.3), end: Offset(0, -0.2)).animate(
-      CurvedAnimation(parent: _textAnimationController, curve: Curves.easeInOut),
-    );
-
-    _textFadeAnimation = Tween<double>(begin: 0.9, end: 0.0).animate(
-      CurvedAnimation(parent: _textAnimationController, curve: Curves.easeIn),
-    );
+    
 
     // Start logo animation and text animation
     _animationController.forward();
-    _startTextAnimation();
+    
   }
 
-  void _startTextAnimation() {
-    Future.delayed(Duration(seconds: 1), () {
-      _textAnimationController.forward().whenComplete(() {
-        setState(() {
-          // Loop through each text in the list
-          currentTextIndex = (currentTextIndex + 1) % animatedTexts.length;
-        });
-        _textAnimationController.reset();
-        _startTextAnimation();
-      });
-    });
-  }
+  
+
 
   @override
   void dispose() {
     _animationController.dispose();
-    _textAnimationController.dispose();
+   
     super.dispose();
   }
 
@@ -163,28 +140,17 @@ Positioned(
   bottom: MediaQuery.of(context).size.height * 0.6,
   left: 0,
   right: 0,
-  child: AnimatedBuilder(
-    animation: _textAnimationController,
-    builder: (context, child) {
-      return Opacity(
-        opacity: _textFadeAnimation.value,
-        child: Transform.translate(
-          offset: _textPositionAnimation.value * 200,
-          child: Text(
-            animatedTexts[currentTextIndex],  // The animated text
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 17,  // Customize font size
-              color: Colors.orange,  // Customize color
-              fontWeight: FontWeight.w200,  // Set font weight
-              fontFamily: 'Inter',  // Set font family (you can replace 'Arial' with the font of your choice)
-            ),
-          ),
-        ),
-      );
-    },
+  child: AnimatedTextWidget(
+    texts: ["love", "career", "friendship", "business", "education", "partnership", "marriage"],
+    textStyle: TextStyle(
+      fontSize: 17,
+      color: Colors.orange,
+      fontWeight: FontWeight.w200,
+      fontFamily: 'Inter',
+    ),
   ),
 ),
+
 
           
           // Form section
@@ -268,7 +234,7 @@ Positioned(
                     child: Text(
                       _isLoginMode ? 'Switch to Sign Up' : 'I already have an account',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontFamily: 'Inter', fontSize: 14),
+                      style: TextStyle(color: Color.fromARGB(255, 225, 176, 137), fontFamily: 'Inter', fontSize: 14),
                     ),
                   ),
                 ],

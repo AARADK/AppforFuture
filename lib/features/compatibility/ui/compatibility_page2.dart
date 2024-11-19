@@ -17,6 +17,7 @@ import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
 import 'package:flutter_application_1/features/profile/service/profile_services.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -134,16 +135,24 @@ Widget build(BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                TopNavBar(
-                  title: 'Compatibility',
+               TopNavBar(
+                  title: 'Specific Compatibility',
                   onLeftButtonPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CompatibilityPage()),
                     );
                   },
-                  leftIcon: Icons.done, // Optional: Change to menu if you want
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
                 ),
+
                 SizedBox(height: screenHeight * 0.05),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -191,7 +200,8 @@ Widget build(BuildContext context) {
                           onTap: () {
                             _showEditableProfileDialog2(context);
                           },
-                          primaryColor: Color(0xFFFF9933),
+
+                          primaryColor: Color.fromARGB(255, 110, 110, 109),
                         ),
                         Positioned(
                             left: 70,
@@ -230,6 +240,7 @@ Widget build(BuildContext context) {
                   child: _isLoading
                     ? const CircularProgressIndicator() // Show a loading indicator while fetching data
                     : CategoryDropdown(
+                      //  onTap: () => null,
                        inquiryType: 'compatibility',
                         categoryTypeId: 2,
                         onQuestionsFetched: (categoryId, questions) {
@@ -243,17 +254,17 @@ Widget build(BuildContext context) {
             ),
           ),
         ),
-        CustomButton(
-          buttonText: 'Submit',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PaymentPage()),
-            );
-          },
-          screenWidth: screenWidth,
-          screenHeight: screenHeight,
-        ),
+        // CustomButton(
+        //   buttonText: 'Submit',
+        //   onPressed: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => PaymentPage()),
+        //     );
+        //   },
+        //   screenWidth: screenWidth,
+        //   screenHeight: screenHeight,
+        // ),
       ],
     ),
     bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 1),
@@ -421,6 +432,7 @@ Widget _buildTextField(String label, TextEditingController controller) {
         TextButton(
           onPressed: () {
              isEditing2 = true;
+             
             
 
 

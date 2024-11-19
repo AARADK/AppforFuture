@@ -3,56 +3,67 @@ import 'package:flutter/material.dart';
 class TopNavBar extends StatelessWidget {
   final String title;
   final VoidCallback onLeftButtonPressed;
+  final VoidCallback onRightButtonPressed;
   final IconData leftIcon;
+  final IconData rightIcon;
 
   TopNavBar({
     required this.title,
     required this.onLeftButtonPressed,
-    this.leftIcon = Icons.menu, // Default is menu, can change to 'done'
+    required this.onRightButtonPressed,
+    this.leftIcon = Icons.menu, // Default left icon is menu
+    this.rightIcon = Icons.done, // Default right icon is done
   });
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    final double iconSize = size.width * 0.12;
+    final double iconSize = size.width * 0.08; // Reduced icon size
+    final double titleFontSize = size.width * 0.05; // Reduced font size
 
     return SafeArea(
+      top: true, // Ensure content respects the top system UI
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 6), // Adjusted padding
         child: SizedBox(
           width: double.infinity, // Ensure it takes up full width
           child: Stack(
             children: [
               // Center the title
               Align(
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.center,
                 child: Text(
                   title,
                   style: TextStyle(
-                    fontSize: size.width * 0.06,
-                    fontWeight: FontWeight.normal,
+                    fontSize: titleFontSize,
+                    fontWeight: FontWeight.w500, // Semi-bold for better visibility
                     fontFamily: 'Inter',
-                    color: Color(0xFFFF9933),
+                    color: Color.fromARGB(255, 87, 86, 86),
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              // Align the icon to the left and bottom
+              // Align the left icon
               Align(
-                alignment: Alignment.bottomLeft,
-                child: Container(
-                  margin: EdgeInsets.only(bottom: 8), // Add margin to match the bottom alignment
-                  child: GestureDetector(
-                    onTap: onLeftButtonPressed, // Call the action on button press
-                    child: Container(
-                      width: iconSize,
-                      height: iconSize,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Color(0xFFFF9933)),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(leftIcon, color: Color(0xFFFF9933)),
-                    ),
+                alignment: Alignment.centerLeft,
+                child: GestureDetector(
+                  onTap: onLeftButtonPressed, // Call the action on left button press
+                  child: Icon(
+                    leftIcon,
+                    color:Color.fromARGB(255, 87, 86, 86),
+                    size: iconSize,
+                  ),
+                ),
+              ),
+              // Align the right icon
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: onRightButtonPressed, // Call the action on right button press
+                  child: Icon(
+                    rightIcon,
+                    color:Color.fromARGB(255, 87, 86, 86),
+                    size: iconSize,
                   ),
                 ),
               ),

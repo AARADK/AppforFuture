@@ -16,6 +16,7 @@ import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/features/compatibility/repo/compatibility_repo.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
@@ -113,16 +114,24 @@ Widget build(BuildContext context) {
               children: [
                     // Using TopNavWidget instead of SafeArea with custom AppBar
                     // Use TopNavBar here with correct arguments
-                     TopNavBar(
-                      title: 'Compatibility',
-                      onLeftButtonPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
-                        );
-                      },
-                      leftIcon: Icons.done, // Optional: Change to menu if you want
-                    ),
+                    TopNavBar(
+                  title: 'Compatibility',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  },
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
+                ),
+
                 SizedBox(height: screenHeight * 0.05),
                 Row(
                     mainAxisAlignment: MainAxisAlignment.center,

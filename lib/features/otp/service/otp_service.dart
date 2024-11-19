@@ -6,13 +6,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 class OtpService {
   final HiveService _hiveService = HiveService(); // Create an instance of HiveService
 
-  Future<bool> verifyOtp(String otp, String email) async {
+  Future<bool> verifyOtp(String otp, String email,bool timeup) async {
     final box = Hive.box('settings');
     final baseUrl = await box.get('otpApiUrl'); // Retrieve OTP validation URL
     final int otps = int.parse(otp);
 
     if (baseUrl != null) {
-      final url = '$baseUrl?email=$email&otp=$otps'; // Construct the full URL
+      final url = !timeup ? '$baseUrl?email=$email&otp=$otps': '$baseUrl?email=$email&otp= 000000' ; // Construct the full URL
       final response = await http.get(Uri.parse(url)); // Call the API
 
       if (response.statusCode == 200 && jsonDecode(response.body)['error_code'] == '0') {

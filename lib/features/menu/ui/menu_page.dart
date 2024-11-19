@@ -74,17 +74,18 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                     Text(
                                   'myFutureTime',
                                   style: TextStyle(
-                                    fontSize: size.width * 0.06,
+                                    fontSize: size.width * 0.04,
                                     fontWeight: FontWeight.normal,
                                     fontFamily: 'Inter',
-                                    color: Color(0xFFFF9933),
+                                    color:Color.fromARGB(255, 252, 127, 1),
                                   ),
                                 ),
                     SizedBox(height: size.height * 0.02), // Add space between text and logo
                     Center(
                       child: Image.asset(
-                        'assets/images/flogo.png', // Path to your logo image
-                        height: size.height * 0.2, // Adjust logo height
+                       'assets/images/logonaya.png', // Path to your logo image
+                        height: size.height * 0.1,
+                        color:Color.fromARGB(255, 252, 127, 1) , // Adjust logo height
                       ),
                     ),
                     SizedBox(height: size.height * 0.04), // Add space between logo and items
@@ -161,7 +162,7 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                   child: Text(
                     text,
                     style: TextStyle(
-                      color: Color(0xFFC06500),
+                      color:Color.fromARGB(255, 252, 127, 1),
                       fontSize: size.width * 0.045, // Responsive font size
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,
@@ -170,7 +171,7 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                 ),
                 Icon(
                   icon,
-                  color: Color(0xFFFF9933), // Icon color
+                  color: Color.fromARGB(255, 252, 127, 1), // Icon color
                   size: size.width * 0.06, // Responsive icon size
                 ),
               ],
@@ -180,7 +181,7 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
         Container(
           width: lineWidth, // Use calculated line width
           height: 1, // Line height
-          color: Color(0xFFC06500), // Line color
+          color: Color.fromARGB(255, 252, 127, 1), // Line color
         ),
       ],
     );

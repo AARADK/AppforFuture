@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
+import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/partner/model/partner_details_model.dart';
 import 'package:flutter_application_1/features/partner/repo/partner_details_repo.dart';
 import 'package:flutter_application_1/features/partner/service/partner_details_service.dart';
@@ -136,7 +137,7 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => PaymentPage()),
+                                MaterialPageRoute(builder: (context) => DashboardPage()),
                               );
                             },
                           ),

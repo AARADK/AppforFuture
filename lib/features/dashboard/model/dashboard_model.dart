@@ -1,6 +1,6 @@
 class Horoscope {
   final int rashiId;
-  final int rating;
+  final double rating;
   final String description;
 
   Horoscope({
@@ -20,7 +20,7 @@ class Horoscope {
 
 class Auspicious {
   final int rashiId;
-  final int rating;
+  final double rating;
   final String description;
 
   Auspicious({

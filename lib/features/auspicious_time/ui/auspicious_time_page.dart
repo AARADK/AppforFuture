@@ -17,6 +17,7 @@ import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -94,13 +95,15 @@ void _showDateSelectionMessage() {
 }
 
 
+
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now(); // Set the default date to the current date
     _fetchProfileData();
-    _auspiciousFuture = _service.getAuspicious(_selectedDate!.toString().split(' ')[0]); // Initialize with the current date
-    _questionsFuture = _askQuestionRepository.fetchQuestionsByTypeId(3);
+    // _auspiciousFuture = _service.getAuspicious(_selectedDate!.toString().split(' ')[0]); // Initialize with the current date
+     _auspiciousFuture = AuspiciousRepository().fetchAuspiciousData('2024-11-17');
+     _questionsFuture = _askQuestionRepository.fetchQuestionsByTypeId(3);
 
   }
   Future<void> _fetchProfileData() async {
@@ -176,16 +179,24 @@ Widget build(BuildContext context) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TopNavBar(
-                    title: 'Auspicious Time',
-                    onLeftButtonPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => DashboardPage()),
-                      );
-                    },
-                    leftIcon: Icons.done,
-                  ),
+                TopNavBar(
+                  title: 'Auspicious Time',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  },
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
+                ),
+
                    SizedBox(height: screenHeight * 0.05),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -231,6 +242,8 @@ Widget build(BuildContext context) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
                       } else if (snapshot.hasError) {
+                              print("Snapshot Error: ${snapshot.error}");
+
                         return Center(
                           child: Text(
                             'Data is being generated, please wait....',
@@ -243,7 +256,7 @@ Widget build(BuildContext context) {
                             textAlign: TextAlign.center,
                           ),
                         );
-                      } else if (!snapshot.hasData || snapshot.data == null || snapshot.data?.description == null || snapshot.data!.description.isEmpty) {
+                      } else if (!snapshot.hasData || snapshot.data == null || snapshot.data!.description.isEmpty) {
                         return Center(
                           child: Text(
                             'No auspicious data available at the moment.',
@@ -257,8 +270,8 @@ Widget build(BuildContext context) {
                           ),
                         );
                       } else {
-                        final horoscope = snapshot.data!;
-                        final description = horoscope.description;
+                        final auspicious = snapshot.data!;
+                        final description = auspicious.description;
                         final maxLines = _isExpanded ? null : 3;
 
                         return Padding(
@@ -303,27 +316,6 @@ Widget build(BuildContext context) {
                   ),
                    SizedBox(height: screenHeight * 0.02),
 
-                  SizedBox(height: screenHeight * 0.02),
-                  Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Select Date ',
-                            style: TextStyle(
-                              color: Color(0xFFFF9933),
-                              fontSize: screenWidth * 0.04,
-                              fontFamily: 'Inter',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
                   Center(
   child: GestureDetector(
     onTap: () => _selectDate(context), // Call the DatePicker on tap
@@ -355,11 +347,12 @@ Widget build(BuildContext context) {
                   child: _isLoading
                     ? const CircularProgressIndicator() // Show a loading indicator while fetching data
                     : CategoryDropdown(
+                      // onTap: () => _selectDate(context),
                       inquiryType: 'auspicious_time',
                         categoryTypeId: 3,
-                         auspiciousFromDate: _auspiciousSelectedDate != null
-                          ? formattedDate
-                          : 'Please select a date', // Fallback message for unselected date
+                        //  auspiciousFromDate: _auspiciousSelectedDate != null
+                          // ? formattedDate
+                          // : 'Please select a date', // Fallback message for unselected date
                         onQuestionsFetched: (categoryId, questions) {
                           if (_auspiciousSelectedDate == null) {
                             _showDateSelectionMessage();
@@ -375,17 +368,17 @@ Widget build(BuildContext context) {
               ),
             ),
           ),
-          CustomButton(
-            buttonText: 'Submit',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PaymentPage()),
-              );
-            },
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-          ),
+          // CustomButton(
+          //   buttonText: 'Submit',
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => PaymentPage()),
+          //     );
+          //   },
+          //   screenWidth: screenWidth,
+          //   screenHeight: screenHeight,
+          // ),
         ],
       ),
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 2),

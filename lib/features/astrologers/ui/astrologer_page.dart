@@ -12,6 +12,7 @@ import 'package:flutter_application_1/features/compatibility/ui/compatibility_pa
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart';
 import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 
 class OurAstrologersPage extends StatefulWidget {
 
@@ -56,16 +57,24 @@ Widget build(BuildContext context) {
               children: [
                     // Using TopNavWidget instead of SafeArea with custom AppBar
                     // Use TopNavBar here with correct arguments
-                     TopNavBar(
-                      title: 'Astrologers',
-                      onLeftButtonPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DashboardPage()),
-                        );
-                      },
-                      leftIcon: Icons.done, // Optional: Change to menu if you want
-                    ),
+                    TopNavBar(
+                  title: 'Astrologers',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  },
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
+                ),
+
               SizedBox(height: screenHeight * 0.02),
               Center(
                 child: Image.asset(

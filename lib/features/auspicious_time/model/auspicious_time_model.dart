@@ -1,6 +1,6 @@
 class Auspicious {
   final int rashiId;
-  final int rating;
+  final double rating;
   final String description;
 
   Auspicious({
@@ -12,7 +12,7 @@ class Auspicious {
   factory Auspicious.fromJson(Map<String, dynamic> json) {
     return Auspicious(
       rashiId: json['rashi_id'] as int,
-      rating: json['rating'] as int,
+      rating: json['rating'] as double,
       description: json['description'] as String,
     );
   }

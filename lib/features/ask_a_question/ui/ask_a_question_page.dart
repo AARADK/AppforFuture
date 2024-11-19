@@ -10,6 +10,7 @@ import 'package:flutter_application_1/features/ask_a_question/model/question_mod
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 
@@ -135,20 +136,28 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
 
       body: Column(
         children: [
-         TopNavBar(
-                    title: 'Ask a Question',
-                    onLeftButtonPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => DashboardPage()),
-                      );
-                    },
-                    leftIcon: Icons.done,
-                  ),
+        TopNavBar(
+                  title: 'Ask a Question',
+                  onLeftButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  },
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
+                ),
+
               SizedBox(height: screenHeight * 0.02),
 Center(
   child: CategoryDropdown(
-    
+    //  onTap: () => null,
     inquiryType: 'ask_a_question',
     categoryTypeId: 5,
     onQuestionsFetched: (categoryId, questions) {
@@ -158,17 +167,17 @@ Center(
 ),
 
           // Custom button placed just after the content
-          CustomButton(
-            buttonText: 'Submit',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => PaymentPage()),
-              );
-            },
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-          ),
+          // CustomButton(
+          //   buttonText: 'Submit',
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => PaymentPage(handleTickIconTap: null,)),
+          //     );
+          //   },
+          //   screenWidth: screenWidth,
+          //   screenHeight: screenHeight,
+          // ),
           // Bottom navigation bar at the footer
         ],
       ),

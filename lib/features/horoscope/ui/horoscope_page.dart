@@ -15,6 +15,7 @@ import 'package:flutter_application_1/features/horoscope/repo/horoscope_repo.dar
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart'; // Import the question model
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
+import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -186,7 +187,7 @@ final String formattedDate = _horoscopeSelectedDate != null
               children: [
                 // Using TopNavWidget instead of SafeArea with custom AppBar
                     // Use TopNavBar here with correct arguments
-                    TopNavBar(
+                   TopNavBar(
                   title: 'Horoscope',
                   onLeftButtonPressed: () {
                     Navigator.push(
@@ -194,8 +195,16 @@ final String formattedDate = _horoscopeSelectedDate != null
                       MaterialPageRoute(builder: (context) => DashboardPage()),
                     );
                   },
-                  leftIcon: Icons.done, // Optional: Change to menu if you want
+                  onRightButtonPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SupportPage()),
+                    );
+                  },
+                  leftIcon: Icons.arrow_back, // Icon for the left side
+                  rightIcon: Icons.help,     // Icon for the right side
                 ),
+
                 SizedBox(height: screenHeight * 0.05),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -314,31 +323,7 @@ SizedBox(height: screenHeight * 0.04),
                   },
                 ),
                 SizedBox(height: screenHeight * 0.02),
-
-                   // Add Date selector button
                   Center(
-  child: Padding(
-    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          'Select Date',
-          style: TextStyle(
-            color: Color(0xFFFF9933),
-            fontSize: screenWidth * 0.04,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-                   SizedBox(height: screenHeight * 0.01),
-                          
-                         // Display the selected date range
- Center(
   child: GestureDetector(
     onTap: () => _selectDate(context), // Call the DatePicker on tap
     child: Container(
@@ -362,18 +347,20 @@ SizedBox(height: screenHeight * 0.04),
       ),
     ),
   ),
-),
+),        
+                        
 
                    SizedBox(height: screenHeight * 0.02),
                    Center(
                   child: _isLoading
                     ? const CircularProgressIndicator() // Show a loading indicator while fetching data
                     : CategoryDropdown(
+                      //  onTap: () => _selectDate(context),
                       inquiryType: 'Horoscope',
                         categoryTypeId: 1,
-                         horoscopeFromDate: _horoscopeSelectedDate != null
-                          ? formattedDate
-                          : 'Please select a date', // Fallback message for unselected date
+                        //  horoscopeFromDate: _horoscopeSelectedDate != null
+                        //   ? formattedDate
+                        //   : 'Please select a date', // Fallback message for unselected date
                         onQuestionsFetched: (categoryId, questions) {
                           if (_horoscopeSelectedDate == null) {
                             _showDateSelectionMessage();
@@ -389,19 +376,25 @@ SizedBox(height: screenHeight * 0.04),
               ),
             ),
           ),
+
+ 
+ 
+                          
+                         // Display the selected date range
+
           // Place the CustomButton above the bottom navigation bar
-          CustomButton(
-            buttonText: 'Submit',
-            onPressed: () {
-            // Define your button action
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => PaymentPage()),
-            );
-          },
-            screenWidth: screenWidth,
-            screenHeight: screenHeight,
-          ),
+          // CustomButton(
+          //   buttonText: 'Submit',
+          //   onPressed: () {
+          //   // Define your button action
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => PaymentPage()),
+          //   );
+          // },
+          //   screenWidth: screenWidth,
+          //   screenHeight: screenHeight,
+          // ),
         ],
       ),
       

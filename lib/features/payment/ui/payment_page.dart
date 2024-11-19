@@ -11,53 +11,20 @@ import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart'
 
 class PaymentPage extends StatelessWidget {
   final PaymentService _paymentService = PaymentService();
+  final Function _handleTickIconTap;  // Pass the function as a parameter
 
-  void _showSuccessOverlay(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (BuildContext context) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        return Container(
-          padding: EdgeInsets.all(screenWidth * 0.05),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                "assets/images/4416 1.png", // Replace with actual success image URL
-                width: screenWidth * 0.5,
-                height: screenWidth * 0.4,
-                fit: BoxFit.fill,
-              ),
-              SizedBox(height: screenWidth * 0.04),
-              Text(
-                'Congratulations!\nYou have successfully subscribed!',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFFC06500),
-                  fontSize: screenWidth * 0.05,
-                  fontFamily: 'Inter',
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  // Constructor to accept the function as a parameter
+  PaymentPage({required Function handleTickIconTap}) : _handleTickIconTap = handleTickIconTap;
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final paymentOptions = _paymentService.fetchPaymentOptions(() => _showSuccessOverlay(context));
+    final paymentOptions = _paymentService.fetchPaymentOptions(() => _handleTickIconTap());
 
     return Scaffold(
-       backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +123,10 @@ class PaymentPage extends StatelessWidget {
                       return Column(
                         children: [
                           GestureDetector(
-                            onTap: option.onTap,
+                            onTap: () {
+                              // Call _handleTickIconTap when a payment option is selected
+                              _handleTickIconTap();
+                            },
                             child: Image.asset(
                               option.imagePath,
                               width: screenWidth * 0.2,
