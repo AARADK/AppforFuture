@@ -106,6 +106,8 @@ class _InboxPageState extends State<InboxPage> {
         return 'Kundali';
       case 5:
         return 'Support';
+      case 6:
+        return 'Ask a Question';
       default:
         return 'Unknown Category'; // Handle any unknown categories
     }
@@ -293,13 +295,27 @@ Widget build(BuildContext context) {
                 ],
               ),
               trailing: Container(
-                height: statusIconSize, // Height of the status icon
-                width: statusIconSize, // Width of the status icon
-                alignment: Alignment.center, // Center the icon within the container
-                child: isReplied
-                    ? Icon(Icons.done_all, color: Colors.blue, size: statusIconSize * 0.6) // Responsive size for done icon
-                    : Icon(Icons.hourglass_empty, color: Colors.orange, size: statusIconSize * 0.6) // Responsive size for hourglass icon
-              ),
+  height: statusIconSize * 0.5, // Height of the status icon
+  width: statusIconSize * 0.5, // Width of the status icon
+  alignment: Alignment.center, // Center the icon within the container
+  decoration: BoxDecoration(
+    color: isReplied ? Color(0xFFFF9933) : null, // Set color to #FF9933 if replied
+    shape: BoxShape.circle,
+ // Make the container circular
+  ),
+  child: isReplied
+      ? Icon(
+          Icons.check, // Tick icon
+          color: Colors.white, // White color for the tick icon
+          size: statusIconSize * 0.3, // Responsive size for the tick icon
+        )
+      : Icon(
+          Icons.hourglass_empty, // Hourglass icon for pending status
+          color: Colors.orange, // Color for pending status
+          size: statusIconSize * 0.6, // Responsive size for the hourglass icon
+        ),
+),
+
               onTap: () async {
                 await _markAsRead(inquiry['inquiry_id']);
                 Navigator.push(

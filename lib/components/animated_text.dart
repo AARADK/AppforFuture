@@ -37,7 +37,7 @@ class _AnimatedTextWidgetState extends State<AnimatedTextWidget>
     // Define position and fade animations
     _textPositionAnimation = Tween<Offset>(
       begin: Offset(0, 0.3),
-      end: Offset(0, -0.2),
+      end: Offset(0, -0.3),
     ).animate(
       CurvedAnimation(parent: _textAnimationController, curve: Curves.easeInOut),
     );

@@ -75,6 +75,9 @@ final TextEditingController nameController = TextEditingController();
     super.initState();
     _fetchProfileData();
     _questionsFuture = _askQuestionRepository.fetchQuestionsByTypeId(2);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showEditableProfileDialog2(context);
+    });
 
   }
 
@@ -119,8 +122,8 @@ final TextEditingController nameController = TextEditingController();
     }
   }
 
-  @override
- @override
+ 
+@override
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
@@ -135,7 +138,7 @@ Widget build(BuildContext context) {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-               TopNavBar(
+                TopNavBar(
                   title: 'Specific Compatibility',
                   onLeftButtonPressed: () {
                     Navigator.push(
@@ -157,12 +160,12 @@ Widget build(BuildContext context) {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Circle and Edit Icon for Profile
-                    Stack(
+                    // Circle and Name for Profile 1
+                    Column(
                       children: [
                         CircleWithNameWidget(
                           assetPath: 'assets/images/virgo.png',
-                          name: _editedName?? _profile?.name ?? 'no name available',
+                          name: _editedName ?? _profile?.name ?? 'no name available',
                           screenWidth: screenWidth,
                           onTap: () {
                             if (_profile?.name != null) {
@@ -173,103 +176,92 @@ Widget build(BuildContext context) {
                           },
                           primaryColor: Color(0xFFFF9933),
                         ),
-                        Positioned(
-                          left:70,
-                          right: 0,
-                          top: 8,
-                          child: IconButton(
-                           icon: Icon(Icons.edit, color: _iconColor),
-                            onPressed: () {
-                               _updateIconColor();
-                              if (_profile != null) {
-                                _showEditableProfileDialog(context);
-                              }
-                            },
+                        SizedBox(height: 8), // Space between name and 'Edit' text
+                        GestureDetector(
+                          onTap: () {
+                            _showEditableProfileDialog(context); // Function for the first profile
+                          },
+                          child: Text(
+                            'Edit', // 'Edit' text below the name
+                            style: TextStyle(
+                              fontSize: 16, 
+                              color:  Color(0xFFFF9933),
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(width: screenWidth * 0.1),
-                    // Circle and Edit Icon for Person 2
-                    Stack(
+                    // Circle and Name for Profile 2
+                    Column(
                       children: [
                         CircleWithNameWidget(
                           assetPath: 'assets/images/pisces.png',
                           name: _person2Name!,
                           screenWidth: screenWidth,
                           onTap: () {
-                            _showEditableProfileDialog2(context);
+                            _showEditableProfileDialog2(context); // Function for the second profile
                           },
-
-                          primaryColor: Color.fromARGB(255, 110, 110, 109),
+                          primaryColor: isEditing2? Color(0xFFFF9933): Color.fromARGB(255, 110, 110, 109),
                         ),
-                        Positioned(
-                            left: 70,
-                            right: 0,
-                            top: 8,
-                            child: IconButton(
-                              icon: Icon(Icons.edit, color: _iconColor),
-                              onPressed: () {
-                                _updateIconColor();
-                                if (_profile != null) {
-                                  _showEditableProfileDialog2(context);
-                                }
-                              },
+                        SizedBox(height: 8), // Space between name and 'Edit' text
+                        GestureDetector(
+                          onTap: () {
+                            _showEditableProfileDialog2(context); // Function for the second profile
+                          },
+                          child: Text(
+                            'Edit', // 'Edit' text below the name
+                            style: TextStyle(
+                              fontSize: 16, 
+                              color:  Color(0xFFFF9933),
+                              fontWeight: FontWeight.w600,
                             ),
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                // SizedBox(height: screenHeight * 0.02),
-                // _isLoading
-                //     ? Center(child: CircularProgressIndicator())
-                //     : _errorMessage != null
-                //         ? Center(child: Text(_errorMessage!, style: TextStyle(color: Colors.red)))
-                //         : Padding(
-                //             padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                //             child: Column(
-                //               crossAxisAlignment: CrossAxisAlignment.start,
-                //               children: _compatibilityData?.entries.map((entry) {
-                //                 return _buildCompatibilityRow(entry.key, entry.value);
-                //               }).toList() ?? [],
-                //             ),
-                //           ),
-                SizedBox(height: screenHeight * 0.02),
-                                Center(
-                  child: _isLoading
-                    ? const CircularProgressIndicator() // Show a loading indicator while fetching data
-                    : CategoryDropdown(
-                      //  onTap: () => null,
-                       inquiryType: 'compatibility',
-                        categoryTypeId: 2,
-                        onQuestionsFetched: (categoryId, questions) {
-                          // Handle fetched questions
-                        },
-                    editedProfile2: isEditing2 ? getEditedProfile2() : null,
-                    editedProfile: isEditing ? getEditedProfile() : null,
+                SizedBox(height: screenHeight * 0.08),
+                Center(
+                  child: Text(
+                    'Compatibility Questions',
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w100,
+                      color: Color.fromARGB(255, 87, 86, 86),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
+                ),
+                
+                SizedBox(height: screenHeight * 0.02),
+                Center(
+                  child: _isLoading
+                      ? const CircularProgressIndicator() // Show a loading indicator while fetching data
+                      : CategoryDropdown(
+                          // onTap: () => null,
+                          inquiryType: 'compatibility',
+                          categoryTypeId: 2,
+                          onQuestionsFetched: (categoryId, questions) {
+                            // Handle fetched questions
+                          },
+                          editedProfile2: isEditing2 ? getEditedProfile2() : null,
+                          editedProfile: isEditing ? getEditedProfile() : null,
+                        ),
                 ),
               ],
             ),
           ),
         ),
-        // CustomButton(
-        //   buttonText: 'Submit',
-        //   onPressed: () {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => PaymentPage()),
-        //     );
-        //   },
-        //   screenWidth: screenWidth,
-        //   screenHeight: screenHeight,
-        // ),
       ],
     ),
     bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 1),
   );
 }
+
 
 
   
@@ -320,7 +312,7 @@ Widget _buildTextRow(String label, String value) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Enter details '),
+      title: Text( 'Check Compatibility of : '),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,7 +403,7 @@ Widget _buildTextField(String label, TextEditingController controller) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Enter details 2'),
+      title: Text('Check Compatibility with:'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

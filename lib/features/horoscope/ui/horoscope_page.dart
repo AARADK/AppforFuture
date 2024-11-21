@@ -98,6 +98,11 @@ void _showDateSelectionMessage() {
   );
 }
 
+//For editable dialog 1
+final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController cityIdController = TextEditingController();
+  final TextEditingController tobController = TextEditingController();
 
 
   
@@ -206,43 +211,46 @@ final String formattedDate = _horoscopeSelectedDate != null
                 ),
 
                 SizedBox(height: screenHeight * 0.05),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Circle and Edit Icon for Profile
-                    Stack(
-                      children: [
-                        CircleWithNameWidget(
-                          assetPath: 'assets/images/virgo.png',
-                          name: _editedName?? _profile?.name ?? 'no name available',
-                          screenWidth: screenWidth,
-                          onTap: () {
-                            if (_profile?.name != null) {
-                              _showProfileDialog(context, _profile!);
-                            } else {
-                              print("no name");
-                            }
-                          },
-                          primaryColor: Color(0xFFFF9933),
-                        ),
-                        Positioned(
-                            left: 70,
-                            right: 0,
-                            top: 8,
-                            child: IconButton(
-                              icon: Icon(Icons.edit, color: _iconColor),
-                              onPressed: () {
-                                _updateIconColor();
-                                if (_profile != null) {
-                                  _showEditableProfileDialog(context);
-                                }
-                              },
-                            ),
-                        ),
-                      ],
-                    ),
+               Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Column(
+      children: [
+        CircleWithNameWidget(
+          assetPath: 'assets/images/virgo.png',
+          name: _editedName ?? _profile?.name ?? 'no name available',
+          screenWidth: screenWidth,
+          onTap: () {
+            if (_profile?.name != null) {
+              _showProfileDialog(context, _profile!);
+            } else {
+              print("no name");
+            }
+          },
+          primaryColor: Color(0xFFFF9933),
+        ),
+        SizedBox(height: screenHeight * 0.01), // Space between name and edit text
+        GestureDetector(
+          onTap: () {
+          
+              _showEditableProfileDialog(context);
+            
+          },
+          child: Text(
+            "Edit",
+            style: TextStyle(
+              color: Color(0xFFFF9933),
+              fontSize: screenWidth * 0.035,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
   ],
 ),
+
                         
 SizedBox(height: screenHeight * 0.04),
                   // Horoscope Description
@@ -323,31 +331,18 @@ SizedBox(height: screenHeight * 0.04),
                   },
                 ),
                 SizedBox(height: screenHeight * 0.02),
-                  Center(
-  child: GestureDetector(
-    onTap: () => _selectDate(context), // Call the DatePicker on tap
-    child: Container(
-      padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.008,
-        horizontal: screenWidth * 0.04,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0xFFFF9933),
-        ),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Text(
-        formattedDate, // Show the selected date
-        style: TextStyle(
-          color: Color(0xFFFF9933),
-          fontSize: screenWidth * 0.035,
-          fontFamily: 'Inter',
-        ),
-      ),
-    ),
-  ),
-),        
+                   Center(
+                    child: Text(
+                      'Horoscope Questions',
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.045,
+                        fontFamily: 'Inter',
+                        fontWeight: FontWeight.w100,
+                        color:Color.fromARGB(255, 87, 86, 86),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),      
                         
 
                    SizedBox(height: screenHeight * 0.02),
@@ -376,25 +371,6 @@ SizedBox(height: screenHeight * 0.04),
               ),
             ),
           ),
-
- 
- 
-                          
-                         // Display the selected date range
-
-          // Place the CustomButton above the bottom navigation bar
-          // CustomButton(
-          //   buttonText: 'Submit',
-          //   onPressed: () {
-          //   // Define your button action
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => PaymentPage()),
-          //   );
-          // },
-          //   screenWidth: screenWidth,
-          //   screenHeight: screenHeight,
-          // ),
         ],
       ),
       
@@ -513,6 +489,11 @@ void _saveProfile(String editedName , String editedCityId, String editedDob, Str
     this._editedCityId = editedCityId;
     this._editedDob = editedDob;
     this._editedTob = editedTob;
+
+      nameController.text = _editedName?? "";
+    dobController.text = _editedDob?? "";
+    cityIdController.text = _editedCityId?? "";
+    tobController.text = _editedTob?? "";
   }
 
  Map<String, dynamic> getEditedProfile() {

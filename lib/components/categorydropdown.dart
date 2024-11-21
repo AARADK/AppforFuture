@@ -18,10 +18,7 @@ class CategoryDropdown extends StatefulWidget {
   final Map<String, dynamic>? editedProfile2;
 
   final String
-      inquiryType; // Add the inquiry type (e.g., horoscope, auspicious time)
-  // final String? auspiciousFromDate;
-  // final String? horoscopeFromDate; // Optional field for auspicious time inquiry
-  // final VoidCallback onTap;
+      inquiryType; 
   
 
   const CategoryDropdown({
@@ -30,10 +27,7 @@ class CategoryDropdown extends StatefulWidget {
     required this.onQuestionsFetched,
     this.editedProfile,
     this.editedProfile2,
-    required this.inquiryType, // Accept inquiry type
-    // this.auspiciousFromDate,
-    // this.horoscopeFromDate, // Accept auspicious_from_date if needed
-
+    required this.inquiryType, 
     Key? key,
   }) : super(key: key);
 
@@ -47,43 +41,84 @@ class CategoryDropdownState extends State<CategoryDropdown> {
   late Future<Map<String, List<Question>>> _questionsFuture;
   late Future<Map<String, dynamic>?> _profileFuture;
   String? selectedQuestionId;
-   DateTime? selectedDate;
-
   // Variables for storing the selected date
   String? auspicious_from_date;
   String? horoscope_from_date;
 
-// Function to show date picker
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime picked = (await showDatePicker(
-      context: context,
-      initialDate: selectedDate ?? DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    ))!;
-    
-    setState(() {
-      selectedDate = picked;
-      print(selectedDate);
-      print(picked);
+Future<DateTime?> _selectDateWithMessage(BuildContext context, String selectedQuestion, double price) async {
+  // Show a custom dialog with both the message and the date picker at the same time
+  DateTime? selectedDate;  // Declare a variable to store the selected date
 
-       String? formattedPicked;
-    if (picked != null) {
-      formattedPicked = DateFormat('yyyy-MM-dd').format(picked!);  // Format to yyyy-MM-dd
-    }
-    print(formattedPicked);
+  await showDialog(
+    context: context,
+    barrierDismissible: true,  // Allow dismissing by tapping outside
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Confirmation message at the top
+              Text(
+                'You want to choose "$selectedQuestion" for \$${price.toStringAsFixed(2)} from:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),  // Space between message and date picker
 
-      // Store the date in the appropriate variable based on the page type
-      if (widget.inquiryType == 'auspicious_time') {
-        auspicious_from_date = formattedPicked;
-        print(auspicious_from_date);
-      } else if (widget.inquiryType == 'Horoscope') {
-        horoscope_from_date = formattedPicked;
-        print(horoscope_from_date);
+              // Date Picker widget
+              GestureDetector(
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
 
-      }
-    });
-  }
+                  if (picked != null) {
+                    selectedDate = picked; // Set the selected date
+
+                    // Optional: You can store the formatted date like you did in the original code
+                    String formattedPicked = DateFormat('yyyy-MM-dd').format(picked);
+
+                    // Store the date in the appropriate variable based on the page type
+                    if (widget.inquiryType == 'auspicious_time') {
+                      auspicious_from_date = formattedPicked;
+                    } else if (widget.inquiryType == 'Horoscope') {
+                      horoscope_from_date = formattedPicked;
+                    }
+                    
+                    // Close the dialog after date selection
+                    Navigator.pop(context);
+                  } else {
+                    // If no date is selected, just dismiss the dialog
+                    Navigator.pop(context);
+                  }
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange, width: 2),
+                  ),
+                  child: Text(
+                    'Tap to choose a date',
+                    style: TextStyle(fontSize: 16, color: Colors.orange),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+
+  return selectedDate;  // Return the selected date (could be null if no date is selected)
+}
+
 
   
 
@@ -91,7 +126,7 @@ class CategoryDropdownState extends State<CategoryDropdown> {
   void initState() {
     super.initState();
     _categoriesFuture = _fetchCategories();
-     if (widget.categoryTypeId != 4) {
+     if (widget.categoryTypeId != 6) {
     _questionsFuture = _fetchQuestionsForType(widget.categoryTypeId);
   }
     _profileFuture =
@@ -207,16 +242,7 @@ Future<void> handleTickIconTap() async {
       return;
     }
 
-    // // Format the dates to "yyyy-MM-dd" without time
-    // String? formattedAuspiciousDate;
-    // if (auspicious_from_date != null) {
-    //   formattedAuspiciousDate = DateFormat('yyyy-MM-dd').format(auspicious_from_date!);  // Format to yyyy-MM-dd
-    // }
-
-    // String? formattedHoroscopeDate;
-    // if (horoscope_from_date != null) {
-    //   formattedHoroscopeDate = DateFormat('yyyy-MM-dd').format(horoscope_from_date!);  // Format to yyyy-MM-dd
-    // }
+    
 
     // Build the initial body as a Map
     final body = {
@@ -496,63 +522,63 @@ Future<void> handleTickIconTap() async {
  @override
 Widget build(BuildContext context) {
   // Check if categoryTypeId is 2, use categoriesFuture; otherwise, use questionsFuture
-  // if (widget.categoryTypeId == 4) {
-  //   return FutureBuilder<Map<int, List<QuestionCategory>>>(
-  //     future: _categoriesFuture,
-  //     builder: (context, snapshot) {
-  //       if (snapshot.connectionState == ConnectionState.waiting) {
-  //         return Center(child: CircularProgressIndicator());
-  //       } else if (snapshot.hasError) {
-  //         return Center(child: Text('Error fetching categories: ${snapshot.error}'));
-  //       } else if (!snapshot.hasData ||
-  //           snapshot.data![widget.categoryTypeId] == null ||
-  //           snapshot.data![widget.categoryTypeId]!.isEmpty) {
-  //         return Center(child: Text('No categories available.'));
-  //       } else {
-  //         final categories = snapshot.data![widget.categoryTypeId]!;
-  //         return ExpansionTile(
-  //           title: Container(
-  //             decoration: BoxDecoration(
-  //               border: Border.all(
-  //                 color: Color(0xFFFF9933),
-  //                 width: 2.0,
-  //               ),
-  //               borderRadius: BorderRadius.circular(5),
-  //             ),
-  //             child: SizedBox(
-  //               height: 50,
-  //               child: Row(
-  //                 children: [
-  //                   SizedBox(width: 10),
-  //                   Expanded(
-  //                     child: Text(
-  //                       'Ideas what to ask',
-  //                       style: TextStyle(
-  //                         fontWeight: FontWeight.bold,
-  //                         color: Color(0xFFFF9933),
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //           children: categories.map((category) {
-  //             return ListTile(
-  //               title: Text(category.category),
-  //               onTap: () async {
-  //                 await _fetchQuestions(category.id);
-  //                  _showQuestions(context, category.id);
-  //               },
-  //             );
-  //           }).toList(),
-  //         );
-  //       }
-  //     },
-  //   );
-  // } else {
+  if (widget.categoryTypeId == 6) {
+    return FutureBuilder<Map<int, List<QuestionCategory>>>(
+      future: _categoriesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error fetching categories: ${snapshot.error}'));
+        } else if (!snapshot.hasData ||
+            snapshot.data![widget.categoryTypeId] == null ||
+            snapshot.data![widget.categoryTypeId]!.isEmpty) {
+          return Center(child: Text('No categories available.'));
+        } else {
+          final categories = snapshot.data![widget.categoryTypeId]!;
+          return ExpansionTile(
+            title: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Color(0xFFFF9933),
+                  width: 2.0,
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: SizedBox(
+                height: 50,
+                child: Row(
+                  children: [
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Ideas what to ask',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFFF9933),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            children: categories.map((category) {
+              return ListTile(
+                title: Text(category.category),
+                onTap: () async {
+                  await _fetchQuestions(category.id);
+                   _showQuestions(context, category.id);
+                },
+              );
+            }).toList(),
+          );
+        }
+      },
+    );
+  } else {
     // Handle categoryTypeId not equal to 2 (display questions directly)
-    return Center(
+   return Center(
   child: FutureBuilder<Map<String, List<Question>>>(
     future: _questionsFuture,
     builder: (context, snapshot) {
@@ -611,15 +637,38 @@ Widget build(BuildContext context) {
                     ],
                   ),
                   onTap: () {
-                    setState(() async {
-                      selectedQuestionId = question.id;
-                       await _selectDate(context);
-                       // Then navigate to the payment page
-                      Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                       builder: (context) => PaymentPage(handleTickIconTap: handleTickIconTap)
-                ));});
+                    if (widget.categoryTypeId == 2) {
+                      
+                      setState(() async {
+                        selectedQuestionId = question.id;
+                        if(widget.editedProfile2 != null){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentPage(
+                              handleTickIconTap: handleTickIconTap,
+                            ),
+                          ),
+                        );
+                      }});
+                    } else {
+                      // Show date picker and then navigate
+                      setState(() async {
+                        selectedQuestionId = question.id;
+
+                             // Show the date picker along with the message
+                  final  pickedDate = await _selectDateWithMessage(context, question.question, question.price);
+                   if (pickedDate != null) {
+                     Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentPage(
+                              handleTickIconTap: handleTickIconTap,
+                            ),
+                          ),
+                        );
+                  }});
+                    }
                   },
                 ),
               );
@@ -630,5 +679,6 @@ Widget build(BuildContext context) {
     },
   ),
 );
+}
 }
 }

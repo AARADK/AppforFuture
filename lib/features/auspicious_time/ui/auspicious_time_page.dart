@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/AskButton.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/buildcirclewithname.dart';
 import 'package:flutter_application_1/components/categorydropdown.dart';
@@ -17,6 +18,7 @@ import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
+import 'package:flutter_application_1/features/profile/ui/ask_question_button.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
@@ -94,6 +96,11 @@ void _showDateSelectionMessage() {
   );
 }
 
+//For editable dialog 1
+final TextEditingController nameController = TextEditingController();
+  final TextEditingController dobController = TextEditingController();
+  final TextEditingController cityIdController = TextEditingController();
+  final TextEditingController tobController = TextEditingController();
 
 
   @override
@@ -150,9 +157,7 @@ void _showDateSelectionMessage() {
 
 
 
- 
-
-@override
+ @override
 Widget build(BuildContext context) {
   final screenHeight = MediaQuery.of(context).size.height;
   final screenWidth = MediaQuery.of(context).size.width;
@@ -167,19 +172,21 @@ Widget build(BuildContext context) {
         context,
         MaterialPageRoute(builder: (context) => DashboardPage()),
       );
-      return false;
+      return false; // Prevent the default back button behavior
     },
-    child: Scaffold(
-      backgroundColor: Colors.white,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: screenHeight * 0.4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                TopNavBar(
+    child:Scaffold(
+    backgroundColor: Colors.white,
+    body: Stack(
+      children: [
+        SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: screenHeight * 0.4), // Increased bottom padding to accommodate questions
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Using TopNavWidget instead of SafeArea with custom AppBar
+                    // Use TopNavBar here with correct arguments
+                   TopNavBar(
                   title: 'Auspicious Time',
                   onLeftButtonPressed: () {
                     Navigator.push(
@@ -197,44 +204,46 @@ Widget build(BuildContext context) {
                   rightIcon: Icons.help,     // Icon for the right side
                 ),
 
-                   SizedBox(height: screenHeight * 0.05),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Circle and Edit Icon for Profile
-                    Stack(
-                      children: [
-                        CircleWithNameWidget(
-                          assetPath: 'assets/images/virgo.png',
-                          name: _editedName?? _profile?.name ?? 'no name available',
-                          screenWidth: screenWidth,
-                          onTap: () {
-                            if (_profile?.name != null) {
-                              _showProfileDialog(context, _profile!);
-                            } else {
-                              print("no name");
-                            }
-                          },
-                          primaryColor: Color(0xFFFF9933),
-                        ),
-                        Positioned(
-                            left: 70,
-                            right: 0,
-                            top: 8,
-                            child: IconButton(
-                              icon: Icon(Icons.edit, color: _iconColor),
-                              onPressed: () {
-                                _updateIconColor();
-                                if (_profile != null) {
-                                  _showEditableProfileDialog(context);
-                                }
-                              },
-                            ),
-                        ),
-                      ],
-                    ),
-                          ],
-                        ),
+                SizedBox(height: screenHeight * 0.05),
+               Row(
+  mainAxisAlignment: MainAxisAlignment.center,
+  children: [
+    Column(
+      children: [
+        CircleWithNameWidget(
+          assetPath: 'assets/images/virgo.png',
+          name: _editedName ?? _profile?.name ?? 'no name available',
+          screenWidth: screenWidth,
+          onTap: () {
+            if (_profile?.name != null) {
+              _showProfileDialog(context, _profile!);
+            } else {
+              print("no name");
+            }
+          },
+          primaryColor: Color(0xFFFF9933),
+        ),
+        SizedBox(height: screenHeight * 0.01), // Space between name and edit text
+        GestureDetector(
+          onTap: () {
+            
+              _showEditableProfileDialog(context);
+            
+          },
+          child: Text(
+            "Edit",
+            style: TextStyle(
+              color: Color(0xFFFF9933),
+              fontSize: screenWidth * 0.035,
+              fontFamily: 'Inter',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
+    ),
+  ],
+),
                   SizedBox(height: screenHeight * 0.04),
                   FutureBuilder<Auspicious>(
                     future: _auspiciousFuture,
@@ -315,34 +324,20 @@ Widget build(BuildContext context) {
                     },
                   ),
                    SizedBox(height: screenHeight * 0.02),
-
-                  Center(
-  child: GestureDetector(
-    onTap: () => _selectDate(context), // Call the DatePicker on tap
-    child: Container(
-      padding: EdgeInsets.symmetric(
-        vertical: screenHeight * 0.008,
-        horizontal: screenWidth * 0.04,
-      ),
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Color(0xFFFF9933),
-        ),
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Text(
-        formattedDate, // Show the selected date
-        style: TextStyle(
-          color: Color(0xFFFF9933),
-          fontSize: screenWidth * 0.035,
-          fontFamily: 'Inter',
-        ),
-      ),
+                   Center(
+  child: Text(
+    'Auspicious Questions',
+    style: TextStyle(
+      fontSize: screenWidth * 0.045,
+      fontFamily: 'Inter',
+      fontWeight: FontWeight.w100,
+      color:Color.fromARGB(255, 87, 86, 86),
     ),
+    textAlign: TextAlign.center,
   ),
 ),
 
-                   SizedBox(height: screenHeight * 0.02),
+                   SizedBox(height: screenHeight * 0.01),
                    Center(
                   child: _isLoading
                     ? const CircularProgressIndicator() // Show a loading indicator while fetching data
@@ -368,23 +363,13 @@ Widget build(BuildContext context) {
               ),
             ),
           ),
-          // CustomButton(
-          //   buttonText: 'Submit',
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(builder: (context) => PaymentPage()),
-          //     );
-          //   },
-          //   screenWidth: screenWidth,
-          //   screenHeight: screenHeight,
-          // ),
         ],
       ),
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight, currentPageIndex: 2),
     ),
   );
 }
+
 
 
 
@@ -435,15 +420,11 @@ Widget _buildTextRow(String label, String value) {
 
 
   void _showEditableProfileDialog(BuildContext context) {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController dobController = TextEditingController();
-  final TextEditingController cityIdController = TextEditingController();
-  final TextEditingController tobController = TextEditingController();
 
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      title: Text('Enter details'),
+      title: Text( 'Check Compatibility of : '),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,6 +477,11 @@ void _saveProfile(String editedName , String editedCityId, String editedDob, Str
     this._editedCityId = editedCityId;
     this._editedDob = editedDob;
     this._editedTob = editedTob;
+
+  nameController.text = _editedName?? "";
+  dobController.text = _editedDob?? "";
+  cityIdController.text = _editedCityId?? "";
+  tobController.text = _editedTob?? "";
   }
 
  Map<String, dynamic> getEditedProfile() {
@@ -506,7 +492,7 @@ void _saveProfile(String editedName , String editedCityId, String editedDob, Str
       'tob': _editedTob,
     };
   }
-}
+
 
 Widget _buildTextField(String label, TextEditingController controller) {
   return Column(
@@ -522,5 +508,6 @@ Widget _buildTextField(String label, TextEditingController controller) {
       TextField(controller: controller),
     ],
   );
+}
 }
 

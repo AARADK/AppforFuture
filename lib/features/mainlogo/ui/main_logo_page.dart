@@ -148,38 +148,38 @@ class MainLogoPage extends StatelessWidget {
               ],
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.02),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AskQuestionPage()),
-                  );
-                },
-                child: Text(
-                  'Ask a Question',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    fontFamily: 'Inter',
-                    color: Colors.white,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFFFF9933),
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
-                  shape: RoundedRectangleBorder(),
-                  fixedSize: Size(screenWidth * 0.8, screenHeight * 0.07),
-                  shadowColor: Colors.black,
-                  elevation: 10,
-                ),
-              ),
-            ),
-          ),
+          // Align(
+          //   alignment: Alignment.bottomCenter,
+          //   child: Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06, vertical: screenHeight * 0.02),
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         Navigator.push(
+          //           context,
+          //           MaterialPageRoute(builder: (context) => AskQuestionPage()),
+          //         );
+          //       },
+          //       child: Text(
+          //         'Ask a Question',
+          //         style: TextStyle(
+          //           fontSize: screenWidth * 0.05,
+          //           fontFamily: 'Inter',
+          //           color: Colors.white,
+          //           fontWeight: FontWeight.normal,
+          //         ),
+          //       ),
+          //       style: ElevatedButton.styleFrom(
+          //         foregroundColor: Colors.white,
+          //         backgroundColor: Color(0xFFFF9933),
+          //         padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: screenHeight * 0.02),
+          //         shape: RoundedRectangleBorder(),
+          //         fixedSize: Size(screenWidth * 0.8, screenHeight * 0.07),
+          //         shadowColor: Colors.black,
+          //         elevation: 10,
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
       bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),

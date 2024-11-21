@@ -159,7 +159,7 @@ Center(
   child: CategoryDropdown(
     //  onTap: () => null,
     inquiryType: 'ask_a_question',
-    categoryTypeId: 5,
+    categoryTypeId: 6,
     onQuestionsFetched: (categoryId, questions) {
       // Handle the fetched questions here
     },

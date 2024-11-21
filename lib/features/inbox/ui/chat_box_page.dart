@@ -18,8 +18,10 @@ class ChatBoxPage extends StatelessWidget {
         return 'Kundali';
       case 5:
         return 'Support';
+      case 6:
+        return 'Ask a Question';
       default:
-        return 'Unknown Category';
+        return 'Unknown Category'; // Handle any unknown categories
     }
   }
 
@@ -74,7 +76,7 @@ class ChatBoxPage extends StatelessWidget {
       padding: EdgeInsets.all(12),
       margin: EdgeInsets.symmetric(vertical: 8),
       decoration: BoxDecoration(
-        color: Color(0xFFFF9933),
+        color: Color.fromARGB(255, 240, 216, 192),
         borderRadius: BorderRadius.circular(15),
       ),
       child: Column(

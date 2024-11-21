@@ -478,7 +478,7 @@ class _DashboardState extends State<DashboardPage> {
                       style: TextStyle(
                         fontSize: size.width * 0.04,
                         fontFamily: 'Inter',
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         color: Color(0xFFFF9933), // Title color set to #FF9933
                       ),
                     ),
