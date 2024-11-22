@@ -45,15 +45,18 @@ class CategoryDropdownState extends State<CategoryDropdown> {
   String? auspicious_from_date;
   String? horoscope_from_date;
 
-Future<DateTime?> _selectDateWithMessage(BuildContext context, String selectedQuestion, double price) async {
-  // Show a custom dialog with both the message and the date picker at the same time
-  DateTime? selectedDate;  // Declare a variable to store the selected date
+Future<DateTime?> _selectDateWithMessage(
+    BuildContext context, String selectedQuestion, double price) async {
+  DateTime? selectedDate = DateTime.now(); // Set an initial date
 
   await showDialog(
     context: context,
-    barrierDismissible: true,  // Allow dismissing by tapping outside
+    barrierDismissible: true, // Allow dismissing by tapping outside
     builder: (BuildContext context) {
       return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0), // Subtle rounding
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -63,51 +66,62 @@ Future<DateTime?> _selectDateWithMessage(BuildContext context, String selectedQu
               // Confirmation message at the top
               Text(
                 'You want to choose "$selectedQuestion" for \$${price.toStringAsFixed(2)} from:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 20),  // Space between message and date picker
-
-              // Date Picker widget
-              GestureDetector(
-                onTap: () async {
-                  final DateTime? picked = await showDatePicker(
-                    context: context,
-                    initialDate: selectedDate ?? DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                  );
-
-                  if (picked != null) {
-                    selectedDate = picked; // Set the selected date
-
-                    // Optional: You can store the formatted date like you did in the original code
-                    String formattedPicked = DateFormat('yyyy-MM-dd').format(picked);
-
-                    // Store the date in the appropriate variable based on the page type
-                    if (widget.inquiryType == 'auspicious_time') {
-                      auspicious_from_date = formattedPicked;
-                    } else if (widget.inquiryType == 'Horoscope') {
-                      horoscope_from_date = formattedPicked;
-                    }
-                    
-                    // Close the dialog after date selection
-                    Navigator.pop(context);
-                  } else {
-                    // If no date is selected, just dismiss the dialog
-                    Navigator.pop(context);
-                  }
-                },
-                child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange, width: 2),
-                  ),
-                  child: Text(
-                    'Tap to choose a date',
-                    style: TextStyle(fontSize: 16, color: Colors.orange),
-                  ),
+                style: TextStyle(
+                  fontSize: 14, // Bigger font size
+                  fontWeight: FontWeight.w600,
+                  color: Colors.orange, // Orange color
                 ),
+              ),
+              SizedBox(height: 20), // Space between message and date picker
+
+              // Embedded Date Picker widget
+              CalendarDatePicker(
+                initialDate: selectedDate!,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2101),
+                onDateChanged: (DateTime picked) {
+                  selectedDate = picked; // Update the selected date
+                },
+              ),
+              SizedBox(height: 20), // Add some space before buttons
+
+              // Cancel and Confirm buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      selectedDate = null; // Explicitly set selectedDate to null on cancel
+                      Navigator.pop(context, null); // Return null to indicate no date was chosen
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Color.fromARGB(255, 219, 35, 35)), // Grey color for Cancel
+                    ),
+                  ),
+
+                  // Confirm Button
+                  TextButton(
+                    onPressed: () {
+                      // Store the formatted date based on the page type
+                      if (selectedDate != null) {
+                        String formattedPicked =
+                            DateFormat('yyyy-MM-dd').format(selectedDate!);
+
+                        if (widget.inquiryType == 'auspicious_time') {
+                          auspicious_from_date = formattedPicked;
+                        } else if (widget.inquiryType == 'Horoscope') {
+                          horoscope_from_date = formattedPicked;
+                        }
+                      }
+                      Navigator.pop(context, selectedDate); // Return selected date
+                    },
+                    child: Text(
+                      'Confirm',
+                      style: TextStyle(color: Colors.orange), // Orange color for Confirm
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -116,11 +130,10 @@ Future<DateTime?> _selectDateWithMessage(BuildContext context, String selectedQu
     },
   );
 
-  return selectedDate;  // Return the selected date (could be null if no date is selected)
+  return selectedDate; // Return the selected date (null if dialog is dismissed)
 }
 
 
-  
 
   @override
   void initState() {
@@ -657,8 +670,8 @@ Widget build(BuildContext context) {
                         selectedQuestionId = question.id;
 
                              // Show the date picker along with the message
-                  final  pickedDate = await _selectDateWithMessage(context, question.question, question.price);
-                   if (pickedDate != null) {
+                  final  selectedDate = await _selectDateWithMessage(context, question.question, question.price);
+                   if (selectedDate != null) {
                      Navigator.push(
                           context,
                           MaterialPageRoute(
