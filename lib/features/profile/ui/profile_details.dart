@@ -150,7 +150,7 @@ class _ProfileDetailsState extends State<ProfileDetails> {
                                     color: Colors.red, fontSize: fontSize)),
                           )
                         : _buildProfileUI(
-                            fontSize, spacing, screenWidth,padding),
+                            fontSize, spacing, screenWidth, padding),
                 SizedBox(height: screenHeight * 0.1), // Extra space for buttons
               ],
             ),

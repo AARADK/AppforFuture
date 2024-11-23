@@ -9,7 +9,7 @@ class AnimatedTextWidget extends StatefulWidget {
     Key? key,
     required this.texts,
     this.textStyle,
-    this.duration = const Duration(seconds: 2),
+    this.duration = const Duration(seconds: 1),
   }) : super(key: key);
 
   @override
@@ -36,13 +36,14 @@ class _AnimatedTextWidgetState extends State<AnimatedTextWidget>
 
     // Define position and fade animations
     _textPositionAnimation = Tween<Offset>(
-      begin: Offset(0, 0.3),
-      end: Offset(0, -0.3),
+      begin: Offset(0, 0.2),
+      end: Offset(0, 0),
     ).animate(
-      CurvedAnimation(parent: _textAnimationController, curve: Curves.easeInOut),
+      CurvedAnimation(
+          parent: _textAnimationController, curve: Curves.easeInOut),
     );
 
-    _textFadeAnimation = Tween<double>(begin: 0.9, end: 0.0).animate(
+    _textFadeAnimation = Tween<double>(begin: 0.3, end: 0.0).animate(
       CurvedAnimation(parent: _textAnimationController, curve: Curves.easeIn),
     );
 

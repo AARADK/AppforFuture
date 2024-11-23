@@ -1,12 +1,7 @@
 // main_logo_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
-import 'package:flutter_application_1/features/ask_a_question/ui/ask_a_question_page.dart';
-import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
-import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
-import 'package:flutter_application_1/features/compatibility/ui/compatibility_page2.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
-import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart';
 import 'package:flutter_application_1/features/inbox/ui/inbox_page.dart';
 
 class MainLogoPage extends StatelessWidget {
@@ -16,7 +11,7 @@ class MainLogoPage extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-     backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
           SingleChildScrollView(
@@ -25,7 +20,9 @@ class MainLogoPage extends StatelessWidget {
               children: [
                 SafeArea(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.04,
+                        vertical: screenHeight * 0.01),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -33,7 +30,8 @@ class MainLogoPage extends StatelessWidget {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => DashboardPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => DashboardPage()),
                             );
                           },
                           child: Text(
@@ -63,7 +61,8 @@ class MainLogoPage extends StatelessWidget {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => InboxPage()),
+                              MaterialPageRoute(
+                                  builder: (context) => InboxPage()),
                             );
                           },
                           child: Container(
@@ -71,7 +70,8 @@ class MainLogoPage extends StatelessWidget {
                             height: screenWidth * 0.12,
                             decoration: BoxDecoration(
                               border: Border.all(color: Color(0xFFFF9933)),
-                              borderRadius: BorderRadius.circular(screenWidth * 0.06),
+                              borderRadius:
+                                  BorderRadius.circular(screenWidth * 0.06),
                             ),
                             child: Icon(
                               Icons.inbox,
@@ -182,7 +182,8 @@ class MainLogoPage extends StatelessWidget {
           // ),
         ],
       ),
-      bottomNavigationBar: BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
+      bottomNavigationBar:
+          BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
     );
   }
 }

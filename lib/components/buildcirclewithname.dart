@@ -17,8 +17,6 @@ class CircleWithNameWidget extends StatelessWidget {
     required this.primaryColor,
   });
 
-  
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -54,28 +52,30 @@ class CircleWithNameWidget extends StatelessWidget {
     );
   }
 }
-void _showQuestionDetails(BuildContext context, Question question) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Press the submit button if you are sure about this question.'),
-          content: Text(question.question),
-          actions: [
-            TextButton(
-              child: Text('Close'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            // Add more actions if needed
-          ],
-        );
-      },
-    );
-  }
 
-  void _showProfileDialog(BuildContext context, ProfileModel profile) {
+void _showQuestionDetails(BuildContext context, Question question) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+            'Press the submit button if you are sure about this question.'),
+        content: Text(question.question),
+        actions: [
+          TextButton(
+            child: Text('Close'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          // Add more actions if needed
+        ],
+      );
+    },
+  );
+}
+
+void _showProfileDialog(BuildContext context, ProfileModel profile) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
@@ -108,7 +108,7 @@ Widget _buildTextRow(String label, String value) {
     children: [
       Text(
         label,
-        style: TextStyle(fontWeight: FontWeight.bold,color: Color(0xFFFF9933)),
+        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF9933)),
       ),
       SizedBox(height: 5),
       Text(value), // Display the profile information
@@ -116,5 +116,3 @@ Widget _buildTextRow(String label, String value) {
     ],
   );
 }
-  
-

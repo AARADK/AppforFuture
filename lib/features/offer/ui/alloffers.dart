@@ -7,7 +7,7 @@ class AllOffersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-       backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('All Offers'),
         backgroundColor: Color(0xFFFF9933),

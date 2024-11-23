@@ -23,7 +23,8 @@ class _TypeSelectionPageState extends State<TypeSelectionPage> {
 
   Future<void> _loadQuestionsByTypeId(int typeId) async {
     try {
-      final questionModels = await _askQuestionRepository.fetchQuestionsByTypeId(typeId);
+      final questionModels =
+          await _askQuestionRepository.fetchQuestionsByTypeId(typeId);
       setState(() {
         questions = questionModels;
       });
@@ -39,7 +40,6 @@ class _TypeSelectionPageState extends State<TypeSelectionPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
         title: Text('Questions'),
         backgroundColor: Color(0xFFFF9933),

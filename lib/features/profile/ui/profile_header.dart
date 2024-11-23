@@ -10,7 +10,8 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.04, vertical: screenHeight * 0.02),
+      padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.04, vertical: screenHeight * 0.02),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -41,7 +42,8 @@ class ProfileHeader extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => InboxPage()), // Navigate to InboxPage
+                MaterialPageRoute(
+                    builder: (context) => InboxPage()), // Navigate to InboxPage
               );
             },
             child: Container(
@@ -49,7 +51,8 @@ class ProfileHeader extends StatelessWidget {
               height: screenWidth * 0.12,
               decoration: BoxDecoration(
                 border: Border.all(color: Color(0xFFFF9933)),
-                borderRadius: BorderRadius.circular(screenWidth * 0.06), // Matching radius
+                borderRadius: BorderRadius.circular(
+                    screenWidth * 0.06), // Matching radius
               ),
               child: Icon(Icons.inbox, color: Color(0xFFFF9933)),
             ),

@@ -27,7 +27,8 @@ class _OfferPageState extends State<OfferPage> {
       final repository = OfferRepository();
       final questions = await repository.fetchQuestions();
       setState(() {
-        _auspiciousQuestion = questions[widget.offer.auspiciousQuestionId] ?? 'No auspicious question available';
+        _auspiciousQuestion = questions[widget.offer.auspiciousQuestionId] ??
+            'No auspicious question available';
       });
     } catch (e) {
       setState(() {
@@ -60,7 +61,7 @@ class _OfferPageState extends State<OfferPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            OfferWidget(offer: widget.offer,tappable: false),
+            OfferWidget(offer: widget.offer, tappable: false),
             SizedBox(height: 8),
             Text(
               widget.offer.description ?? 'No Description Available',
@@ -146,7 +147,8 @@ class _OfferPageState extends State<OfferPage> {
                         GestureDetector(
                           onTap: () => _showQuestionsDialog(1),
                           child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 6.0, horizontal: 12.0),
                             decoration: BoxDecoration(
                               color: Color(0xFFFF9933),
                               borderRadius: BorderRadius.circular(5.0),
@@ -178,7 +180,8 @@ class _OfferPageState extends State<OfferPage> {
                         GestureDetector(
                           onTap: () => _showQuestionsDialog(2),
                           child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 12.0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 6.0, horizontal: 12.0),
                             decoration: BoxDecoration(
                               color: Color(0xFFFF9933),
                               borderRadius: BorderRadius.circular(5.0),

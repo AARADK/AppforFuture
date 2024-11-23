@@ -34,7 +34,7 @@ class ChatBoxPage extends StatelessWidget {
     String categoryName = _getCategoryName(categoryTypeId);
 
     return Scaffold(
-       backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Chat'),
       ),
@@ -58,7 +58,8 @@ class ChatBoxPage extends StatelessWidget {
                   'Reply:',
                   finalReading,
                   Colors.blue.shade200,
-                  DateFormat('yyyy-MM-dd').format(DateTime.parse(inquiry['final_reading_on'])),
+                  DateFormat('yyyy-MM-dd')
+                      .format(DateTime.parse(inquiry['final_reading_on'])),
                   Colors.blue,
                 ),
               )
@@ -87,11 +88,14 @@ class ChatBoxPage extends StatelessWidget {
           SizedBox(height: 5),
           Text('Category: $categoryName'),
           Text('Price: \$${inquiry['price']}'),
-          Text('Purchased on: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(inquiry['purchased_on']))}'),
+          Text(
+              'Purchased on: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(inquiry['purchased_on']))}'),
           if (isRead)
             Padding(
               padding: const EdgeInsets.only(top: 5.0),
-              child: Text('Seen', style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic)),
+              child: Text('Seen',
+                  style: TextStyle(
+                      color: Colors.green, fontStyle: FontStyle.italic)),
             ),
           SizedBox(height: 10),
 
@@ -103,7 +107,8 @@ class ChatBoxPage extends StatelessWidget {
   }
 
   // Method to build a message bubble
-  Widget _buildMessageBubble(String title, String message, Color color, String date, Color textColor,
+  Widget _buildMessageBubble(
+      String title, String message, Color color, String date, Color textColor,
       {String? additionalInfo, bool isRead = false}) {
     return Container(
       padding: EdgeInsets.all(12),
@@ -115,14 +120,20 @@ class ChatBoxPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
+          Text(title,
+              style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
           Text(message, style: TextStyle(color: textColor)),
           SizedBox(height: 5),
-          Text(date, style: TextStyle(fontSize: 12, color: textColor.withOpacity(0.6))),
+          Text(date,
+              style:
+                  TextStyle(fontSize: 12, color: textColor.withOpacity(0.6))),
           if (isRead)
             Text(
               'Seen',
-              style: TextStyle(color: Colors.green, fontStyle: FontStyle.italic, fontSize: 12),
+              style: TextStyle(
+                  color: Colors.green,
+                  fontStyle: FontStyle.italic,
+                  fontSize: 12),
             ),
         ],
       ),
@@ -162,7 +173,8 @@ class ChatBoxPage extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.account_circle, color: Colors.orange.shade600, size: 24),
+              Icon(Icons.account_circle,
+                  color: Colors.orange.shade600, size: 24),
               SizedBox(width: 5),
               Text(
                 'Profile',
@@ -171,7 +183,8 @@ class ChatBoxPage extends StatelessWidget {
             ],
           ),
           Divider(color: Colors.orange.shade300),
-          Text('Name: ${profile['name']}', style: TextStyle(fontWeight: FontWeight.bold)),
+          Text('Name: ${profile['name']}',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           Text('City: ${profile['city_id']}'),
           Text('DOB: ${profile['dob']}'),
           Text('TOB: ${profile['tob']}'),

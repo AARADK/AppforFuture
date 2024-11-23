@@ -17,7 +17,8 @@ class OtpOverlay extends StatefulWidget {
 }
 
 class _OtpOverlayState extends State<OtpOverlay> {
-  final List<TextEditingController> _otpControllers = List.generate(6, (index) => TextEditingController());
+  final List<TextEditingController> _otpControllers =
+      List.generate(6, (index) => TextEditingController());
   final OtpService _otpService = OtpService();
   bool _isVerifying = false;
 
@@ -105,10 +106,12 @@ class _OtpOverlayState extends State<OtpOverlay> {
                       controller: _otpControllers[index],
                       decoration: InputDecoration(
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFFFF9933), width: 2.0),
+                          borderSide:
+                              BorderSide(color: Color(0xFFFF9933), width: 2.0),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black12, width: 2.0),
+                          borderSide:
+                              BorderSide(color: Colors.black12, width: 2.0),
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -143,35 +146,40 @@ class _OtpOverlayState extends State<OtpOverlay> {
                 ),
               ),
               SizedBox(height: 10),
-              RichText(
-                text: TextSpan(
-                  text: timeup ? "OTP expired. " : "Didn't receive OTP? ",
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.035,
-                    color: Colors.grey[600],
-                  ),
-                  children: [
-                    TextSpan(
-                      text: "Resend",
-                      style: TextStyle(
-                        color: Color(0xFFFF9933),
-                        decoration: TextDecoration.underline,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      recognizer: TapGestureRecognizer()..onTap = _resendOtp,
+              // Show resend OTP link only after time is up
+              if (timeup)
+                RichText(
+                  text: TextSpan(
+                    text: "Didn't receive OTP? ",
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.035,
+                      color: Colors.grey[600],
                     ),
-                  ],
+                    children: [
+                      TextSpan(
+                        text: "Resend",
+                        style: TextStyle(
+                          color: Color(0xFFFF9933),
+                          decoration: TextDecoration.underline,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        recognizer: TapGestureRecognizer()..onTap = _resendOtp,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: _isOtpComplete() && !timeup ? Color(0xFFFF9933) : Colors.grey,
+                    backgroundColor: _isOtpComplete() && !timeup
+                        ? Color(0xFFFF9933)
+                        : Colors.grey,
                     padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.04, vertical: screenHeight * 0.01),
+                        horizontal: screenWidth * 0.04,
+                        vertical: screenHeight * 0.01),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(0),
                     ),
@@ -179,7 +187,9 @@ class _OtpOverlayState extends State<OtpOverlay> {
                     shadowColor: Colors.black,
                     elevation: 10,
                   ),
-                  onPressed: _isOtpComplete() && !_isVerifying && !timeup ? _verifyOtp : null,
+                  onPressed: _isOtpComplete() && !_isVerifying && !timeup
+                      ? _verifyOtp
+                      : null,
                   child: _isVerifying
                       ? CircularProgressIndicator(color: Colors.white)
                       : Text(
@@ -204,8 +214,9 @@ class _OtpOverlayState extends State<OtpOverlay> {
     return _otpControllers.every((controller) => controller.text.isNotEmpty);
   }
 
-   void _verifyOtp() async {
-    String enteredOtp = _otpControllers.map((controller) => controller.text).join();
+  void _verifyOtp() async {
+    String enteredOtp =
+        _otpControllers.map((controller) => controller.text).join();
 
     if (enteredOtp.length == 6 && timeup == false) {
       setState(() {
@@ -213,12 +224,15 @@ class _OtpOverlayState extends State<OtpOverlay> {
       });
 
       try {
-        bool isVerified = await _otpService.verifyOtp(enteredOtp, widget.email,timeup);
+        bool isVerified =
+            await _otpService.verifyOtp(enteredOtp, widget.email, timeup);
 
         if (isVerified) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => widget.isLoginMode ? DashboardPage() : MainLogoPage()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    widget.isLoginMode ? DashboardPage() : MainLogoPage()),
           );
           _otpControllers.forEach((controller) => controller.clear());
         } else {
@@ -237,21 +251,21 @@ class _OtpOverlayState extends State<OtpOverlay> {
     }
   }
 
- void _resendOtp() async {
-  try {
-    bool success = await SignUpRepo().login(widget.email); // Call the resendOtp method
+  void _resendOtp() async {
+    try {
+      bool success =
+          await SignUpRepo().login(widget.email); // Call the resendOtp method
 
-    if (success) {
-      _startTimer(); // Restart the timer
-      _showSnackBar('OTP resent successfully.');
-    } else {
-      _showSnackBar('Failed to resend OTP. Please try again.');
+      if (success) {
+        _startTimer(); // Restart the timer
+        _showSnackBar('OTP resent successfully.');
+      } else {
+        _showSnackBar('Failed to resend OTP. Please try again.');
+      }
+    } catch (e) {
+      _showSnackBar('An error occurred while resending OTP.');
     }
-  } catch (e) {
-    _showSnackBar('An error occurred while resending OTP.');
   }
-}
-
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

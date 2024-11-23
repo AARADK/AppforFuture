@@ -29,7 +29,8 @@ class _OfferWidgetState extends State<OfferWidget> {
       final repository = OfferRepository();
       final questions = await repository.fetchQuestions();
       setState(() {
-        _auspiciousQuestion = questions[widget.offer!.auspiciousQuestionId] ?? 'N/A';
+        _auspiciousQuestion =
+            questions[widget.offer!.auspiciousQuestionId] ?? 'N/A';
       });
     } catch (e) {
       setState(() {
@@ -52,7 +53,8 @@ class _OfferWidgetState extends State<OfferWidget> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => OfferPage(offer: widget.offer!)),
+                MaterialPageRoute(
+                    builder: (context) => OfferPage(offer: widget.offer!)),
               );
             },
             child: _buildOfferContainer(screenWidth, screenHeight),

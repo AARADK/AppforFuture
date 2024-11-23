@@ -35,7 +35,8 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.end, // Align all children at the bottom
+        crossAxisAlignment:
+            CrossAxisAlignment.end, // Align all children at the bottom
         children: [
           _buildNavItem(
             context,
@@ -51,7 +52,6 @@ class BottomNavBar extends StatelessWidget {
             label: 'Compatibility',
             targetPage: CompatibilityPage(),
           ),
-        
           _buildAskButton(context),
           _buildNavItem(
             context,
@@ -73,58 +73,67 @@ class BottomNavBar extends StatelessWidget {
   }
 
   Widget _buildNavItem(
-  BuildContext context, {
-  required int index,
-  String? iconImage,
-  IconData? icon,
-  required String label,
-  required Widget targetPage,
-}) {
-  bool isSelected = currentPageIndex == index;
+    BuildContext context, {
+    required int index,
+    String? iconImage,
+    IconData? icon,
+    required String label,
+    required Widget targetPage,
+  }) {
+    bool isSelected = currentPageIndex == index;
 
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => targetPage),
-      );
-    },
-    behavior: HitTestBehavior.translucent,
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end, // Align the icon and text at the bottom
-      children: [
-        iconImage != null
-            ? Image.asset(
-                iconImage,
-                width: screenWidth * 0.07,
-                height: screenWidth * 0.07,
-                color: isSelected ?  Color(0xFFFF9933) : null, // Elegant purple when selected
-              )
-            : Icon(
-                icon,
-                color: isSelected ? Color(0xFFFF9933) : Color.fromARGB(255, 5, 5, 5),
-                size: screenWidth * 0.07,
-              ),
-        SizedBox(height: 2), // Consistent spacing
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12, // Slightly larger text for better legibility
-            color: isSelected ? Color(0xFFFF9933) : Colors.black, // Consistent color change for selection
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal, // Bold when selected
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => targetPage),
+        );
+      },
+      behavior: HitTestBehavior.translucent,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment:
+            MainAxisAlignment.end, // Align the icon and text at the bottom
+        children: [
+          iconImage != null
+              ? Image.asset(
+                  iconImage,
+                  width: screenWidth * 0.07,
+                  height: screenWidth * 0.07,
+                  color: isSelected
+                      ? Color(0xFFFF9933)
+                      : null, // Elegant purple when selected
+                )
+              : Icon(
+                  icon,
+                  color: isSelected
+                      ? Color(0xFFFF9933)
+                      : Color.fromARGB(255, 5, 5, 5),
+                  size: screenWidth * 0.07,
+                ),
+          SizedBox(height: 2), // Consistent spacing
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12, // Slightly larger text for better legibility
+              color: isSelected
+                  ? Color(0xFFFF9933)
+                  : Colors.black, // Consistent color change for selection
+              fontWeight: isSelected
+                  ? FontWeight.bold
+                  : FontWeight.normal, // Bold when selected
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildAskButton(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.end, // Align button and text at the bottom
+      mainAxisAlignment:
+          MainAxisAlignment.end, // Align button and text at the bottom
       children: [
         GestureDetector(
           onTap: () {
@@ -138,10 +147,11 @@ class BottomNavBar extends StatelessWidget {
             height: screenWidth * 0.09,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color:  Color(0xFFFF9933), // Elegant color for the button
+              color: Color(0xFFFF9933), // Elegant color for the button
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.3), // Soft shadow around the button
+                  color: Colors.grey
+                      .withOpacity(0.3), // Soft shadow around the button
                   spreadRadius: 1,
                   blurRadius: 5,
                   offset: Offset(0, 4),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/animated_text.dart';
 import 'package:flutter_application_1/features/sign_up/model/user_model.dart';
 import 'package:flutter_application_1/features/sign_up/repo/sign_up_repo.dart';
-import 'package:flutter_application_1/features/sign_up/ui/detail_input_field.dart';
 import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:intl/intl.dart';
 import '../../otp/ui/otp.dart';
@@ -27,10 +26,6 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
 
   // Animation controllers for logo rotation and text animation
   late AnimationController _animationController;
-  late Animation<double> _rotationAnimation;
-  
-  
-  
 
   @override
   void initState() {
@@ -42,30 +37,14 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
       vsync: this,
     );
 
-    // Define rotation animation for logo
-    _rotationAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
-    );
-
-   
-
-    
-
     // Start logo animation and text animation
     _animationController.forward();
-    
   }
-
-  
-
 
   @override
   void dispose() {
     _animationController.dispose();
-   
+
     super.dispose();
   }
 
@@ -82,8 +61,8 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
               fit: BoxFit.cover,
             ),
           ),
-          
-          // Logo with rotation animation
+
+          // Logo without rotation animation
           Positioned(
             top: MediaQuery.of(context).size.height * 0.0,
             left: 0,
@@ -94,20 +73,9 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
                     child: FractionallySizedBox(
                       widthFactor: 0.8,
                       heightFactor: 0.8,
-                      child: AnimatedBuilder(
-                        animation: _rotationAnimation,
-                        builder: (context, child) {
-                          return Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.identity()
-                              ..translate(0.0, -20.0 * (1 - _rotationAnimation.value))
-                              ..rotateZ(2 * 3.14159 * _rotationAnimation.value),
-                            child: Image.asset(
-                              'assets/images/frame5_tablet.png',
-                              fit: BoxFit.cover,
-                            ),
-                          );
-                        },
+                      child: Image.asset(
+                        'assets/images/frame5_tablet.png',
+                        fit: BoxFit.cover,
                       ),
                     ),
                   )
@@ -116,43 +84,38 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
                     child: FractionallySizedBox(
                       widthFactor: 0.6,
                       heightFactor: 0.6,
-                      child: AnimatedBuilder(
-                        animation: _rotationAnimation,
-                        builder: (context, child) {
-                          return Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.identity()
-                              ..translate(0.0, -20.0 * (1 - _rotationAnimation.value))
-                              ..rotateZ(2 * 3.14159 * _rotationAnimation.value),
-                            child: Image.asset(
-                              'assets/images/frame5_tablet.png',
-                              fit: BoxFit.cover,
-                            ),
-                          );
-                        },
+                      child: Image.asset(
+                        'assets/images/frame5_tablet.png',
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
           ),
-          
-          // Inside the Positioned widget for the animated text:
-Positioned(
-  bottom: MediaQuery.of(context).size.height * 0.6,
-  left: 0,
-  right: 0,
-  child: AnimatedTextWidget(
-    texts: ["love", "career", "friendship", "business", "education", "partnership", "marriage"],
-    textStyle: TextStyle(
-      fontSize: 17,
-      color: Colors.orange,
-      fontWeight: FontWeight.w200,
-      fontFamily: 'Inter',
-    ),
-  ),
-),
 
+          // AnimatedTextWidget for displaying text
+          Positioned(
+            bottom: MediaQuery.of(context).size.height * 0.6,
+            left: 0,
+            right: 0,
+            child: AnimatedTextWidget(
+              texts: [
+                "love",
+                "career",
+                "friendship",
+                "business",
+                "education",
+                "partnership",
+                "marriage"
+              ],
+              textStyle: TextStyle(
+                fontSize: 17,
+                color: Colors.orange,
+                fontWeight: FontWeight.w200,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
 
-          
           // Form section
           Center(
             child: SingleChildScrollView(
@@ -168,7 +131,7 @@ Positioned(
                   else
                     SizedBox(height: MediaQuery.of(context).size.height * 0.45),
                   SizedBox(height: isTablet ? 20 : 10),
-                 if (!_isLoginMode) ...[
+                  if (!_isLoginMode) ...[
                     _buildTextField(
                       controller: _nameController,
                       label: 'I am',
@@ -206,25 +169,35 @@ Positioned(
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                            borderSide: BorderSide(
+                                color: Color(0xFFFF9933), width: 1.0),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                            borderSide: BorderSide(
+                                color: Color(0xFFFF9933), width: 1.0),
                           ),
                           hintText: 'Enter your email',
-                          hintStyle: TextStyle(color: Colors.white70, fontFamily: 'Inter', fontSize: 12),
+                          hintStyle: TextStyle(
+                              color: Colors.white70,
+                              fontFamily: 'Inter',
+                              fontSize: 12),
                           suffixIcon: _isLoading
                               ? CircularProgressIndicator()
                               : IconButton(
-                                  icon: Icon(Icons.arrow_forward, color: Color(0xFFFF9933)),
+                                  icon: Icon(Icons.arrow_forward,
+                                      color: Color(0xFFFF9933)),
                                   onPressed: () => _isLoginMode
                                       ? _loginUser(context, _isLoginMode)
-                                      : _signupAndNavigateToOTP(context, _isLoginMode),
+                                      : _signupAndNavigateToOTP(
+                                          context, _isLoginMode),
                                 ),
                         ),
                         keyboardType: TextInputType.emailAddress,
-                        style: TextStyle(color: Colors.white, fontFamily: 'Inter', fontSize: 16),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Inter',
+                            fontSize: 16),
                       ),
                     ),
                   ),
@@ -232,9 +205,14 @@ Positioned(
                   GestureDetector(
                     onTap: _toggleLoginMode,
                     child: Text(
-                      _isLoginMode ? 'Switch to Sign Up' : 'I already have an account',
+                      _isLoginMode
+                          ? 'Switch to Sign Up'
+                          : 'I already have an account',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Color.fromARGB(255, 225, 176, 137), fontFamily: 'Inter', fontSize: 14),
+                      style: TextStyle(
+                          color: Color.fromARGB(255, 225, 176, 137),
+                          fontFamily: 'Inter',
+                          fontSize: 14),
                     ),
                   ),
                 ],
@@ -245,60 +223,73 @@ Positioned(
       ),
     );
   }
-   Widget _buildTextField({
-  required TextEditingController controller,
-  required String label,
-  required String hintText,
-  GestureTapCallback? onTap,
-}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0), // Added vertical padding for spacing between fields
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Label text widget
-        Container(
-          width: 80, // Adjust the width as needed for label length consistency
-          alignment: Alignment.centerLeft, // Align label text to the left
-          child: Text(
-            label,
-            style: TextStyle(
-              color: Colors.white70,
-              fontFamily: 'Inter',
-              fontSize: 12, // Smaller, consistent font size
-            ),
-          ),
-        ),
-        SizedBox(width: 10), // Space between label and text field
-        // Text field container
-        Expanded(
-          child: Container(
-            height: 40,
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10), // Adjusted padding inside text field
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                  borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
-                ),
-                hintText: hintText,
-                hintStyle: TextStyle(color: Colors.white70, fontFamily: 'Inter', fontSize: 12),
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hintText,
+    GestureTapCallback? onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: 30.0,
+          vertical: 8.0), // Added vertical padding for spacing between fields
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Label text widget
+          Container(
+            width:
+                80, // Adjust the width as needed for label length consistency
+            alignment: Alignment.centerLeft, // Align label text to the left
+            child: Text(
+              label,
+              style: TextStyle(
+                color: Colors.white70,
+                fontFamily: 'Inter',
+                fontSize: 12, // Smaller, consistent font size
               ),
-              keyboardType: onTap == null ? TextInputType.text : TextInputType.datetime,
-              style: TextStyle(color: Colors.white70, fontFamily: 'Inter', fontSize: 14), // Consistent font size for input
-              onTap: onTap,
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+          SizedBox(width: 10), // Space between label and text field
+          // Text field container
+          Expanded(
+            child: Container(
+              height: 40,
+              child: TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10), // Adjusted padding inside text field
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide:
+                        BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                  ),
+                  hintText: hintText,
+                  hintStyle: TextStyle(
+                      color: Colors.white70, fontFamily: 'Inter', fontSize: 12),
+                ),
+                keyboardType:
+                    onTap == null ? TextInputType.text : TextInputType.datetime,
+                style: TextStyle(
+                    color: Colors.white70,
+                    fontFamily: 'Inter',
+                    fontSize: 14), // Consistent font size for input
+                onTap: onTap,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   // Method to toggle between signup and login modes
   void _toggleLoginMode() {
@@ -326,7 +317,9 @@ Positioned(
         if (isLoggedIn) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OtpOverlay(email: email, isLoginMode: isLoginMode)),
+            MaterialPageRoute(
+                builder: (context) =>
+                    OtpOverlay(email: email, isLoginMode: isLoginMode)),
           );
         } else {
           _showSnackBar(context, 'Email not registered. Please sign up.');
@@ -365,7 +358,8 @@ Positioned(
     );
     if (picked != null) {
       setState(() {
-        _birthTimeController.text = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+        _birthTimeController.text =
+            '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
       });
     }
   }
@@ -389,10 +383,13 @@ Positioned(
         if (isSignedUp) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => OtpOverlay(email: user.email, isLoginMode: isLoginMode)),
+            MaterialPageRoute(
+                builder: (context) =>
+                    OtpOverlay(email: user.email, isLoginMode: isLoginMode)),
           );
         } else {
-          _showSnackBar(context, 'This email is already registered! Try logging in.');
+          _showSnackBar(
+              context, 'This email is already registered! Try logging in.');
         }
       } catch (e) {
         print('Signup error: $e');

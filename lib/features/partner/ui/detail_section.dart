@@ -46,14 +46,17 @@ class DetailSection extends StatelessWidget {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(0.0),
-                      borderSide: BorderSide(color: Color(0xFFFF9933), width: 2.0),
+                      borderSide:
+                          BorderSide(color: Color(0xFFFF9933), width: 2.0),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(0.0),
-                      borderSide: BorderSide(color: Color(0xFFFF9933), width: 2.0),
+                      borderSide:
+                          BorderSide(color: Color(0xFFFF9933), width: 2.0),
                     ),
                     hintText: hintText,
-                    hintStyle: TextStyle(color: Colors.white70, fontFamily: 'Inter'),
+                    hintStyle:
+                        TextStyle(color: Colors.white70, fontFamily: 'Inter'),
                   ),
                   keyboardType: keyboardType,
                   style: TextStyle(color: Colors.white, fontFamily: 'Inter'),

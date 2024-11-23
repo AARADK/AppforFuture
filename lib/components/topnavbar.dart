@@ -24,7 +24,8 @@ class TopNavBar extends StatelessWidget {
     return SafeArea(
       top: true, // Ensure content respects the top system UI
       child: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 12, top: 4, bottom: 6), // Adjusted padding
+        padding: const EdgeInsets.only(
+            left: 12, right: 12, top: 4, bottom: 6), // Adjusted padding
         child: SizedBox(
           width: double.infinity, // Ensure it takes up full width
           child: Stack(
@@ -36,7 +37,8 @@ class TopNavBar extends StatelessWidget {
                   title,
                   style: TextStyle(
                     fontSize: titleFontSize,
-                    fontWeight: FontWeight.w500, // Semi-bold for better visibility
+                    fontWeight:
+                        FontWeight.w500, // Semi-bold for better visibility
                     fontFamily: 'Inter',
                     color: Color.fromARGB(255, 87, 86, 86),
                   ),
@@ -47,10 +49,11 @@ class TopNavBar extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: GestureDetector(
-                  onTap: onLeftButtonPressed, // Call the action on left button press
+                  onTap:
+                      onLeftButtonPressed, // Call the action on left button press
                   child: Icon(
                     leftIcon,
-                    color:Color.fromARGB(255, 87, 86, 86),
+                    color: Color.fromARGB(255, 87, 86, 86),
                     size: iconSize,
                   ),
                 ),
@@ -59,10 +62,11 @@ class TopNavBar extends StatelessWidget {
               Align(
                 alignment: Alignment.centerRight,
                 child: GestureDetector(
-                  onTap: onRightButtonPressed, // Call the action on right button press
+                  onTap:
+                      onRightButtonPressed, // Call the action on right button press
                   child: Icon(
                     rightIcon,
-                    color:Color.fromARGB(255, 87, 86, 86),
+                    color: Color.fromARGB(255, 87, 86, 86),
                     size: iconSize,
                   ),
                 ),

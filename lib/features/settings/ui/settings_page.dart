@@ -106,7 +106,13 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildThemeOption(double screenWidth, double screenHeight, String label, String imagePath, Color borderColor, Color backgroundColor) {
+  Widget _buildThemeOption(
+      double screenWidth,
+      double screenHeight,
+      String label,
+      String imagePath,
+      Color borderColor,
+      Color backgroundColor) {
     return Column(
       children: [
         Stack(

@@ -80,7 +80,8 @@ class HiveService {
   // Save inquiry numbers
   Future<void> saveInquiryNumber(String inquiryNumber) async {
     var box = Hive.box(_boxName);
-    List<String> inquiries = List<String>.from(box.get('inquiry_numbers', defaultValue: []));
+    List<String> inquiries =
+        List<String>.from(box.get('inquiry_numbers', defaultValue: []));
     inquiries.add(inquiryNumber);
     await box.put('inquiry_numbers', inquiries);
   }
@@ -96,10 +97,12 @@ class HiveService {
     var box = Hive.box(_boxName);
     await box.delete('inquiry_numbers');
   }
- // Save Horoscope data
+
+  // Save Horoscope data
   Future<void> saveHoroscopeData(Horoscope horoscope) async {
     var box = Hive.box(_boxName);
-    await box.put('horoscope', horoscope.toJson()); // Assuming Horoscope has a toJson() method
+    await box.put('horoscope',
+        horoscope.toJson()); // Assuming Horoscope has a toJson() method
   }
 
   // Retrieve Horoscope data
@@ -107,7 +110,8 @@ class HiveService {
     var box = Hive.box(_boxName);
     final jsonData = box.get('horoscope');
     if (jsonData != null) {
-      return Horoscope.fromJson(jsonData); // Assuming Horoscope has a fromJson() method
+      return Horoscope.fromJson(
+          jsonData); // Assuming Horoscope has a fromJson() method
     }
     return null; // Return null if no data found
   }
@@ -117,5 +121,4 @@ class HiveService {
     var box = Hive.box(_boxName);
     await box.delete('horoscope');
   }
-  
 }

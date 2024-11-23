@@ -5,7 +5,6 @@ import 'package:flutter_application_1/features/partner/model/partner_details_mod
 import 'package:flutter_application_1/features/partner/repo/partner_details_repo.dart';
 import 'package:flutter_application_1/features/partner/service/partner_details_service.dart';
 import 'package:flutter_application_1/features/partner/ui/detail_section.dart';
-import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:intl/intl.dart';
 
 class PartnerDetailsPage extends StatefulWidget {
@@ -124,25 +123,31 @@ class _PartnerDetailsPageState extends State<PartnerDetailsPage> {
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(0.0),
-                            borderSide: BorderSide(color: Color(0xFFFF9933), width: 2.0),
+                            borderSide: BorderSide(
+                                color: Color(0xFFFF9933), width: 2.0),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(0.0),
-                            borderSide: BorderSide(color: Color(0xFFFF9933), width: 2.0),
+                            borderSide: BorderSide(
+                                color: Color(0xFFFF9933), width: 2.0),
                           ),
                           hintText: 'Enter your question',
-                          hintStyle: TextStyle(color: Colors.white70, fontFamily: 'Inter'),
+                          hintStyle: TextStyle(
+                              color: Colors.white70, fontFamily: 'Inter'),
                           suffixIcon: IconButton(
-                            icon: Icon(Icons.arrow_forward, color: Color(0xFFFF9933)),
+                            icon: Icon(Icons.arrow_forward,
+                                color: Color(0xFFFF9933)),
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => DashboardPage()),
+                                MaterialPageRoute(
+                                    builder: (context) => DashboardPage()),
                               );
                             },
                           ),
                         ),
-                        style: TextStyle(color: Colors.white, fontFamily: 'Inter'),
+                        style:
+                            TextStyle(color: Colors.white, fontFamily: 'Inter'),
                       ),
                     ),
                   ),
