@@ -257,27 +257,27 @@ class CategoryDropdownState extends State<CategoryDropdown> {
       }
 
 // Determine the correct inquiry_type based on widget.inquiryType
-      int inquiryType;
-      switch (widget.inquiryType) {
-        case 'compatibility':
-          inquiryType = 2;
-          break;
-        case 'Horoscope':
-          inquiryType = 1;
-          break;
-        case 'auspicious_time':
-          inquiryType = 3;
-          break;
-        case 'ask_a_question':
-          inquiryType = 6;
-          break;
-        default:
-          inquiryType = 6;
-      }
+      // int inquiryType;
+      // switch (widget.inquiryType) {
+      //   case 'compatibility':
+      //     inquiryType = 2;
+      //     break;
+      //   case 'Horoscope':
+      //     inquiryType = 1;
+      //     break;
+      //   case 'auspicious_time':
+      //     inquiryType = 3;
+      //     break;
+      //   case 'ask_a_question':
+      //     inquiryType = 6;
+      //     break;
+      //   default:
+      //     inquiryType = 6;
+      // }
 
 // Build the initial body as a Map
       final body = {
-        "inquiry_type": inquiryType,
+        "inquiry_type": 0,
         "inquiry_regular": {
           "question_id": selectedQuestionId,
         },

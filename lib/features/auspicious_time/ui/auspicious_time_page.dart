@@ -419,82 +419,90 @@ class _AuspiciousPageState extends State<AuspiciousTimePage> {
     );
   }
 
-  void _showEditableProfileDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController dobController = TextEditingController();
-    final TextEditingController cityIdController = TextEditingController();
-    final TextEditingController tobController = TextEditingController();
+ void _showEditableProfileDialog(BuildContext context) {
+  // Initialize controllers with previously saved data
+  final TextEditingController nameController =
+      TextEditingController(text: _editedName);
+  final TextEditingController dobController =
+      TextEditingController(text: _editedDob);
+  final TextEditingController cityIdController =
+      TextEditingController(text: _editedCityId);
+  final TextEditingController tobController =
+      TextEditingController(text: _editedTob);
 
-    final GlobalKey<FormState> _formKey =
-        GlobalKey<FormState>(); // To validate the form
+  final GlobalKey<FormState> _formKey =
+      GlobalKey<FormState>(); // To validate the form
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Check Auspicious Time for: ',
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(
+        'Check Auspicious Time for:',
+        style: TextStyle(
+          fontSize: 16,
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFFF9933),
+        ),
+      ),
+      content: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildTextField('Name', nameController, 'This field required'),
+            _buildTextField('Date of Birth (yyyy-mm-dd)', dobController,
+                'This field required'),
+            _buildTextField('Place of Birth', cityIdController,
+                'This field required'),
+            _buildTextField('Time of Birth (24 hr format hh:mm)', tobController,
+                'This field required'),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(
+            'Cancel',
             style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'Inter',
-                fontWeight: FontWeight.w600,
-                color: Color(0xFFFF9933))),
-        content: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildTextField('Name', nameController, 'This field required'),
-              _buildTextField('Date of Birth (yyyy-mm-dd)', dobController,
-                  'This field required'),
-              _buildTextField(
-                  'Place of Birth', cityIdController, 'This field required'),
-              _buildTextField('Time of Birth (24 hr format hh:mm)',
-                  tobController, 'This field required'),
-            ],
+              color: Color.fromARGB(255, 219, 35, 35),
+            ), // Grey color for Cancel
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                  color: Color.fromARGB(
-                      255, 219, 35, 35)), // Grey color for Cancel
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              isEditing = true;
-              if (_formKey.currentState!.validate()) {
-                setState(() {
-                  // Store the data entered in the dialog to the variables
-                  _editedName = nameController.text;
-                  _editedDob = dobController.text;
-                  _editedCityId = cityIdController.text;
-                  _editedTob = tobController.text;
-                });
+        TextButton(
+          onPressed: () {
+            isEditing = true;
+            if (_formKey.currentState!.validate()) {
+              setState(() {
+                // Store the data entered in the dialog to the variables
+                _editedName = nameController.text;
+                _editedDob = dobController.text;
+                _editedCityId = cityIdController.text;
+                _editedTob = tobController.text;
+              });
 
-                // Print the edited details
-                print('Edited Name: $_editedName');
-                print('Edited Date of Birth: $_editedDob');
-                print('Edited City ID: $_editedCityId');
-                print('Edited Time of Birth: $_editedTob');
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              'Save',
-              style:
-                  TextStyle(color: Colors.orange), // Orange color for Confirm
-            ),
+              // Print the edited details
+              print('Edited Name: $_editedName');
+              print('Edited Date of Birth: $_editedDob');
+              print('Edited City ID: $_editedCityId');
+              print('Edited Time of Birth: $_editedTob');
+              Navigator.of(context).pop();
+            }
+          },
+          child: Text(
+            'Save',
+            style: TextStyle(color: Colors.orange), // Orange color for Confirm
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
 // Save and navigate function remains unchanged
   void _saveProfile(String editedName, String editedCityId, String editedDob,
