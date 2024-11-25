@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/components/animated_text.dart';
 import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
@@ -44,7 +43,7 @@ class _DashboardState extends State<DashboardPage> {
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     // Fetch dashboard data for the current date
-    _dashboardDataFuture = DashboardService().getDashboardData('2024-11-17');
+    _dashboardDataFuture = DashboardService().getDashboardData('2024-11-24');
     _offersFuture = OfferService().getTopOffers(); // Fetch offers data
   }
 
@@ -238,33 +237,7 @@ class _DashboardState extends State<DashboardPage> {
                                   ),
                                 ),
                               ),
-                        Positioned(
-                          bottom: MediaQuery.of(context).size.height * 0.6,
-                          left: MediaQuery.of(context).size.width *
-                              0.1, // Add a small padding if needed
-                          right: MediaQuery.of(context).size.width * 0.1,
-                          child: Center(
-                            // Ensures the widget centers properly
-                            child: AnimatedTextWidget(
-                              texts: [
-                                "love",
-                                "career",
-                                "friendship",
-                                "business",
-                                "education",
-                                "partnership",
-                                "marriage"
-                              ],
-                              textStyle: TextStyle(
-                                fontSize: 17,
-                                color: Colors.orange,
-                                fontWeight: FontWeight.w200,
-                                fontFamily: 'Inter',
-                              ),
-                            ),
-                          ),
-                        ),
-
+                       
                         SizedBox(height: size.height * 0.1),
 
                         // Dashboard Data Section

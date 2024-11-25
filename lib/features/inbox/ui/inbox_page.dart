@@ -351,18 +351,19 @@ class _InboxPageState extends State<InboxPage> {
                         ),
                 ),
 
-                onTap: () async {
-                  await _markAsRead(inquiry['inquiry_id']);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatBoxPage(inquiry: inquiry),
-                    ),
-                  );
-                  setState(() {
-                    _selectedInquiryIndex = index;
-                  });
-                },
+              onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ChatBoxPage(inquiry: inquiry),
+    ),
+  );
+  setState(() {
+    _selectedInquiryIndex = index;
+  });
+},
+
+
               ),
             ),
           ],

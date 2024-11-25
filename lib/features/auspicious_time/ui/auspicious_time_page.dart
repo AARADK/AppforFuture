@@ -102,7 +102,7 @@ class _AuspiciousPageState extends State<AuspiciousTimePage> {
     _fetchProfileData();
     // _auspiciousFuture = _service.getAuspicious(_selectedDate!.toString().split(' ')[0]); // Initialize with the current date
     _auspiciousFuture =
-        AuspiciousRepository().fetchAuspiciousData('2024-11-17');
+        AuspiciousRepository().fetchAuspiciousData('2024-11-24');
     _questionsFuture = _askQuestionRepository.fetchQuestionsByTypeId(3);
   }
 

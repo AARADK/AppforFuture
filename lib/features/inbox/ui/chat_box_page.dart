@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ChatBoxPage extends StatelessWidget {
-  final dynamic inquiry;
+  final Map<String, dynamic>? inquiry;
 
-  ChatBoxPage({required this.inquiry});
+  ChatBoxPage({this.inquiry});
+
+
 
   String _getCategoryName(int categoryTypeId) {
     switch (categoryTypeId) {
@@ -25,51 +27,54 @@ class ChatBoxPage extends StatelessWidget {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    bool isRead = inquiry['is_read'] ?? false;
-    bool isReplied = inquiry['is_replied'] ?? false;
-    String? finalReading = inquiry['final_reading'];
-    int categoryTypeId = inquiry['category_type_id'] ?? 0;
-    String categoryName = _getCategoryName(categoryTypeId);
+ @override
+Widget build(BuildContext context) {
+  bool isRead = inquiry?['is_read'] ?? false;
+  bool isReplied = inquiry?['is_replied'] ?? false;
+  String? finalReading = inquiry?['final_reading'];
+  String? finalReadingDate = inquiry?['final_reading_on'];
+  int categoryTypeId = inquiry?['category_type_id'] ?? 0;
+  String categoryName = _getCategoryName(categoryTypeId);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text('Chat'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          children: [
-            // User's Inquiry Details including profiles
+  return Scaffold(
+    backgroundColor: Colors.white,
+    appBar: AppBar(
+      title: Text('Chat'),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Column(
+        children: [
+          // User's Inquiry Details including profiles
+          Align(
+            alignment: Alignment.centerLeft,
+            child: _buildUserInquiry(inquiry, categoryName, isRead),
+          ),
+
+          SizedBox(height: 20),
+
+          // Backend's Reply
+          if (isReplied && finalReading != null && finalReading.isNotEmpty)
             Align(
-              alignment: Alignment.centerLeft,
-              child: _buildUserInquiry(inquiry, categoryName, isRead),
-            ),
-
-            SizedBox(height: 20),
-
-            // Backend's Reply
-            if (isReplied && finalReading != null)
-              Align(
-                alignment: Alignment.centerRight,
-                child: _buildMessageBubble(
-                  'Reply:',
-                  finalReading,
-                  Colors.blue.shade200,
-                  DateFormat('yyyy-MM-dd')
-                      .format(DateTime.parse(inquiry['final_reading_on'])),
-                  Colors.blue,
-                ),
-              )
-            else
-              Center(child: Text('Awaiting reply...')),
-          ],
-        ),
+              alignment: Alignment.centerRight,
+              child: _buildMessageBubble(
+                'Reply:',
+                finalReading,
+                Colors.blue.shade200,
+                finalReadingDate != null
+                    ? DateFormat('yyyy-MM-dd').format(DateTime.parse(finalReadingDate))
+                    : 'Date not available', // Fallback for null date
+                Colors.blue,
+              ),
+            )
+          else
+            Center(child: Text('Awaiting reply...')),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   // Method to build user's inquiry details including profile cards
   Widget _buildUserInquiry(dynamic inquiry, String categoryName, bool isRead) {

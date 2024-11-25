@@ -114,7 +114,7 @@ class PaymentPage extends StatelessWidget {
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize: screenWidth *
-                                      0.04, // Smaller font for elegant look
+                                      0.02, // Smaller font for elegant look
                                   fontWeight: FontWeight.w400,
                                   fontFamily: 'Inter',
                                 ),
