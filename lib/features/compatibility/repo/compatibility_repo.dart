@@ -10,7 +10,8 @@ class CompatibilityRepository {
       final box = Hive.box('settings');
       String? token = await box.get('token'); // Retrieve the token from Hive storage
 
-      final url = 'http://145.223.23.200:3002/frontend/Guests/GetDashboardData?date=2024-11-24';
+      // final url = 'http://145.223.23.200:3002/frontend/Guests/GetDashboardData?date=2024-11-24';
+      final url = 'http://145.223.23.200:3002/frontend/Guests/GetDashboardData?date=$date';
       
       final response = await http.get(
         Uri.parse(url),

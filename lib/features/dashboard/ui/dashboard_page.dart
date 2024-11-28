@@ -43,7 +43,7 @@ class _DashboardState extends State<DashboardPage> {
         '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     // Fetch dashboard data for the current date
-    _dashboardDataFuture = DashboardService().getDashboardData('2024-11-24');
+    _dashboardDataFuture = DashboardService().getDashboardData(formattedDate);
     _offersFuture = OfferService().getTopOffers(); // Fetch offers data
   }
 

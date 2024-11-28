@@ -638,153 +638,149 @@ class CategoryDropdownState extends State<CategoryDropdown> {
       );
     } else {
       // Handle categoryTypeId not equal to 2 (display questions directly)
-      return Center(
-        child: FutureBuilder<Map<String, List<Question>>>(
-          future: _questionsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text(
-                'Error fetching questions: ${snapshot.error}',
-                style: TextStyle(color: Colors.red),
-              );
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text(
-                'No questions available.',
-                style:
-                    TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-              );
-            } else {
-              final questions =
-                  snapshot.data!.values.expand((list) => list).toList();
+     return Center(
+  child: FutureBuilder<Map<String, List<Question>>>(
+    future: _questionsFuture,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+        return Text(
+          'Error fetching questions: ${snapshot.error}',
+          style: TextStyle(color: Colors.red),
+        );
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Text(
+          'No questions available.',
+          style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+        );
+      } else {
+        final questions = snapshot.data!.values.expand((list) => list).toList();
 
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: 25), // Padding on left and right
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  itemCount: questions.length,
-                  itemBuilder: (context, index) {
-                    final question = questions[index];
-                    return Container(
-                      margin: EdgeInsets.symmetric(
-                          vertical: 0.5), // Further reduced margin
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.grey.shade300,
-                            width: 1.0, // Divider between items
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 25),
+          child: Container(
+            height: 300, // Set height to limit the scrollable area
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: questions.length,
+              itemBuilder: (context, index) {
+                final question = questions[index];
+                return Container(
+                  margin: EdgeInsets.symmetric(vertical: 0.5),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Colors.grey.shade300,
+                        width: 1.0,
+                      ),
+                    ),
+                  ),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            question.question,
+                            style: TextStyle(fontSize: 14),
                           ),
                         ),
-                      ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4, // Reduced padding
+                        Text(
+                          '\$${question.price}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFFFF9933),
+                          ),
                         ),
-                        title: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                question.question,
-                                style: TextStyle(fontSize: 14), // Smaller text
-                              ),
-                            ),
-                            Text(
-                              '\$${question.price}', // Display price
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w400,
-                                color:
-                                    Color(0xFFFF9933), // Price in orange color
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: () {
-                          setState(() async {
-                            selectedQuestionId = question.id;
-                            String inquiryType;
+                      ],
+                    ),
+                    onTap: () async {
+                      selectedQuestionId = question.id;
+                      String inquiryType;
 
-                            if (widget.categoryTypeId == 1) {
-                              inquiryType = 'Horoscope';
-                              final selectedDate = await _selectDateWithMessage(
-                                context,
-                                question.question,
-                                question.price,
-                              );
-                              if (selectedDate != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PaymentPage(
-                                      handleTickIconTap: handleTickIconTap,
-                                      question: question.question,
-                                      price: question.price,
-                                      inquiryType: inquiryType,
-                                    ),
-                                  ),
-                                );
-                              }
-                            } else if (widget.categoryTypeId == 2 &&
-                                widget.editedProfile2 != null) {
-                              inquiryType = 'Compatibility';
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PaymentPage(
-                                    handleTickIconTap: handleTickIconTap,
-                                    question: question.question,
-                                    price: question.price,
-                                    inquiryType: inquiryType,
-                                  ),
-                                ),
-                              );
-                            } else if (widget.categoryTypeId == 2 &&
-                                widget.editedProfile2 == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                      'Please fill in Person 2 details to proceed'),
-                                  backgroundColor:
-                                      Color(0xFFFF9933), // FF9933 in hex
-                                  duration: Duration(seconds: 3),
-                                ),
-                              );
-                            }
-                            if (widget.categoryTypeId == 3) {
-                              inquiryType = 'Auspicious Time';
-                              final selectedDate = await _selectDateWithMessage(
-                                context,
-                                question.question,
-                                question.price,
-                              );
-                              if (selectedDate != null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => PaymentPage(
-                                      handleTickIconTap: handleTickIconTap,
-                                      question: question.question,
-                                      price: question.price,
-                                      inquiryType: inquiryType,
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          });
-                        },
-                      ),
-                    );
-                  },
-                ),
-              );
-            }
-          },
-        ),
-      );
+                      if (widget.categoryTypeId == 1) {
+                        inquiryType = 'Horoscope';
+                        final selectedDate = await _selectDateWithMessage(
+                          context,
+                          question.question,
+                          question.price,
+                        );
+                        if (selectedDate != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentPage(
+                                handleTickIconTap: handleTickIconTap,
+                                question: question.question,
+                                price: question.price,
+                                inquiryType: inquiryType,
+                              ),
+                            ),
+                          );
+                        }
+                      } else if (widget.categoryTypeId == 2 &&
+                          widget.editedProfile2 != null) {
+                        inquiryType = 'Compatibility';
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PaymentPage(
+                              handleTickIconTap: handleTickIconTap,
+                              question: question.question,
+                              price: question.price,
+                              inquiryType: inquiryType,
+                            ),
+                          ),
+                        );
+                      } else if (widget.categoryTypeId == 2 &&
+                          widget.editedProfile2 == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                'Please fill in Person 2 details to proceed'),
+                            backgroundColor: Color(0xFFFF9933),
+                            duration: Duration(seconds: 3),
+                          ),
+                        );
+                      }
+                      if (widget.categoryTypeId == 3) {
+                        inquiryType = 'Auspicious Time';
+                        final selectedDate = await _selectDateWithMessage(
+                          context,
+                          question.question,
+                          question.price,
+                        );
+                        if (selectedDate != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentPage(
+                                handleTickIconTap: handleTickIconTap,
+                                question: question.question,
+                                price: question.price,
+                                inquiryType: inquiryType,
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      }
+    },
+  ),
+);
+
     }
   }
 }

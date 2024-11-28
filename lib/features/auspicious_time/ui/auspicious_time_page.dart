@@ -100,9 +100,9 @@ class _AuspiciousPageState extends State<AuspiciousTimePage> {
     super.initState();
     _selectedDate = DateTime.now(); // Set the default date to the current date
     _fetchProfileData();
-    // _auspiciousFuture = _service.getAuspicious(_selectedDate!.toString().split(' ')[0]); // Initialize with the current date
-    _auspiciousFuture =
-        AuspiciousRepository().fetchAuspiciousData('2024-11-24');
+    _auspiciousFuture = _service.getAuspicious(_selectedDate!.toString().split(' ')[0]); // Initialize with the current date
+    // _auspiciousFuture =
+    //     AuspiciousRepository().fetchAuspiciousData('2024-11-24');
     _questionsFuture = _askQuestionRepository.fetchQuestionsByTypeId(3);
   }
 

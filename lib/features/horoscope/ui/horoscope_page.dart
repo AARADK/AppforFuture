@@ -154,10 +154,6 @@ class _HoroscopePageState extends State<HoroscopePage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
-    final String formattedDate = _horoscopeSelectedDate != null
-        ? DateFormat('yyyy-MM-dd').format(_horoscopeSelectedDate!)
-        : 'Select Date';
-
     return WillPopScope(
         onWillPop: () async {
           Navigator.pushReplacement(
