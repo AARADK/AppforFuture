@@ -422,19 +422,13 @@ class _HoroscopePageState extends State<HoroscopePage> {
     );
   }
 
- void _showEditableProfileDialog(BuildContext context) {
-  // Initialize controllers with previously saved data
-  final TextEditingController nameController =
-      TextEditingController(text: _editedName);
-  final TextEditingController dobController =
-      TextEditingController(text: _editedDob);
-  final TextEditingController cityIdController =
-      TextEditingController(text: _editedCityId);
-  final TextEditingController tobController =
-      TextEditingController(text: _editedTob);
+  void _showEditableProfileDialog(BuildContext context) {
+  final TextEditingController nameController = TextEditingController(text: _editedName);
+  final TextEditingController dobController = TextEditingController(text: _editedDob);
+  final TextEditingController cityIdController = TextEditingController(text: _editedCityId);
+  final TextEditingController tobController = TextEditingController(text: _editedTob);
 
-  final GlobalKey<FormState> _formKey =
-      GlobalKey<FormState>(); // To validate the form
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   showDialog(
     context: context,
@@ -442,26 +436,62 @@ class _HoroscopePageState extends State<HoroscopePage> {
       title: Text(
         'Check Horoscope for:',
         style: TextStyle(
-          fontSize: 16,
+          fontSize: MediaQuery.of(context).size.width * 0.05, // Adjusting font size based on screen width
           fontFamily: 'Inter',
           fontWeight: FontWeight.w600,
           color: Color(0xFFFF9933),
         ),
       ),
-      content: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextField('Name', nameController, 'This field required'),
-            _buildTextField('Date of Birth (yyyy-mm-dd)', dobController,
-                'This field required'),
-            _buildTextField('Place of Birth', cityIdController,
-                'This field required'),
-            _buildTextField('Time of Birth (24 hr format hh:mm)', tobController,
-                'This field required'),
-          ],
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextField('Name', nameController, 'This field required', context),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (pickedDate != null) {
+                          dobController.text = "${pickedDate.toLocal()}".split(' ')[0]; // Format as yyyy-mm-dd
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField('Date of Birth', dobController, 'Please select a date', context),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (pickedTime != null) {
+                          tobController.text = pickedTime.format(context); // Format time
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField('Time of Birth', tobController, 'Please select a time', context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              _buildTextField('Place of Birth', cityIdController, 'This field required', context),
+            ],
+          ),
         ),
       ),
       actions: [
@@ -471,9 +501,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
           },
           child: Text(
             'Cancel',
-            style: TextStyle(
-              color: Color.fromARGB(255, 219, 35, 35),
-            ), // Grey color for Cancel
+            style: TextStyle(color: Color.fromARGB(255, 219, 35, 35)),
           ),
         ),
         TextButton(
@@ -481,24 +509,23 @@ class _HoroscopePageState extends State<HoroscopePage> {
             isEditing = true;
             if (_formKey.currentState!.validate()) {
               setState(() {
-                // Store the data entered in the dialog to the variables
                 _editedName = nameController.text;
                 _editedDob = dobController.text;
                 _editedCityId = cityIdController.text;
-                _editedTob = tobController.text;
+                _editedTob = convertTo24HourFormat(tobController.text);
               });
 
-              // Print the edited details
               print('Edited Name: $_editedName');
               print('Edited Date of Birth: $_editedDob');
               print('Edited City ID: $_editedCityId');
               print('Edited Time of Birth: $_editedTob');
+
               Navigator.of(context).pop();
             }
           },
           child: Text(
             'Save',
-            style: TextStyle(color: Colors.orange), // Orange color for Confirm
+            style: TextStyle(color: Colors.orange),
           ),
         ),
       ],
@@ -506,18 +533,48 @@ class _HoroscopePageState extends State<HoroscopePage> {
   );
 }
 
-// Save and navigate function remains unchanged
-  void _saveProfile(String editedName, String editedCityId, String editedDob,
-      String editedTob) {
-    this._editedName = editedName;
-    this._editedCityId = editedCityId;
-    this._editedDob = editedDob;
-    this._editedTob = editedTob;
+  String convertTo24HourFormat(String time12hr) {
+    // Trim leading and trailing whitespaces from the input string
+    time12hr = time12hr.trim();
 
-    nameController.text = _editedName ?? "";
-    dobController.text = _editedDob ?? "";
-    cityIdController.text = _editedCityId ?? "";
-    tobController.text = _editedTob ?? "";
+    // Split the time string into the time and the period (AM/PM)
+    List<String> parts = time12hr.split(' ');
+
+    if (parts.length != 2) {
+      return '00:00'; // Return default value in case of invalid input
+    }
+
+    String timePart = parts[0]; // e.g., "7:21"
+    String period = parts[1]; // e.g., "AM" or "PM"
+
+    // Split the timePart into hour and minute
+    List<String> timeParts = timePart.split(':');
+    if (timeParts.length != 2) {
+      return '00:00'; // Return default value in case of invalid format
+    }
+
+    int hour = int.parse(timeParts[0]); // Get the hour
+    int minute = int.parse(timeParts[1]); // Get the minute
+
+    // Convert to 24-hour format based on AM/PM
+    if (period == 'AM' || period == 'am') {
+      if (hour == 12) {
+        hour = 0; // Convert "12 AM" to "00:00"
+      }
+    } else if (period == 'PM' || period == 'pm') {
+      if (hour != 12) {
+        hour += 12; // Convert "1 PM" to "13", "2 PM" to "14", etc.
+      }
+    } else {
+      return '00:00'; // Return default value if AM/PM is invalid
+    }
+
+    // Format the hour and minute to ensure two digits for hour and minute
+    String hourString = hour.toString().padLeft(2, '0');
+    String minuteString = minute.toString().padLeft(2, '0');
+
+    // Return the formatted 24-hour time
+    return '$hourString:$minuteString';
   }
 
   Map<String, dynamic> getEditedProfile() {
@@ -525,65 +582,56 @@ class _HoroscopePageState extends State<HoroscopePage> {
       'name': _editedName,
       'dob': _editedDob,
       'city_id': _editedCityId,
-      'tob': _editedTob,
+      'tob': _editedTob, // Default to an empty string if null
     };
   }
 
-// Refined text field with smaller size and minimal look
-  Widget _buildTextField(String label, TextEditingController controller,
-      String validationMessage) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color:
-                Color.fromARGB(255, 87, 86, 86), // Dark gray for a modern feel
-            fontSize: 12, // Smaller font size for label
-            fontWeight: FontWeight.w400,
-          ),
+  Widget _buildTextField(String label, TextEditingController controller, String validationMessage, BuildContext context) {
+  // Using MediaQuery to adjust padding, font size and width dynamically
+  double screenWidth = MediaQuery.of(context).size.width;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          color: Color.fromARGB(255, 87, 86, 86),
+          fontSize: screenWidth * 0.03, // Dynamic font size
+          fontWeight: FontWeight.w400,
         ),
-        SizedBox(height: 4), // Reduced space between label and text field
-        TextFormField(
+      ),
+      SizedBox(height: screenWidth * 0.02), // Adjusted space based on screen size
+      Container(
+        width: screenWidth * 0.8, // Adjust width of text field based on screen size
+        child: TextFormField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: label.contains('Date of Birth')
-                ? ''
-                : (label.contains('Time of Birth') ? '' : ''),
-            contentPadding: EdgeInsets.symmetric(
-                vertical: 8, horizontal: 12), // Smaller padding for text fields
+            hintText: '', // Keep hint text minimal
+            contentPadding: EdgeInsets.symmetric(vertical: screenWidth * 0.02, horizontal: screenWidth * 0.03), // Adjust padding dynamically
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6), // Smaller rounded corners
+              borderRadius: BorderRadius.circular(6),
               borderSide: BorderSide(color: Color(0xFFDDDDDD), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: BorderSide(
-                  color: Color(0xFFFF9933),
-                  width: 1), // Use the #FF9933 color for focus
+              borderSide: BorderSide(color: Color(0xFFFF9933), width: 1),
             ),
           ),
-          style: TextStyle(fontSize: 12), // Smaller font size for text input
+          style: TextStyle(fontSize: screenWidth * 0.03), // Adjust font size dynamically
           validator: (value) {
             if (value == null || value.isEmpty) {
               return validationMessage;
             }
-            // Date format validation (yyyy-mm-dd)
-            if (label.contains('Date of Birth') &&
-                !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+            if (label.contains('Date of Birth') && !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
               return 'Please enter date in yyyy-mm-dd format';
-            }
-            // Time format validation (hh:mm)
-            if (label.contains('Time of Birth') &&
-                !RegExp(r'^\d{2}:\d{2}$').hasMatch(value)) {
-              return 'Please enter time in 24 hr format hh:mm';
             }
             return null;
           },
         ),
-        SizedBox(height: 12), // Reduced space after text field
-      ],
-    );
+      ),
+      SizedBox(height: screenWidth * 0.04), // Adjust space after text field
+    ],
+  );
   }
 }

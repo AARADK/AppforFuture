@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_category_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
+import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:http/http.dart' as http;
@@ -32,6 +33,8 @@ class CategoryDropdown extends StatefulWidget {
 }
 
 class CategoryDropdownState extends State<CategoryDropdown> {
+   // Initialize the ScrollController
+  final ScrollController _scrollController = ScrollController();
   final AskQuestionService _service = AskQuestionService();
   late Future<Map<int, List<QuestionCategory>>> _categoriesFuture;
   late Future<Map<String, List<Question>>> _questionsFuture;
@@ -144,6 +147,7 @@ class CategoryDropdownState extends State<CategoryDropdown> {
     }
     _profileFuture =
         _fetchProfileData(); // Initialize the future for profile data
+        
   }
 
   Future<Map<int, List<QuestionCategory>>> _fetchCategories() async {
@@ -256,24 +260,7 @@ class CategoryDropdownState extends State<CategoryDropdown> {
         return;
       }
 
-// Determine the correct inquiry_type based on widget.inquiryType
-      // int inquiryType;
-      // switch (widget.inquiryType) {
-      //   case 'compatibility':
-      //     inquiryType = 2;
-      //     break;
-      //   case 'Horoscope':
-      //     inquiryType = 1;
-      //     break;
-      //   case 'auspicious_time':
-      //     inquiryType = 3;
-      //     break;
-      //   case 'ask_a_question':
-      //     inquiryType = 6;
-      //     break;
-      //   default:
-      //     inquiryType = 6;
-      // }
+
 
 // Build the initial body as a Map
       final body = {
@@ -326,73 +313,136 @@ class CategoryDropdownState extends State<CategoryDropdown> {
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        if (responseData['error_code'] == "0") {
-          // Save the inquiry number in Hive
-          String inquiryNumber = responseData['data']['inquiry_number'];
-          await HiveService().saveInquiryNumber(inquiryNumber);
-
-          // Show success message if error_code is 0
-          _showResultDialog(responseData['message'], inquiryNumber);
-        } else if (responseData['error_code'] == "1") {
-          // Show error message if error_code is 1
-          _showErrorDialog(responseData['message']);
-        }
-      } else {
-        print('Failed to start inquiry: ${response.statusCode}');
-        _showErrorDialog('Failed to start inquiry. Please try again later.');
+      if (responseData['error_code'] == "0") {
+        String inquiryNumber = responseData['data']['inquiry_number'];
+        await HiveService().saveInquiryNumber(inquiryNumber);
+        
+        // Show success dialog
+        _showResultDialog('Inquiry started successfully!', inquiryNumber);
+      } else if (responseData['error_code'] == "1") {
+        // Show error dialog for specific error message
+        _showErrorDialog(responseData['message']);
       }
-    } catch (e) {
-      print('An error occurred: $e');
-      _showErrorDialog('An error occurred. Please try again later.');
+    } else {
+      // Show error dialog for HTTP failure
+      print('Failed to start inquiry: ${response.statusCode}');
+      _showErrorDialog('Failed to start inquiry. Please try again later.');
     }
+  } catch (e) {
+    // Show error dialog for exceptions
+    print('An error occurred: $e');
+    _showErrorDialog('An error occurred. Please try again later.');
   }
+}
 
-  void _showResultDialog(String message, String? inquiryNumber) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Success!'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(message),
-              if (inquiryNumber != null) Text('Inquiry Number: $inquiryNumber'),
+ void _showResultDialog(String message, String? inquiryNumber) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      // Get screen size for responsive design
+      double screenWidth = MediaQuery.of(context).size.width;
+      double screenHeight = MediaQuery.of(context).size.height;
+      double iconSize = screenWidth * 0.1; // 10% of screen width for icon size
+      double textSize = screenWidth * 0.05; // 5% of screen width for text size
+      double inquiryTextSize = screenWidth * 0.04; // Slightly smaller for inquiry number
+
+      return AlertDialog(
+        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Small padding
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12), // Rounded corners
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle, color: Colors.green, size: iconSize), // Responsive icon size
+            SizedBox(height: 8), // Reduced spacing
+            Text(
+              'Success!',
+              style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold), // Responsive text size
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              maxLines: 1, // Ensure the message is in a single line
+              overflow: TextOverflow.ellipsis, // Handle overflow if text is too long
+              style: TextStyle(fontSize: inquiryTextSize),
+            ),
+            if (inquiryNumber != null) ...[
+              SizedBox(height: 8),
+              Text(
+                'Inquiry Number: $inquiryNumber',
+                style: TextStyle(
+                  fontSize: inquiryTextSize,
+                  overflow: TextOverflow.ellipsis, // Ensure it stays in a single line
+                ),
+                maxLines: 1, // Make sure inquiry number is also one line
+              ),
             ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardPage()),
+                (route) => false, // Remove all previous routes
+              );
+            },
+            child: Text('OK', style: TextStyle(fontSize: textSize)), // Responsive button text size
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+        ],
+      );
+    },
+  );
+}
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Sorry!'),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
+
+
+void _showErrorDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error, color: Colors.red, size: 60), // Red exclamation
+            SizedBox(height: 16), // Spacing
+            Text(
+              'Error',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8), // Spacing
+            Text(
+              message,
+              textAlign: TextAlign.center,
             ),
           ],
-        );
-      },
-    );
-  }
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => DashboardPage()),
+                (route) => false, // Remove all previous routes
+              );
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
 
   void _showQuestions(BuildContext context, String categoryId) {
     showDialog(
@@ -549,12 +599,16 @@ class CategoryDropdownState extends State<CategoryDropdown> {
                                     );
                                   } else {
                                     // Show a message if no question is selected
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            'Please select a question first.'),
-                                      ),
-                                    );
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Please select a question first.',
+                                            style: TextStyle(color: Colors.white), // White text color
+                                          ),
+                                          backgroundColor: Colors.orange, // Orange background color
+                                        ),
+                                      );
+
                                   }
                                 },
                                 child: Text('OK'),
@@ -578,9 +632,13 @@ class CategoryDropdownState extends State<CategoryDropdown> {
     );
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
-    // Check if categoryTypeId is 2, use categoriesFuture; otherwise, use questionsFuture
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+
+    // Check if categoryTypeId is 6, use categoriesFuture; otherwise, use questionsFuture
     if (widget.categoryTypeId == 6) {
       return FutureBuilder<Map<int, List<QuestionCategory>>>(
         future: _categoriesFuture,
@@ -588,11 +646,8 @@ class CategoryDropdownState extends State<CategoryDropdown> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(
-                child: Text('Error fetching categories: ${snapshot.error}'));
-          } else if (!snapshot.hasData ||
-              snapshot.data![widget.categoryTypeId] == null ||
-              snapshot.data![widget.categoryTypeId]!.isEmpty) {
+            return Center(child: Text('Error fetching categories: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data![widget.categoryTypeId] == null || snapshot.data![widget.categoryTypeId]!.isEmpty) {
             return Center(child: Text('No categories available.'));
           } else {
             final categories = snapshot.data![widget.categoryTypeId]!;
@@ -606,7 +661,7 @@ class CategoryDropdownState extends State<CategoryDropdown> {
                   borderRadius: BorderRadius.circular(5),
                 ),
                 child: SizedBox(
-                  height: 50,
+                  height: isPortrait ? 50 : 70,
                   child: Row(
                     children: [
                       SizedBox(width: 10),
@@ -616,6 +671,7 @@ class CategoryDropdownState extends State<CategoryDropdown> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Color(0xFFFF9933),
+                            fontSize: screenWidth * 0.05,
                           ),
                         ),
                       ),
@@ -637,150 +693,172 @@ class CategoryDropdownState extends State<CategoryDropdown> {
         },
       );
     } else {
-      // Handle categoryTypeId not equal to 2 (display questions directly)
-     return Center(
-  child: FutureBuilder<Map<String, List<Question>>>(
-    future: _questionsFuture,
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator();
-      } else if (snapshot.hasError) {
-        return Text(
-          'Error fetching questions: ${snapshot.error}',
-          style: TextStyle(color: Colors.red),
-        );
-      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        return Text(
-          'No questions available.',
-          style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-        );
-      } else {
-        final questions = snapshot.data!.values.expand((list) => list).toList();
+      return Center(
+        child: FutureBuilder<Map<String, List<Question>>>(
+          future: _questionsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text(
+                'Error fetching questions: ${snapshot.error}',
+                style: TextStyle(color: Colors.red),
+              );
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Text(
+                'No questions available.',
+                style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+              );
+            } else {
+              final questions = snapshot.data!.values.expand((list) => list).toList();
+              final isScrollable = questions.length > 5;  // Check if more than 5 items are available (adjust as needed)
 
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 25),
-          child: Container(
-            height: 300, // Set height to limit the scrollable area
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: questions.length,
-              itemBuilder: (context, index) {
-                final question = questions[index];
-                return Container(
-                  margin: EdgeInsets.symmetric(vertical: 0.5),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.grey.shade300,
-                        width: 1.0,
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                child: Container(
+                  height: screenHeight * 0.4,
+                  child: Stack(
+                    children: [
+                      ListView.builder(
+                        controller: _scrollController, // Assign the controller here
+                        padding: EdgeInsets.zero,
+                        itemCount: questions.length,
+                        itemBuilder: (context, index) {
+                          final question = questions[index];
+                          return Container(
+                            margin: EdgeInsets.symmetric(vertical: 0.5),
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.grey.shade300,
+                                  width: 1.0,
+                                ),
+                              ),
+                            ),
+                            child: ListTile(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: screenWidth * 0.02,
+                                vertical: screenHeight * 0.01,
+                              ),
+                              title: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      question.question,
+                                      style: TextStyle(fontSize: screenWidth * 0.04),
+                                    ),
+                                  ),
+                                  Text(
+                                    '\$${question.price}',
+                                    style: TextStyle(
+                                      fontSize: screenWidth * 0.04,
+                                      fontWeight: FontWeight.w400,
+                                      color: Color(0xFFFF9933),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () async {
+                                selectedQuestionId = question.id;
+                                String inquiryType;
+
+                                if (widget.categoryTypeId == 1) {
+                                  inquiryType = 'Horoscope';
+                                  final selectedDate = await _selectDateWithMessage(
+                                    context,
+                                    question.question,
+                                    question.price,
+                                  );
+                                  if (selectedDate != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PaymentPage(
+                                          handleTickIconTap: handleTickIconTap,
+                                          question: question.question,
+                                          price: question.price,
+                                          inquiryType: inquiryType,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } else if (widget.categoryTypeId == 2 && widget.editedProfile2 != null) {
+                                  inquiryType = 'Compatibility';
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => PaymentPage(
+                                        handleTickIconTap: handleTickIconTap,
+                                        question: question.question,
+                                        price: question.price,
+                                        inquiryType: inquiryType,
+                                      ),
+                                    ),
+                                  );
+                                } else if (widget.categoryTypeId == 2 && widget.editedProfile2 == null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        'Please fill in Person 2 details to proceed.',
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      backgroundColor: Colors.orange,
+                                    ),
+                                  );
+                                }
+                                if (widget.categoryTypeId == 3) {
+                                  inquiryType = 'Auspicious Time';
+                                  final selectedDate = await _selectDateWithMessage(
+                                    context,
+                                    question.question,
+                                    question.price,
+                                  );
+                                  if (selectedDate != null) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => PaymentPage(
+                                          handleTickIconTap: handleTickIconTap,
+                                          question: question.question,
+                                          price: question.price,
+                                          inquiryType: inquiryType,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                  ),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            question.question,
-                            style: TextStyle(fontSize: 14),
+                      if (isScrollable)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Scroll to the bottom when the down arrow is tapped
+                              _scrollController.animateTo(
+                                _scrollController.position.maxScrollExtent,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            },
+                            child: Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 30,
+                              color: Colors.grey.shade500,
+                            ),
                           ),
                         ),
-                        Text(
-                          '\$${question.price}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFFFF9933),
-                          ),
-                        ),
-                      ],
-                    ),
-                    onTap: () async {
-                      selectedQuestionId = question.id;
-                      String inquiryType;
-
-                      if (widget.categoryTypeId == 1) {
-                        inquiryType = 'Horoscope';
-                        final selectedDate = await _selectDateWithMessage(
-                          context,
-                          question.question,
-                          question.price,
-                        );
-                        if (selectedDate != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PaymentPage(
-                                handleTickIconTap: handleTickIconTap,
-                                question: question.question,
-                                price: question.price,
-                                inquiryType: inquiryType,
-                              ),
-                            ),
-                          );
-                        }
-                      } else if (widget.categoryTypeId == 2 &&
-                          widget.editedProfile2 != null) {
-                        inquiryType = 'Compatibility';
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PaymentPage(
-                              handleTickIconTap: handleTickIconTap,
-                              question: question.question,
-                              price: question.price,
-                              inquiryType: inquiryType,
-                            ),
-                          ),
-                        );
-                      } else if (widget.categoryTypeId == 2 &&
-                          widget.editedProfile2 == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                'Please fill in Person 2 details to proceed'),
-                            backgroundColor: Color(0xFFFF9933),
-                            duration: Duration(seconds: 3),
-                          ),
-                        );
-                      }
-                      if (widget.categoryTypeId == 3) {
-                        inquiryType = 'Auspicious Time';
-                        final selectedDate = await _selectDateWithMessage(
-                          context,
-                          question.question,
-                          question.price,
-                        );
-                        if (selectedDate != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PaymentPage(
-                                handleTickIconTap: handleTickIconTap,
-                                question: question.question,
-                                price: question.price,
-                                inquiryType: inquiryType,
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    },
+                    ],
                   ),
-                );
-              },
-            ),
-          ),
-        );
-      }
-    },
-  ),
-);
-
+                ),
+              );
+            }
+          },
+        ),
+      );
     }
   }
 }

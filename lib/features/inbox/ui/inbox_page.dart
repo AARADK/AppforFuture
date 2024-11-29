@@ -118,7 +118,7 @@ class _InboxPageState extends State<InboxPage> {
     }
   }
 
-  // Function to build searchable inquiries list
+ // Function to build searchable inquiries list
   List<dynamic> _buildSearchableList(List<dynamic> inquiries) {
     return inquiries.where((inquiry) {
       String question = (inquiry['question'] ?? '').toLowerCase();
@@ -130,6 +130,7 @@ class _InboxPageState extends State<InboxPage> {
       return question.contains(searchText) || category.contains(searchText);
     }).toList();
   }
+
 
   // Add a listener to update search text
   @override
@@ -176,23 +177,30 @@ class _InboxPageState extends State<InboxPage> {
             rightIcon: Icons.help, // Icon for the right side
           ),
 
-          // Search bar section
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search inquiries...',
-                prefixIcon: Icon(Icons.search, color: Color(0xFFFF9933)),
-                filled: true,
-                fillColor: const Color.fromARGB(255, 212, 210, 210),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
+        // Search bar section with responsiveness
+Padding(
+  padding: EdgeInsets.all(screenWidth * 0.04), // Adjust padding based on screen width
+  child: TextField(
+    controller: _searchController,
+    onChanged: (value) {
+      setState(() {
+        _searchText = value; // Update search text as user types
+      });
+    },
+    decoration: InputDecoration(
+      hintText: 'Search inquiries...',
+      hintStyle: TextStyle(fontSize: screenWidth * 0.04), // Adjust hint text size based on screen width
+      prefixIcon: Icon(Icons.search, color: Color(0xFFFF9933)),
+      filled: true,
+      fillColor: const Color.fromARGB(255, 212, 210, 210),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(screenWidth * 0.05), // Adjust border radius based on screen size
+        borderSide: BorderSide.none,
+      ),
+    ),
+  ),
+),
+
           // FutureBuilder for inquiries
           Expanded(
             child: FutureBuilder<List<dynamic>>(
@@ -249,9 +257,9 @@ class _InboxPageState extends State<InboxPage> {
 
     // Calculate responsive font sizes
     double titleFontSize =
-        screenWidth * 0.03; // 3% of the screen width for title
+        screenWidth * 0.025; // 3% of the screen width for title
     double subtitleFontSize =
-        screenWidth * 0.025; // 2.5% of the screen width for subtitle
+        screenWidth * 0.02; // 2.5% of the screen width for subtitle
 
     // Calculate responsive icon sizes
     double iconSize =
@@ -296,16 +304,15 @@ class _InboxPageState extends State<InboxPage> {
                 contentPadding: EdgeInsets.all(
                     5), // Remove default padding for a sleeker look
                 title: Text(
-                  'Question: ${inquiry['question']} - $categoryName',
-                  style: TextStyle(
-                    fontSize:
-                        titleFontSize, // Use responsive font size for title
-                    fontWeight: isRead
-                        ? FontWeight.normal
-                        : FontWeight
-                            .bold, // Adjusting boldness based on read status
-                  ),
-                ),
+  'Question: ${inquiry['question']} - $categoryName',
+  style: TextStyle(
+    fontSize: titleFontSize,
+    fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
+  ),
+  maxLines: 1, // Limit the text to 1 line
+  overflow: TextOverflow.ellipsis, // Add ellipsis (...) if the text overflows
+),
+
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

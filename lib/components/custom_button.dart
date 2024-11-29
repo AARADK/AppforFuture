@@ -25,28 +25,32 @@ class CustomButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: screenHeight * 0.01),
-            ElevatedButton(
-              onPressed: onPressed,
-              child: Text(
-                buttonText,
-                style: TextStyle(
-                  fontSize: screenWidth * 0.04,
-                  fontFamily: 'Inter',
-                  color: Colors.white,
-                  fontWeight: FontWeight.normal,
+            FractionallySizedBox(  // This makes the button width responsive
+              alignment: Alignment.center,
+              widthFactor: 0.6,  // Adjusts the button's width to be 60% of the screen width
+              child: ElevatedButton(
+                onPressed: onPressed,
+                child: Text(
+                  buttonText,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    fontFamily: 'Inter',
+                    color: Colors.white,
+                    fontWeight: FontWeight.normal,
+                  ),
                 ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFF9933),
-                padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.04,
-                    vertical: screenHeight * 0.01),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(0.0),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF9933),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.04,
+                      vertical: screenHeight * 0.01),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(0.0),
+                  ),
+                  fixedSize: Size(double.infinity, screenHeight * 0.07), // Height is responsive based on screenHeight
+                  shadowColor: Colors.black,
+                  elevation: 10,
                 ),
-                fixedSize: Size(screenWidth * 0.6, screenHeight * 0.05),
-                shadowColor: Colors.black,
-                elevation: 10,
               ),
             ),
           ],

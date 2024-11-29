@@ -42,36 +42,38 @@ Widget build(BuildContext context) {
       title: Text('Chat'),
     ),
     body: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        children: [
-          // User's Inquiry Details including profiles
+  padding: const EdgeInsets.all(10.0),
+  child: SingleChildScrollView( // Make the entire body scrollable
+    child: Column(
+      children: [
+        // User's Inquiry Details including profiles
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _buildUserInquiry(inquiry, categoryName, isRead),
+        ),
+        SizedBox(height: 20),
+
+        // Backend's Reply
+        if (isReplied && finalReading != null && finalReading.isNotEmpty)
           Align(
-            alignment: Alignment.centerLeft,
-            child: _buildUserInquiry(inquiry, categoryName, isRead),
-          ),
-
-          SizedBox(height: 20),
-
-          // Backend's Reply
-          if (isReplied && finalReading != null && finalReading.isNotEmpty)
-            Align(
-              alignment: Alignment.centerRight,
-              child: _buildMessageBubble(
-                'Reply:',
-                finalReading,
-                Colors.blue.shade200,
-                finalReadingDate != null
-                    ? DateFormat('yyyy-MM-dd').format(DateTime.parse(finalReadingDate))
-                    : 'Date not available', // Fallback for null date
-                Colors.blue,
-              ),
-            )
-          else
-            Center(child: Text('Awaiting reply...')),
-        ],
-      ),
+            alignment: Alignment.centerRight,
+            child: _buildMessageBubble(
+              'Reply:',
+              finalReading,
+              Colors.blue.shade200,
+              finalReadingDate != null
+                  ? DateFormat('yyyy-MM-dd').format(DateTime.parse(finalReadingDate))
+                  : 'Date not available', // Fallback for null date
+              const Color.fromARGB(255, 6, 22, 35),
+            ),
+          )
+        else
+          Center(child: Text('Awaiting reply...')),
+      ],
     ),
+  ),
+),
+
   );
 }
 
@@ -146,23 +148,26 @@ Widget build(BuildContext context) {
   }
 
   // Method to build profiles dynamically
-  Widget _buildProfiles(dynamic inquiry) {
-    if (inquiry['profile1'] != null && inquiry['profile2'] != null) {
-      return Row(
+ Widget _buildProfiles(dynamic inquiry) {
+  if (inquiry['profile1'] != null && inquiry['profile2'] != null) {
+    return IntrinsicHeight( // Ensure both profile cards have the same height
+      child: Row(
         children: [
           Expanded(child: _buildProfileCard(inquiry['profile1'])),
           SizedBox(width: 10),
           Expanded(child: _buildProfileCard(inquiry['profile2'])),
         ],
-      );
-    } else if (inquiry['profile1'] != null) {
-      return Center(child: _buildProfileCard(inquiry['profile1']));
-    } else if (inquiry['profile2'] != null) {
-      return Center(child: _buildProfileCard(inquiry['profile2']));
-    } else {
-      return SizedBox();
-    }
+      ),
+    );
+  } else if (inquiry['profile1'] != null) {
+    return Center(child: _buildProfileCard(inquiry['profile1']));
+  } else if (inquiry['profile2'] != null) {
+    return Center(child: _buildProfileCard(inquiry['profile2']));
+  } else {
+    return SizedBox();
   }
+}
+
 
   // Method to build each profile card with consistent styling
   Widget _buildProfileCard(dynamic profile) {

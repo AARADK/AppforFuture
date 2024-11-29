@@ -15,8 +15,12 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
 
 class DashboardPage extends StatefulWidget {
+  final String? successMessage;
+
+  DashboardPage({this.successMessage});
   @override
   _DashboardState createState() => _DashboardState();
+ 
 }
 
 class _DashboardState extends State<DashboardPage> {
@@ -26,10 +30,12 @@ class _DashboardState extends State<DashboardPage> {
   bool _isConnected = true; // Track connection status
   final Connectivity _connectivity = Connectivity(); // Connectivity instance
   bool _showOffers = false; // Toggle this to switch between offers and image.
+  
 
   @override
   void initState() {
     super.initState();
+
     _checkInternetConnection(); // Check the initial connection status
 
     // Listen for network changes
@@ -68,6 +74,7 @@ class _DashboardState extends State<DashboardPage> {
       _isMenuOpen = false;
     });
   }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +83,22 @@ class _DashboardState extends State<DashboardPage> {
     final double circleSize = size.width * 0.22;
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+         // Show the success message SnackBar if provided
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (widget.successMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.successMessage!),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
+  });
+    
 
     return Scaffold(
+      key:_scaffoldKey,
       backgroundColor: Colors.white,
       bottomNavigationBar:
           BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
