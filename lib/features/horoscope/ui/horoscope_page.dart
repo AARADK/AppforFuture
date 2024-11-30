@@ -343,7 +343,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
                         ),
                       ),
 
-                      SizedBox(height: screenHeight * 0.02),
+                      SizedBox(height: screenHeight * 0.01),
                       Center(
                         child: _isLoading
                             ? const CircularProgressIndicator() // Show a loading indicator while fetching data

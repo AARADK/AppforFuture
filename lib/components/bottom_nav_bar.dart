@@ -34,38 +34,50 @@ class BottomNavBar extends StatelessWidget {
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment:
-            CrossAxisAlignment.end, // Align all children at the bottom
+        mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space between the left and right sides
+        crossAxisAlignment: CrossAxisAlignment.end, // Align all children at the bottom
         children: [
-          _buildNavItem(
-            context,
-            index: 0,
-            iconImage: 'assets/images/horoscope2.png',
-            label: 'Horoscope',
-            targetPage: HoroscopePage(),
+          // Left Side
+          Row(
+            children: [
+              _buildNavItem(
+                context,
+                index: 0,
+                iconImage: 'assets/images/horoscope2.png',
+                label: 'Horoscope',
+                targetPage: HoroscopePage(),
+              ),
+              SizedBox(width: screenWidth * 0.08), // Space between Horoscope and Compatibility
+              _buildNavItem(
+                context,
+                index: 1,
+                iconImage: 'assets/images/compatibility2.png',
+                label: 'Compatibility',
+                targetPage: CompatibilityPage(),
+              ),
+            ],
           ),
-          _buildNavItem(
-            context,
-            index: 1,
-            iconImage: 'assets/images/compatibility2.png',
-            label: 'Compatibility',
-            targetPage: CompatibilityPage(),
-          ),
+          // Center Ask button
           _buildAskButton(context),
-          _buildNavItem(
-            context,
-            index: 2,
-            iconImage: 'assets/images/auspicious2.png',
-            label: 'Auspicious',
-            targetPage: AuspiciousTimePage(),
-          ),
-          _buildNavItem(
-            context,
-            index: 3,
-            iconImage: 'assets/images/Inbox.png',
-            label: 'Inbox',
-            targetPage: InboxPage(),
+          // Right Side
+          Row(
+            children: [
+              _buildNavItem(
+                context,
+                index: 2,
+                iconImage: 'assets/images/auspicious2.png',
+                label: 'Auspicious',
+                targetPage: AuspiciousTimePage(),
+              ),
+              SizedBox(width: screenWidth * 0.08), // Space between Auspicious and Inbox
+              _buildNavItem(
+                context,
+                index: 3,
+                iconImage: 'assets/images/Inbox.png',
+                label: 'Inbox',
+                targetPage: InboxPage(),
+              ),
+            ],
           ),
         ],
       ),
@@ -102,7 +114,7 @@ class BottomNavBar extends StatelessWidget {
                   height: screenWidth * 0.07,
                   color: isSelected
                       ? Color(0xFFFF9933)
-                      : null, // Elegant purple when selected
+                      : null, // Elegant color when selected
                 )
               : Icon(
                   icon,
@@ -115,7 +127,7 @@ class BottomNavBar extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12, // Slightly larger text for better legibility
+              fontSize: 10, // Slightly larger text for better legibility
               color: isSelected
                   ? Color(0xFFFF9933)
                   : Colors.black, // Consistent color change for selection
@@ -169,7 +181,7 @@ class BottomNavBar extends StatelessWidget {
         Text(
           'Ask',
           style: TextStyle(
-            fontSize: 12, // Slightly larger text for better legibility
+            fontSize: 10, // Slightly larger text for better legibility
             color: Colors.black,
             fontWeight: FontWeight.normal, // Regular weight for the label
           ),

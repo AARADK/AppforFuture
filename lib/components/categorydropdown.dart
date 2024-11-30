@@ -34,7 +34,7 @@ class CategoryDropdown extends StatefulWidget {
 
 class CategoryDropdownState extends State<CategoryDropdown> {
    // Initialize the ScrollController
-  final ScrollController _scrollController = ScrollController();
+  ScrollController _scrollController = ScrollController();
   final AskQuestionService _service = AskQuestionService();
   late Future<Map<int, List<QuestionCategory>>> _categoriesFuture;
   late Future<Map<String, List<Question>>> _questionsFuture;
@@ -43,100 +43,107 @@ class CategoryDropdownState extends State<CategoryDropdown> {
   // Variables for storing the selected date
   String? auspicious_from_date;
   String? horoscope_from_date;
+  bool _isAtBottom = false;
 
   Future<DateTime?> _selectDateWithMessage(
-      BuildContext context, String selectedQuestion, double price) async {
-    DateTime? selectedDate = DateTime.now(); // Set an initial date
+    BuildContext context, String selectedQuestion, double price) async {
+  DateTime? selectedDate = DateTime.now(); // Set an initial date
 
-    await showDialog(
-      context: context,
-      barrierDismissible: true, // Allow dismissing by tapping outside
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0), // Subtle rounding
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Confirmation message at the top
-                Text(
+  await showDialog(
+    context: context,
+    barrierDismissible: true, // Allow dismissing by tapping outside
+    builder: (BuildContext context) {
+      final screenWidth = MediaQuery.of(context).size.width;
+
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0), // Subtle rounding
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(screenWidth * 0.04), // Responsive padding
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Confirmation message at the top
+              Padding(
+                padding: EdgeInsets.only(bottom: screenWidth * 0.04), // Add bottom spacing
+                child: Text(
                   'You want to choose "$selectedQuestion" for \$${price.toStringAsFixed(2)} from:',
                   style: TextStyle(
-                    fontSize: 14, // Bigger font size
+                    fontSize: screenWidth * 0.03, // Responsive font size
                     fontWeight: FontWeight.w600,
                     color: Colors.orange, // Orange color
                   ),
                 ),
-                SizedBox(height: 20), // Space between message and date picker
+              ),
 
-                // Embedded Date Picker widget
-                CalendarDatePicker(
-                  initialDate: selectedDate!,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                  onDateChanged: (DateTime picked) {
-                    selectedDate = picked; // Update the selected date
-                  },
-                ),
-                SizedBox(height: 20), // Add some space before buttons
+              // Embedded Date Picker widget
+              CalendarDatePicker(
+                initialDate: selectedDate!,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2101),
+                onDateChanged: (DateTime picked) {
+                  selectedDate = picked; // Update the selected date
+                },
+              ),
+              SizedBox(height: screenWidth * 0.04), // Add space before buttons
 
-                // Cancel and Confirm buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        selectedDate =
-                            null; // Explicitly set selectedDate to null on cancel
-                        Navigator.pop(context,
-                            null); // Return null to indicate no date was chosen
-                      },
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(
-                            color: Color.fromARGB(
-                                255, 219, 35, 35)), // Grey color for Cancel
+              // Cancel and Confirm buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      selectedDate =
+                          null; // Explicitly set selectedDate to null on cancel
+                      Navigator.pop(context,
+                          null); // Return null to indicate no date was chosen
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 219, 35, 35), // Red color for Cancel
+                        fontSize: screenWidth * 0.04, // Responsive font size
                       ),
                     ),
+                  ),
 
-                    // Confirm Button
-                    TextButton(
-                      onPressed: () {
-                        // Store the formatted date based on the page type
-                        if (selectedDate != null) {
-                          String formattedPicked =
-                              DateFormat('yyyy-MM-dd').format(selectedDate!);
+                  // Confirm Button
+                  TextButton(
+                    onPressed: () {
+                      // Store the formatted date based on the page type
+                      if (selectedDate != null) {
+                        String formattedPicked =
+                            DateFormat('yyyy-MM-dd').format(selectedDate!);
 
-                          if (widget.inquiryType == 'auspicious_time') {
-                            auspicious_from_date = formattedPicked;
-                          } else if (widget.inquiryType == 'Horoscope') {
-                            horoscope_from_date = formattedPicked;
-                          }
+                        if (widget.inquiryType == 'auspicious_time') {
+                          auspicious_from_date = formattedPicked;
+                        } else if (widget.inquiryType == 'Horoscope') {
+                          horoscope_from_date = formattedPicked;
                         }
-                        Navigator.pop(
-                            context, selectedDate); // Return selected date
-                      },
-                      child: Text(
-                        'Confirm',
-                        style: TextStyle(
-                            color: Colors.orange), // Orange color for Confirm
+                      }
+                      Navigator.pop(context, selectedDate); // Return selected date
+                    },
+                    child: Text(
+                      'Confirm',
+                      style: TextStyle(
+                        color: Colors.orange, // Orange color for Confirm
+                        fontSize: screenWidth * 0.04, // Responsive font size
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        );
-      },
-    );
+        ),
+      );
+    },
+  );
 
-    return selectedDate; // Return the selected date (null if dialog is dismissed)
-  }
+  return selectedDate; // Return the selected date (null if dialog is dismissed)
+}
 
   @override
   void initState() {
@@ -148,6 +155,16 @@ class CategoryDropdownState extends State<CategoryDropdown> {
     _profileFuture =
         _fetchProfileData(); // Initialize the future for profile data
         
+       _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);   
+  }
+
+    void _scrollListener() {
+    if (_scrollController.position.atEdge) {
+      setState(() {
+        _isAtBottom = _scrollController.position.pixels != 0;
+      });
+    }
   }
 
   Future<Map<int, List<QuestionCategory>>> _fetchCategories() async {
@@ -716,7 +733,7 @@ void _showErrorDialog(String message) {
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                 child: Container(
-                  height: screenHeight * 0.4,
+                  height: screenHeight * 0.25,
                   child: Stack(
                     children: [
                       ListView.builder(
@@ -738,20 +755,20 @@ void _showErrorDialog(String message) {
                             child: ListTile(
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: screenWidth * 0.02,
-                                vertical: screenHeight * 0.01,
+                                // vertical: screenHeight * 0.01,
                               ),
                               title: Row(
                                 children: [
                                   Expanded(
                                     child: Text(
                                       question.question,
-                                      style: TextStyle(fontSize: screenWidth * 0.04),
+                                      style: TextStyle(fontSize: screenWidth * 0.03),
                                     ),
                                   ),
                                   Text(
                                     '\$${question.price}',
                                     style: TextStyle(
-                                      fontSize: screenWidth * 0.04,
+                                      fontSize: screenWidth * 0.03,
                                       fontWeight: FontWeight.w400,
                                       color: Color(0xFFFF9933),
                                     ),
@@ -832,33 +849,42 @@ void _showErrorDialog(String message) {
                           );
                         },
                       ),
-                      if (isScrollable)
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: GestureDetector(
-                            onTap: () {
-                              // Scroll to the bottom when the down arrow is tapped
+                       if (isScrollable)
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: GestureDetector(
+                          onTap: () {
+                            if (_isAtBottom) {
+                              _scrollController.animateTo(
+                                0,
+                                duration: Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            } else {
                               _scrollController.animateTo(
                                 _scrollController.position.maxScrollExtent,
                                 duration: Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
-                            },
-                            child: Icon(
-                              Icons.keyboard_arrow_down,
-                              size: 30,
-                              color: Colors.grey.shade500,
-                            ),
+                            }
+                          },
+                          child: Icon(
+                            _isAtBottom
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            size: 30,
+                            color: Colors.grey.shade500,
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
-              );
-            }
-          },
-        ),
-      );
-    }
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
+}
 }

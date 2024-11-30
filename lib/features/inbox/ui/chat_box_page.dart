@@ -6,8 +6,6 @@ class ChatBoxPage extends StatelessWidget {
 
   ChatBoxPage({this.inquiry});
 
-
-
   String _getCategoryName(int categoryTypeId) {
     switch (categoryTypeId) {
       case 1:
@@ -23,62 +21,60 @@ class ChatBoxPage extends StatelessWidget {
       case 6:
         return 'Ask a Question';
       default:
-        return 'Unknown Category'; // Handle any unknown categories
+        return 'Unknown Category';
     }
   }
 
- @override
-Widget build(BuildContext context) {
-  bool isRead = inquiry?['is_read'] ?? false;
-  bool isReplied = inquiry?['is_replied'] ?? false;
-  String? finalReading = inquiry?['final_reading'];
-  String? finalReadingDate = inquiry?['final_reading_on'];
-  int categoryTypeId = inquiry?['category_type_id'] ?? 0;
-  String categoryName = _getCategoryName(categoryTypeId);
+  @override
+  Widget build(BuildContext context) {
+    bool isRead = inquiry?['is_read'] ?? false;
+    bool isReplied = inquiry?['is_replied'] ?? false;
+    String? finalReading = inquiry?['final_reading'];
+    String? finalReadingDate = inquiry?['final_reading_on'];
+    int categoryTypeId = inquiry?['category_type_id'] ?? 0;
+    String categoryName = _getCategoryName(categoryTypeId);
 
-  return Scaffold(
-    backgroundColor: Colors.white,
-    appBar: AppBar(
-      title: Text('Chat'),
-    ),
-    body: Padding(
-  padding: const EdgeInsets.all(10.0),
-  child: SingleChildScrollView( // Make the entire body scrollable
-    child: Column(
-      children: [
-        // User's Inquiry Details including profiles
-        Align(
-          alignment: Alignment.centerLeft,
-          child: _buildUserInquiry(inquiry, categoryName, isRead),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text('Chat'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // User's Inquiry Details including profiles
+              Align(
+                alignment: Alignment.centerLeft,
+                child: _buildUserInquiry(inquiry, categoryName, isRead),
+              ),
+              SizedBox(height: 20),
+
+              // Backend's Reply with Star Rating
+              if (isReplied && finalReading != null && finalReading.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _buildMessageBubble(
+                    'Reply:',
+                    finalReading,
+                    Colors.blue.shade200,
+                    finalReadingDate != null
+                        ? DateFormat('yyyy-MM-dd')
+                            .format(DateTime.parse(finalReadingDate))
+                        : 'Date not available',
+                    const Color.fromARGB(255, 6, 22, 35),
+                  ),
+                )
+              else
+                Center(child: Text('Awaiting reply...')),
+            ],
+          ),
         ),
-        SizedBox(height: 20),
+      ),
+    );
+  }
 
-        // Backend's Reply
-        if (isReplied && finalReading != null && finalReading.isNotEmpty)
-          Align(
-            alignment: Alignment.centerRight,
-            child: _buildMessageBubble(
-              'Reply:',
-              finalReading,
-              Colors.blue.shade200,
-              finalReadingDate != null
-                  ? DateFormat('yyyy-MM-dd').format(DateTime.parse(finalReadingDate))
-                  : 'Date not available', // Fallback for null date
-              const Color.fromARGB(255, 6, 22, 35),
-            ),
-          )
-        else
-          Center(child: Text('Awaiting reply...')),
-      ],
-    ),
-  ),
-),
-
-  );
-}
-
-
-  // Method to build user's inquiry details including profile cards
   Widget _buildUserInquiry(dynamic inquiry, String categoryName, bool isRead) {
     return Container(
       padding: EdgeInsets.all(12),
@@ -113,63 +109,88 @@ Widget build(BuildContext context) {
     );
   }
 
-  // Method to build a message bubble
   Widget _buildMessageBubble(
       String title, String message, Color color, String date, Color textColor,
       {String? additionalInfo, bool isRead = false}) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      margin: EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: TextStyle(fontWeight: FontWeight.bold, color: textColor)),
-          Text(message, style: TextStyle(color: textColor)),
-          SizedBox(height: 5),
-          Text(date,
-              style:
-                  TextStyle(fontSize: 12, color: textColor.withOpacity(0.6))),
-          if (isRead)
-            Text(
-              'Seen',
-              style: TextStyle(
-                  color: Colors.green,
-                  fontStyle: FontStyle.italic,
-                  fontSize: 12),
-            ),
-        ],
-      ),
+    int selectedStars = 3; // Default rating
+
+    return StatefulBuilder(
+      builder: (BuildContext context, StateSetter setState) {
+        return Container(
+          padding: EdgeInsets.all(12),
+          margin: EdgeInsets.symmetric(vertical: 8),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: textColor)),
+              Text(message, style: TextStyle(color: textColor)),
+              SizedBox(height: 5),
+              Text(date,
+                  style: TextStyle(
+                      fontSize: 12, color: textColor.withOpacity(0.6))),
+              if (isRead)
+                Text(
+                  'Seen',
+                  style: TextStyle(
+                      color: Colors.green,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 12),
+                ),
+              SizedBox(height: 10),
+
+              // Star Rating Widget
+              Row(
+                children: List.generate(5, (index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        selectedStars = index + 1;
+                      });
+                      print('Star ${index + 1} tapped');
+                    },
+                    child: Icon(
+                      Icons.star,
+                      color: index < selectedStars
+                          ? Color.fromARGB(255, 7, 38, 88)
+                          : Colors.grey,
+                      size: 20,
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  // Method to build profiles dynamically
- Widget _buildProfiles(dynamic inquiry) {
-  if (inquiry['profile1'] != null && inquiry['profile2'] != null) {
-    return IntrinsicHeight( // Ensure both profile cards have the same height
-      child: Row(
-        children: [
-          Expanded(child: _buildProfileCard(inquiry['profile1'])),
-          SizedBox(width: 10),
-          Expanded(child: _buildProfileCard(inquiry['profile2'])),
-        ],
-      ),
-    );
-  } else if (inquiry['profile1'] != null) {
-    return Center(child: _buildProfileCard(inquiry['profile1']));
-  } else if (inquiry['profile2'] != null) {
-    return Center(child: _buildProfileCard(inquiry['profile2']));
-  } else {
-    return SizedBox();
+  Widget _buildProfiles(dynamic inquiry) {
+    if (inquiry['profile1'] != null && inquiry['profile2'] != null) {
+      return IntrinsicHeight(
+        child: Row(
+          children: [
+            Expanded(child: _buildProfileCard(inquiry['profile1'])),
+            SizedBox(width: 10),
+            Expanded(child: _buildProfileCard(inquiry['profile2'])),
+          ],
+        ),
+      );
+    } else if (inquiry['profile1'] != null) {
+      return Center(child: _buildProfileCard(inquiry['profile1']));
+    } else if (inquiry['profile2'] != null) {
+      return Center(child: _buildProfileCard(inquiry['profile2']));
+    } else {
+      return SizedBox();
+    }
   }
-}
 
-
-  // Method to build each profile card with consistent styling
   Widget _buildProfileCard(dynamic profile) {
     return Container(
       padding: EdgeInsets.all(10),

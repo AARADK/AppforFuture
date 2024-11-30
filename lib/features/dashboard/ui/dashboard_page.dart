@@ -100,8 +100,8 @@ class _DashboardState extends State<DashboardPage> {
     return Scaffold(
       key:_scaffoldKey,
       backgroundColor: Colors.white,
-      bottomNavigationBar:
-          BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
+      // bottomNavigationBar:
+      //     BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
       body: Stack(
         children: [
           GestureDetector(
@@ -359,6 +359,8 @@ class _DashboardState extends State<DashboardPage> {
           ),
         ],
       ),
+       bottomNavigationBar:
+          BottomNavBar(screenWidth: screenWidth, screenHeight: screenHeight),
     );
   }
 
