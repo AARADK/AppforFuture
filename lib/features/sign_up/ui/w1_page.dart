@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/components/CelestialBackgroundPainter.dart';
+import 'package:flutter_application_1/components/NebulaBackgroundPainter.dart';
 import 'package:flutter_application_1/components/animated_text.dart';
 import 'package:flutter_application_1/features/sign_up/model/user_model.dart';
 import 'package:flutter_application_1/features/sign_up/repo/sign_up_repo.dart';
@@ -55,19 +56,32 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
           Positioned.fill(
           child:CelestialBackground(),
           ),
+          // NebulaBackground(),
          
-          // // GIF Background
-          // Positioned.fill(
-          //   child: Opacity(
-          //     opacity: 1, // Adjust the opacity if needed
-          //     child: Image.asset(
-          //       'assets/images/finalglow.gif', // Use the GIF here as the background
-          //       fit: BoxFit.cover,
-          //        repeat: ImageRepeat.noRepeat, // By default, GIFs loop
-          //     ),
-          //   ),
-          // ),
-          //    // Foreground Content
+ Positioned(
+  top: 0, // Set this to 0 so the container starts at the top of the screen
+  left: 0,
+  right: 0,
+  child: Opacity(
+    opacity: 0.5, // Adjust the opacity of the GIF here (0.0 to 1.0)
+    child: Container(
+      height: MediaQuery.of(context).size.height, // 30% of screen height
+      width: MediaQuery.of(context).size.width, // Full screen width
+      child: Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.rotationX(3.14159), // Upside down flip using rotation along the X-axis
+        child: Image.asset(
+          'assets/images/finalfog.gif', // Use the GIF here as the background
+          fit: BoxFit.cover, // Ensures the GIF covers the container
+          repeat: ImageRepeat.noRepeat, // Default GIF loop
+        ),
+      ),
+    ),
+  ),
+),
+
+
+             // Foreground Content
        
 
         
