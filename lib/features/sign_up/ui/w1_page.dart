@@ -5,6 +5,7 @@ import 'package:flutter_application_1/features/sign_up/model/user_model.dart';
 import 'package:flutter_application_1/features/sign_up/repo/sign_up_repo.dart';
 import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:intl/intl.dart';
+// import 'package:video_player/video_player.dart';
 import '../../otp/ui/otp.dart';
 
 class W1Page extends StatefulWidget {
@@ -22,31 +23,18 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
   SignUpRepo _signUpRepo = SignUpRepo();
   HiveService _hiveService = HiveService();
 
-  bool _isLoginMode = false;
+   bool _isLoginMode = false;
   bool _isLoading = false;
-
-  // Animation controllers for logo rotation, text animation, and background movement
-  late AnimationController _animationController;
+  // late VideoPlayerController _videoController;
 
   @override
   void initState() {
     super.initState();
-
-    // Initialize animation controller for celestial background
-    _animationController = AnimationController(
-      duration: Duration(seconds: 10),
-      vsync: this,
-      lowerBound: -1.0,
-      upperBound: 1.0, // Make the stars move back and forth
-    )..repeat(reverse: true); // Repeats the animation to simulate movement
-
-    // Start animation for the logo and text
-    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    // _videoController.dispose();  // Always dispose the controller
     super.dispose();
   }
 
@@ -57,18 +45,32 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-          // Static Background Image (w1.png)
-          Positioned.fill(
+            Positioned.fill(
             child: Image.asset(
-              'assets/images/w1_tablet.png', // Use your actual path here
-              fit: BoxFit.cover, // Ensures the image covers the screen
+              'assets/images/w1_tablet.png', // Add your background image on top
+              fit: BoxFit.cover,
             ),
           ),
 
-          // Add CelestialBackground widget (which includes animated stars)
           Positioned.fill(
-            child: CelestialBackground(), // This replaces the AnimatedBuilder
+          child:CelestialBackground(),
           ),
+         
+          // // GIF Background
+          // Positioned.fill(
+          //   child: Opacity(
+          //     opacity: 1, // Adjust the opacity if needed
+          //     child: Image.asset(
+          //       'assets/images/finalglow.gif', // Use the GIF here as the background
+          //       fit: BoxFit.cover,
+          //        repeat: ImageRepeat.noRepeat, // By default, GIFs loop
+          //     ),
+          //   ),
+          // ),
+          //    // Foreground Content
+       
+
+        
 
           // Logo without rotation animation
           Positioned(
@@ -116,7 +118,7 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
                 "marriage"
               ],
               textStyle: TextStyle(
-                fontSize: 17,
+                fontSize:MediaQuery.of(context).size.height * 0.02 ,
                 color: Colors.orange,
                 fontWeight: FontWeight.w200,
                 fontFamily: 'Inter',

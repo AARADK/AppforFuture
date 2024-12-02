@@ -3,30 +3,38 @@ import 'package:flutter/material.dart';
 
 class CelestialBackgroundPainter extends CustomPainter {
   final Animation<double> animation;
-  
-  // List to store fixed star positions, size, and opacity
   final List<Star> stars;
 
   CelestialBackgroundPainter(this.animation, this.stars) : super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = Colors.white.withOpacity(0.5) // Base color for the stars
-      ..style = PaintingStyle.fill;
+    final Paint paint = Paint()..style = PaintingStyle.fill;
 
-    // Generate the stars at fixed positions with twinkling effect
-    for (int i = 0; i < stars.length; i++) {
-      final star = stars[i];
+    for (final star in stars) {
+      // Calculate perspective for 3D depth effect
+      double perspective = 1 / star.z; // Simulates depth
+      double x = size.width / 2 + (star.position.dx - size.width / 2) * perspective;
+      double y = size.height / 2 + (star.position.dy - size.height / 2) * perspective;
       
-      // Dynamic twinkling effect using sine wave for opacity
-      double opacity = 0.5 + sin(animation.value * 2 * pi * star.flickerSpeed + i) * 0.5;
+      // Cap star size to prevent excessively large stars when close
+      double starSize = (star.size * perspective).clamp(0.5, 3.0);
 
-      // Set the opacity and adjust size for each star
+      // Twinkling effect using sine wave for opacity
+      double opacity = 0.5 + sin(animation.value * 2 * pi * star.flickerSpeed) * 0.5;
+
       paint.color = Colors.white.withOpacity(opacity);
-      
-      // Draw the stars with varying opacity and size
-      canvas.drawCircle(star.position, star.size, paint);
+
+      // Draw the star
+      canvas.drawCircle(Offset(x, y), starSize, paint);
+
+      // Move the star closer to the viewer
+      star.z -= star.speed;
+
+      // Reset the star when it moves past the viewer
+      if (star.z <= 0.1) {
+        star.reset(size);
+      }
     }
   }
 
@@ -37,16 +45,31 @@ class CelestialBackgroundPainter extends CustomPainter {
 }
 
 class Star {
-  final Offset position;
-  final double size;
-  final double flickerSpeed;
+  Offset position;
+  double size;
+  double flickerSpeed;
+  double z; // Depth coordinate
+  double speed; // Movement speed toward the viewer
 
   Star({
     required this.position,
     required this.size,
     required this.flickerSpeed,
+    required this.z,
+    required this.speed,
   });
+
+  // Reset star to a random position and depth
+  void reset(Size size) {
+    final Random random = Random();
+    position = Offset(random.nextDouble() * size.width, random.nextDouble() * size.height);
+    this.size = 0.5 + random.nextDouble() * 1.5; // Smaller initial size
+    flickerSpeed = 0.5 + random.nextDouble(); // Random flicker speed
+    z = 2 + random.nextDouble() * 3; // Start closer to the viewer
+    speed = 0.005 + random.nextDouble() * 0.005; // Faster initial speed
+  }
 }
+
 
 class CelestialBackground extends StatefulWidget {
   @override
@@ -61,35 +84,41 @@ class _CelestialBackgroundState extends State<CelestialBackground> with SingleTi
   void initState() {
     super.initState();
 
-    // Initialize the animation controller
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 5),
     )..repeat();
 
-    // Generate random stars with positions, sizes, and flicker speeds
-    stars = _generateRandomStars();
+    // Generate a large number of stars to ensure consistent density
+    stars = _generateStars(200); // Increased star count
   }
 
-  // Generate 20 random stars with size and flicker speed
-  List<Star> _generateRandomStars() {
+  // Generate a fixed number of stars
+  List<Star> _generateStars(int count) {
     final Random random = Random();
-    List<Star> starList = [];
-    for (int i = 0; i < 20; i++) {
-      double x = random.nextDouble() * 500; // Random X position
-      double y = random.nextDouble() * 500; // Random Y position
-      double size = 1 + random.nextDouble() * 2; // Random size between 1 and 3
-      double flickerSpeed = 0.5 + random.nextDouble(); // Random flicker speed (0.5 - 1.5)
-      starList.add(Star(position: Offset(x, y), size: size, flickerSpeed: flickerSpeed));
-    }
-    return starList;
+    return List.generate(count, (_) {
+      return Star(
+        position: Offset(random.nextDouble() * 500, random.nextDouble() * 500),
+        size: 0.5 + random.nextDouble() * 1.5, // Smaller initial size
+        flickerSpeed: 0.5 + random.nextDouble(), // Random flicker speed
+        z: 10  + random.nextDouble() * 4, // Increased starting depth
+        speed: 0.002 + random.nextDouble() * 0.005, // Slower speed for smooth movement
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      painter: CelestialBackgroundPainter(_animationController, stars),
-      child: Container(), // Empty container since we only need the custom paint
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        for (var star in stars) {
+          star.reset(Size(constraints.maxWidth, constraints.maxHeight));
+        }
+        return CustomPaint(
+          painter: CelestialBackgroundPainter(_animationController, stars),
+          child: Container(),
+        );
+      },
     );
   }
 
@@ -98,4 +127,13 @@ class _CelestialBackgroundState extends State<CelestialBackground> with SingleTi
     _animationController.dispose();
     super.dispose();
   }
+}
+
+void main() {
+  runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: Scaffold(
+      body: CelestialBackground(),
+    ),
+  ));
 }
