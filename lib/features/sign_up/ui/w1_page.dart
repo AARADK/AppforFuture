@@ -53,17 +53,13 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
             ),
           ),
 
-          Positioned.fill(
-          child:CelestialBackground(),
-          ),
-          // NebulaBackground(),
          
  Positioned(
   top: 0, // Set this to 0 so the container starts at the top of the screen
   left: 0,
   right: 0,
   child: Opacity(
-    opacity: 0.5, // Adjust the opacity of the GIF here (0.0 to 1.0)
+    opacity: 0.7, // Adjust the opacity of the GIF here (0.0 to 1.0)
     child: Container(
       height: MediaQuery.of(context).size.height, // 30% of screen height
       width: MediaQuery.of(context).size.width, // Full screen width
@@ -80,6 +76,10 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
   ),
 ),
 
+          Positioned.fill(
+          child:CelestialBackground(),
+          ),
+          // NebulaBackground(),
 
              // Foreground Content
        
@@ -236,7 +236,8 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
                       style: TextStyle(
                           color: Color.fromARGB(255, 225, 176, 137),
                           fontFamily: 'Inter',
-                          fontSize: 14),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w100),
                     ),
                   ),
                 ],
@@ -269,7 +270,7 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
             child: Text(
               label,
               style: TextStyle(
-                color: Colors.white70,
+                color: const Color.fromARGB(255, 255, 255, 255),
                 fontFamily: 'Inter',
                 fontSize: 12, // Smaller, consistent font size
               ),

@@ -4,6 +4,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:intl/intl.dart';
+
 class ProfileDetails extends StatefulWidget {
   const ProfileDetails({super.key});
 
@@ -77,36 +79,70 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     }
   }
 
-  void _updateProfile() async {
-    final updateProfileService = UpdateProfileService();
+ // Update Profile Function
+void _updateProfile() async {
+  final updateProfileService = UpdateProfileService();
 
-    bool success = await updateProfileService.updateProfile(
-      _nameController.text,
-      _locationController.text,
-      _dobController.text,
-      _tobController.text,
+  bool success = await updateProfileService.updateProfile(
+    _nameController.text,
+    _locationController.text,
+    _dobController.text, // For date of birth
+    _tobController.text, // For time of birth
+  );
+
+  if (success) {
+    // Show success message
+    if (!context.mounted) return; // Handle context safety
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Profile updated successfully!'),
+        backgroundColor: Color(0xFFFF9933),
+      ),
     );
-
-    if (success) {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Profile updated successfully!'),
-          backgroundColor: Color(0xFFFF9933),
-        ),
-      );
-      _fetchProfileData();
-      setState(() {
-        _isEditing = false;
-      });
-    } else {
-      // ignore: use_build_context_synchronously
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Failed to update profile. Please try again.')),
-      );
-    }
+    _fetchProfileData();
+    setState(() {
+      _isEditing = false;
+    });
+  } else {
+    // Show failure message
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to update profile. Please try again.'),
+      ),
+    );
   }
+}
+
+// Date Picker Function
+Future<void> _selectDate(BuildContext context) async {
+  DateTime? picked = await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime(1900),
+    lastDate: DateTime(2100),
+  );
+  if (picked != null) {
+    setState(() {
+      _dobController.text = DateFormat('yyyy-MM-dd').format(picked);
+    });
+  }
+}
+
+// Time Picker Function
+Future<void> _selectTime(BuildContext context) async {
+  TimeOfDay? picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+  );
+  if (picked != null) {
+    setState(() {
+      _tobController.text =
+          '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -204,10 +240,10 @@ class _ProfileDetailsState extends State<ProfileDetails> {
               _isEditing, fontSize),
           SizedBox(height: spacing),
           _buildTextField('Date of Birth (YYYY-MM-DD)', _dobController,
-              Icons.cake, _isEditing, fontSize),
+              Icons.cake, _isEditing, fontSize,onTap: () => _selectDate(context),),
           SizedBox(height: spacing),
           _buildTextField('Time of Birth (HH:mm)', _tobController,
-              Icons.access_time, _isEditing, fontSize),
+              Icons.access_time, _isEditing, fontSize,onTap: () => _selectTime(context),),
           SizedBox(height: spacing * 1.5),
           _guestProfileData == null
               ? Center(
@@ -317,107 +353,112 @@ class _ProfileDetailsState extends State<ProfileDetails> {
     );
   }
 
-  Widget _buildGuestProfileDetail({
-    required String label,
-    required String value,
-    required double fontSize,
-    bool isExpandable = false,
-    double? screenWidth,
-  }) {
-    if (isExpandable) {
-      const int maxLength =
-          100; // Define the maximum number of characters before truncating
-      bool isTruncated = value.length > maxLength && !_isExpanded;
+ Widget _buildGuestProfileDetail({
+  required String label,
+  required String value,
+  required double fontSize,
+  bool isExpandable = false,
+  double? screenWidth,
+}) {
+  if (isExpandable) {
+    const int maxLength = 100; // Define the maximum number of characters before truncating
+    bool isTruncated = value.length > maxLength && !_isExpanded;
 
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$label: ',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: fontSize),
-                ),
-                Flexible(
-                  child: Text(
-                    isTruncated ? '${value.substring(0, maxLength)}...' : value,
-                    style: TextStyle(fontSize: fontSize),
-                  ),
-                ),
-              ],
-            ),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Label
+          Text(
+            '$label:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+          ),
+
+          // Value
+          SizedBox(height: fontSize * 0.2), // Small space between label and value
+          Text(
+            isTruncated ? '${value.substring(0, maxLength)}...' : value,
+            style: TextStyle(fontSize: fontSize),
+          ),
+
+          // View More / View Less toggle
+          if (isTruncated)
             GestureDetector(
               onTap: () {
                 setState(() {
-                  _isExpanded =
-                      !_isExpanded; // Toggle between expanded and collapsed
+                  _isExpanded = !_isExpanded; // Toggle between expanded and collapsed
                 });
               },
               child: Padding(
                 padding: EdgeInsets.only(top: fontSize * 0.4),
                 child: Text(
-                  _isExpanded
-                      ? 'View Less'
-                      : 'View More', // Switch text between "View More" and "View Less"
-                  style: TextStyle(
-                      color: const Color(0xFFFF9933), fontSize: fontSize),
+                  _isExpanded ? 'View Less' : 'View More',
+                  style: TextStyle(color: const Color(0xFFFF9933), fontSize: fontSize),
                 ),
               ),
             ),
-          ],
-        ),
-      );
-    } else {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '$label: ',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-            ),
-            Flexible(
-              child: Text(
-                value,
-                style: TextStyle(fontSize: fontSize),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-  }
+        ],
+      ),
+    );
+  } else {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Label
+          Text(
+            '$label:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+          ),
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      IconData icon, bool isEnabled, double fontSize) {
-    return TextFormField(
-      controller: controller,
-      enabled: isEnabled,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        labelStyle: TextStyle(fontSize: fontSize),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide:
-              const BorderSide(color: Color(0xFFFF9933)), // Set border color
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(
-              color: Color(0xFFFF9933)), // Set border color for enabled state
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(
-              color: Color(0xFFFF9933)), // Set border color for focused state
-        ),
+          // Value
+          SizedBox(height: fontSize * 0.2), // Small space between label and value
+          Text(
+            value,
+            style: TextStyle(fontSize: fontSize),
+          ),
+        ],
       ),
     );
   }
+}
+
+
+Widget _buildTextField(
+  String label,
+  TextEditingController controller,
+  IconData icon,
+  bool isEnabled,
+  double fontSize, {
+  void Function()? onTap, // Add an optional onTap parameter
+}) {
+  return TextFormField(
+    controller: controller,
+    enabled: isEnabled,
+    readOnly: onTap != null, // Make field read-only if onTap is provided
+    onTap: onTap, // Assign the onTap logic
+    decoration: InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon),
+      labelStyle: TextStyle(fontSize: fontSize),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide:
+            const BorderSide(color: Color(0xFFFF9933)), // Set border color
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(
+            color: Color(0xFFFF9933)), // Set border color for enabled state
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(
+            color: Color(0xFFFF9933)), // Set border color for focused state
+      ),
+    ),
+  );
+}
 }
