@@ -5,6 +5,7 @@ import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart'
 import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/sign_up/ui/w1_page.dart';
+import 'package:hive/hive.dart';
 import 'hive/hive_service.dart'; // Import your Hive service
 
 void main() async {
@@ -45,7 +46,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       
-      title: 'Astrology App',
+      title: 'myFutureTime',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -74,15 +75,25 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Future<Widget> _getInitialPage() async {
-    if (existingToken != null && existingToken!.isNotEmpty) {
-      return DashboardPage();
-    } else {
-      return W1Page();
-    }
+  Future<Widget> _getInitialPage()  async {
+  final box = Hive.box('settings');
+  final guestProfile = await box.get('guest_profile');
+  final token = await box.get('token');
+
+  if (token == null) {
+    return W1Page();
+  } else if (token != null && guestProfile == null) {
+    // Token exists but guest_profile is null -> MainLogoPage
+    return MainLogoPage();
+  } else if (token != null && guestProfile != null) {
+    // Both token and guest_profile exist -> DashboardPage
+    return DashboardPage();
+  } else {
+    // No token -> Onboarding/Signup page
+    return W1Page();
   }
 }
-
+}
 class ErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

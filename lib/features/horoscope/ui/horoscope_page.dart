@@ -9,6 +9,7 @@ import 'package:flutter_application_1/features/horoscope/model/horoscope_model.d
 import 'package:flutter_application_1/features/horoscope/service/horoscope_service.dart';
 import 'package:flutter_application_1/features/horoscope/repo/horoscope_repo.dart';
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart'; // Import the question model
+import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/profile/repo/profile_repo.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
@@ -119,7 +120,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
         headers: {
           'Authorization': 'Bearer $token',
         },
-      );
+      ); 
 
       if (response.statusCode == 200) {
         var responseData = jsonDecode(response.body);
@@ -155,13 +156,26 @@ class _HoroscopePageState extends State<HoroscopePage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
-          );
-          return false; // Prevent the default back button behavior
-        },
+          onWillPop: () async {
+      final box = Hive.box('settings');
+      final guestProfile = await box.get('guest_profile');
+      
+      if (guestProfile != null) {
+        // Navigate to DashboardPage if guest_profile is not null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
+      } else {
+        // Navigate to MainLogoPage if guest_profile is null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainLogoPage()),
+        );
+      }
+      
+      return false; // Prevent the default back button behavior
+    },
         child: Scaffold(
           backgroundColor: Colors.white,
           body: Stack(
@@ -178,13 +192,24 @@ class _HoroscopePageState extends State<HoroscopePage> {
                       // Use TopNavBar here with correct arguments
                       TopNavBar(
                         title: 'Horoscope',
-                        onLeftButtonPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DashboardPage()),
-                          );
-                        },
+                          onLeftButtonPressed: () async {
+                            final box = Hive.box('settings');
+                            final guestProfile = await box.get('guest_profile');
+
+                            if (guestProfile != null) {
+                              // Navigate to DashboardPage if guest_profile is not null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => DashboardPage()),
+                              );
+                            } else {
+                              // Navigate to MainLogoPage if guest_profile is null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => MainLogoPage()),
+                              );
+                            }
+                          },
                         onRightButtonPressed: () {
                           Navigator.push(
                             context,
@@ -230,7 +255,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
                                     color: Color(0xFFFF9933),
                                     fontSize: screenWidth * 0.035,
                                     fontFamily: 'Inter',
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
@@ -380,47 +405,68 @@ class _HoroscopePageState extends State<HoroscopePage> {
   }
 
   void _showProfileDialog(BuildContext context, ProfileModel profile) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('User Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextRow('Name', profile.name),
-            _buildTextRow('Date of Birth', profile.dob),
-            _buildTextRow('Place of Birth', profile.cityId),
-            _buildTextRow('Time of Birth', profile.tob),
-          ],
+  showDialog(
+    context: context,
+    builder: (context) {
+      // Get the screen size
+      final screenSize = MediaQuery.of(context).size;
+      final isLargeScreen = screenSize.width > 600;
+
+      return AlertDialog(
+        title: Text(
+          'User Profile',
+          style: TextStyle(fontSize: isLargeScreen ? 24 : 18),
+        ),
+        content: SizedBox(
+          width: isLargeScreen ? screenSize.width * 0.5 : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextRow('Name', profile.name, isLargeScreen),
+              _buildTextRow('Date of Birth', profile.dob, isLargeScreen),
+              _buildTextRow('Place of Birth', profile.cityId, isLargeScreen),
+              _buildTextRow('Time of Birth', profile.tob, isLargeScreen),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Close'),
+            child: Text(
+              'Close',
+              style: TextStyle(fontSize: isLargeScreen ? 18 : 14),
+            ),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
-  Widget _buildTextRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF9933)),
+Widget _buildTextRow(String label, String value, bool isLargeScreen) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFFF9933),
+          fontSize: isLargeScreen ? 20 : 16,
         ),
-        SizedBox(height: 5),
-        Text(value), // Display the profile information
-        SizedBox(height: 10),
-      ],
-    );
-  }
+      ),
+      SizedBox(height: 5),
+      Text(
+        value,
+        style: TextStyle(fontSize: isLargeScreen ? 18 : 14),
+      ),
+      SizedBox(height: 10),
+    ],
+  );
+}
 
   void _showEditableProfileDialog(BuildContext context) {
   final TextEditingController nameController = TextEditingController(text: _editedName);
@@ -436,7 +482,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
       title: Text(
         'Check Horoscope for:',
         style: TextStyle(
-          fontSize: MediaQuery.of(context).size.width * 0.05, // Adjusting font size based on screen width
+          fontSize: MediaQuery.of(context).size.width * 0.035, // Adjusting font size based on screen width
           fontFamily: 'Inter',
           fontWeight: FontWeight.w600,
           color: Color(0xFFFF9933),
@@ -470,7 +516,7 @@ class _HoroscopePageState extends State<HoroscopePage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.02),
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
@@ -495,43 +541,71 @@ class _HoroscopePageState extends State<HoroscopePage> {
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: Text(
-            'Cancel',
-            style: TextStyle(color: Color.fromARGB(255, 219, 35, 35)),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            isEditing = true;
-            if (_formKey.currentState!.validate()) {
-              setState(() {
-                _editedName = nameController.text;
-                _editedDob = dobController.text;
-                _editedCityId = cityIdController.text;
-                _editedTob = convertTo24HourFormat(tobController.text);
-              });
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space buttons apart
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 219, 35, 35),
+                  fontSize: MediaQuery.of(context).size.width * 0.04, // Responsive font size
+                ),
+              ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * 0.01, // Responsive vertical padding
+                    horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                isEditing = true;
+                if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    _editedName = nameController.text;
+                    _editedDob = dobController.text;
+                    _editedCityId = cityIdController.text;
+                    _editedTob = convertTo24HourFormat(tobController.text);
+                  });
 
-              print('Edited Name: $_editedName');
-              print('Edited Date of Birth: $_editedDob');
-              print('Edited City ID: $_editedCityId');
-              print('Edited Time of Birth: $_editedTob');
+                  print('Edited Name: $_editedName');
+                  print('Edited Date of Birth: $_editedDob');
+                  print('Edited City ID: $_editedCityId');
+                  print('Edited Time of Birth: $_editedTob');
 
-              Navigator.of(context).pop();
-            }
-          },
-          child: Text(
-            'Save',
-            style: TextStyle(color: Colors.orange),
-          ),
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: MediaQuery.of(context).size.width * 0.04, // Responsive font size
+                ),
+              ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * 0.01, // Responsive vertical padding
+                    horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     ),
   );
 }
+
 
   String convertTo24HourFormat(String time12hr) {
     // Trim leading and trailing whitespaces from the input string

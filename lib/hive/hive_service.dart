@@ -121,4 +121,10 @@ class HiveService {
     var box = Hive.box(_boxName);
     await box.delete('horoscope');
   }
+
+
+  Future<Map?> getGuestProfile() async {
+    final box = Hive.box('settings');
+    return box.get('guest_profile'); // Retrieve guest_profile
+  }
 }

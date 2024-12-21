@@ -19,7 +19,7 @@ class AnimatedTextWidget extends StatefulWidget {
 class _AnimatedTextWidgetState extends State<AnimatedTextWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _textAnimationController;
-  late Animation<Offset> _textPositionAnimation;
+  late Animation<Offset> _textPositionAnimation;  
   late Animation<double> _textFadeAnimation;
 
   int currentTextIndex = 0;

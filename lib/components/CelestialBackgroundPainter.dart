@@ -16,9 +16,9 @@ class CelestialBackgroundPainter extends CustomPainter {
       double perspective = 1 / star.z; // Simulates depth
       double x = size.width / 2 + (star.position.dx - size.width / 2) * perspective;
       double y = size.height / 2 + (star.position.dy - size.height / 2) * perspective;
-      
+
       // Cap star size to prevent excessively large stars when close
-      double starSize = (star.size * perspective).clamp(0.5, 3.0);
+      double starSize = (star.size * perspective).clamp(0.3, 2.0); // Reduced max size
 
       // Twinkling effect using sine wave for opacity
       double opacity = 0.5 + sin(animation.value * 2 * pi * star.flickerSpeed) * 0.5;
@@ -63,13 +63,12 @@ class Star {
   void reset(Size size) {
     final Random random = Random();
     position = Offset(random.nextDouble() * size.width, random.nextDouble() * size.height);
-    this.size = 0.5 + random.nextDouble() * 1.5; // Smaller initial size
+    this.size = 0.3 + random.nextDouble() * 1.2; // Smaller initial size
     flickerSpeed = 0.5 + random.nextDouble(); // Random flicker speed
     z = 2 + random.nextDouble() * 3; // Start closer to the viewer
-    speed = 0.005 + random.nextDouble() * 0.005; // Faster initial speed
+    speed = 0.003 + random.nextDouble() * 0.004; // Adjusted speed
   }
 }
-
 
 class CelestialBackground extends StatefulWidget {
   @override
@@ -89,8 +88,8 @@ class _CelestialBackgroundState extends State<CelestialBackground> with SingleTi
       duration: const Duration(seconds: 5),
     )..repeat();
 
-    // Generate a large number of stars to ensure consistent density
-    stars = _generateStars(200); // Increased star count
+    // Generate fewer stars for reduced density
+    stars = _generateStars(100); // Reduced star count
   }
 
   // Generate a fixed number of stars
@@ -99,10 +98,10 @@ class _CelestialBackgroundState extends State<CelestialBackground> with SingleTi
     return List.generate(count, (_) {
       return Star(
         position: Offset(random.nextDouble() * 500, random.nextDouble() * 500),
-        size: 0.5 + random.nextDouble() * 1.5, // Smaller initial size
+        size: 0.3 + random.nextDouble() * 1.2, // Smaller initial size
         flickerSpeed: 0.5 + random.nextDouble(), // Random flicker speed
-        z: 10  + random.nextDouble() * 4, // Increased starting depth
-        speed: 0.002 + random.nextDouble() * 0.005, // Slower speed for smooth movement
+        z: 10 + random.nextDouble() * 4, // Increased starting depth
+        speed: 0.003 + random.nextDouble() * 0.004, // Adjusted speed
       );
     });
   }

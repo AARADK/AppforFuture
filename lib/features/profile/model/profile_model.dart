@@ -37,7 +37,7 @@ class ProfileModel {
   final String tob;
   final String cityId;
   final String city;
-  final GuestProfile guestProfile;
+  final GuestProfile ? guestProfile;
 
   ProfileModel({
     required this.name,
@@ -46,18 +46,21 @@ class ProfileModel {
     required this.tob,
     required this.cityId,
     required this.city,
-    required this.guestProfile,
+    this.guestProfile,
   });
 
-  factory ProfileModel.fromJson(Map<String, dynamic> json) {
-    return ProfileModel(
-      name: json['name'],
-      email: json['email'],
-      cityId: json['city_id'],
-      dob: json['dob'],
-      tob: json['tob'],
-      city: json['city'],
-      guestProfile: GuestProfile.fromJson(json['guest_profile']),
-    );
-  }
+ factory ProfileModel.fromJson(Map<String, dynamic> json) {
+  return ProfileModel(
+    name: json['name'] ?? 'No name available',
+    email: json['email'] ?? '',
+    cityId: json['city_id'] ?? '',
+    dob: json['dob'] ?? '',
+    tob: json['tob'] ?? '',
+    city: json['city'] ?? '',
+    guestProfile: json['guest_profile'] != null 
+        ? GuestProfile.fromJson(json['guest_profile']) 
+        : null, // Handle null case
+  );
+}
+
 }

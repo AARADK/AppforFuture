@@ -24,8 +24,9 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
   SignUpRepo _signUpRepo = SignUpRepo();
   HiveService _hiveService = HiveService();
 
-   bool _isLoginMode = false;
+  bool _isLoginMode = false;
   bool _isLoading = false;
+  
   // late VideoPlayerController _videoController;
 
   @override
@@ -46,99 +47,93 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
     return Scaffold(
       body: Stack(
         children: [
-            Positioned.fill(
+          Positioned.fill(
             child: Image.asset(
               'assets/images/w1_tablet.png', // Add your background image on top
               fit: BoxFit.cover,
             ),
           ),
 
-         
- Positioned(
-  top: 0, // Set this to 0 so the container starts at the top of the screen
+          Positioned(
+            top:
+                0, // Set this to 0 so the container starts at the top of the screen
+            left: 0,
+            right: 0,
+            child: Opacity(
+              opacity: 0.5, // Adjust the opacity of the GIF here (0.0 to 1.0)
+              child: Container(
+                height:
+                    MediaQuery.of(context).size.height, // 30% of screen heightP
+                width: MediaQuery.of(context).size.width, // Full screen width
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationX(
+                      3.14159), // Upside down flip using rotation along the X-axis
+                  child: Image.asset(
+                    'assets/images/finalfog.gif', // Use the GIF here as the background
+                    fit: BoxFit.cover, // Ensures the GIF covers the container
+                    repeat: ImageRepeat.noRepeat, // Default GIF loop
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          Positioned.fill(
+            child: CelestialBackground(),
+          ),
+          // NebulaBackground(),
+
+          // Foreground Content
+
+         // Logo without rotation animation
+Positioned(
+  top: 0,
   left: 0,
   right: 0,
-  child: Opacity(
-    opacity: 0.7, // Adjust the opacity of the GIF here (0.0 to 1.0)
-    child: Container(
-      height: MediaQuery.of(context).size.height, // 30% of screen height
-      width: MediaQuery.of(context).size.width, // Full screen width
-      child: Transform(
-        alignment: Alignment.center,
-        transform: Matrix4.rotationX(3.14159), // Upside down flip using rotation along the X-axis
-        child: Image.asset(
-          'assets/images/finalfog.gif', // Use the GIF here as the background
-          fit: BoxFit.cover, // Ensures the GIF covers the container
-          repeat: ImageRepeat.noRepeat, // Default GIF loop
-        ),
+  height: isTablet
+      ? MediaQuery.of(context).size.height * 0.4 // Adjust height for tablets
+      : MediaQuery.of(context).size.height * 0.45, // Adjust height for phones
+  child: Center(
+    child: FractionallySizedBox(
+      widthFactor: isTablet ? 1 : 0.6, // Different width for tablet/phone
+      heightFactor: isTablet ? 1 : 0.6, // Different height for tablet/phone
+      child: Image.asset(
+        'assets/images/frame5_tablet.png',
+        fit: BoxFit.contain, // Use 'contain' for better scaling
       ),
     ),
   ),
 ),
 
-          Positioned.fill(
-          child:CelestialBackground(),
-          ),
-          // NebulaBackground(),
+// AnimatedTextWidget for displaying text
+Positioned(
+  bottom: isTablet
+      ? MediaQuery.of(context).size.height * 0.55 // Adjust bottom spacing for tablets
+      : MediaQuery.of(context).size.height * 0.6, // Adjust bottom spacing for phones
+  left: 0,
+  right: 0,
+  child: AnimatedTextWidget(
+    texts: [
+      "love",
+      "career",
+      "friendship",
+      "business",
+      "education",
+      "partnership",
+      "marriage"
+    ],
+    textStyle: TextStyle(
+      fontSize: isTablet
+          ? MediaQuery.of(context).size.height * 0.025 // Slightly larger font size for tablets
+          : MediaQuery.of(context).size.height * 0.02, // Font size for phones
+      color: Colors.orange,
+      fontWeight: FontWeight.w200,
+      fontFamily: 'Inter',
+    ),
+  ),
+),
 
-             // Foreground Content
-       
-
-        
-
-          // Logo without rotation animation
-          Positioned(
-            top: MediaQuery.of(context).size.height * 0.0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.of(context).size.height * 0.45,
-            child: isTablet
-                ? Center(
-                    child: FractionallySizedBox(
-                      widthFactor: 0.8,
-                      heightFactor: 0.8,
-                      child: Image.asset(
-                        'assets/images/frame5_tablet.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  )
-                : AspectRatio(
-                    aspectRatio: 16.2 / 17,
-                    child: FractionallySizedBox(
-                      widthFactor: 0.6,
-                      heightFactor: 0.6,
-                      child: Image.asset(
-                        'assets/images/frame5_tablet.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-          ),
-
-          // AnimatedTextWidget for displaying text
-          Positioned(
-            bottom: MediaQuery.of(context).size.height * 0.6,
-            left: 0,
-            right: 0,
-            child: AnimatedTextWidget(
-              texts: [
-                "love",
-                "career",
-                "friendship",
-                "business",
-                "education",
-                "partnership",
-                "marriage"
-              ],
-              textStyle: TextStyle(
-                fontSize:MediaQuery.of(context).size.height * 0.02 ,
-                color: Colors.orange,
-                fontWeight: FontWeight.w200,
-                fontFamily: 'Inter',
-              ),
-            ),
-          ),
 
           // Form section
           Center(
@@ -154,27 +149,27 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
                     SizedBox(height: MediaQuery.of(context).size.height * 0.4)
                   else
                     SizedBox(height: MediaQuery.of(context).size.height * 0.45),
-                  SizedBox(height: isTablet ? 20 : 10),
+                  SizedBox(height: isTablet ? 18 : 8),
                   if (!_isLoginMode) ...[
                     _buildTextField(
                       controller: _nameController,
                       label: 'I am',
                       hintText: 'Name',
                     ),
-                    SizedBox(height: isTablet ? 20 : 10),
+                    SizedBox(height: isTablet ? 18 : 8),
                     _buildTextField(
                       controller: _locationController,
                       label: 'From',
                       hintText: 'Location',
                     ),
-                    SizedBox(height: isTablet ? 20 : 10),
+                    SizedBox(height: isTablet ? 18 : 8),
                     _buildTextField(
                       controller: _birthDateController,
                       label: 'Born on',
                       hintText: 'Birth date',
                       onTap: () => _selectDate(context),
                     ),
-                    SizedBox(height: isTablet ? 20 : 10),
+                    SizedBox(height: isTablet ? 18 : 8),
                     _buildTextField(
                       controller: _birthTimeController,
                       label: 'At',
@@ -182,64 +177,67 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
                       onTap: () => _selectTime(context),
                     ),
                   ],
-                  SizedBox(height: isTablet ? 20 : 10),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                    child: Container(
-                      height: 40,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      child: TextField(
-                        controller: _emailController,
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(
-                                color: Color(0xFFFF9933), width: 1.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            borderSide: BorderSide(
-                                color: Color(0xFFFF9933), width: 1.0),
-                          ),
-                          hintText: 'Enter your email',
-                          hintStyle: TextStyle(
-                              color: Colors.white70,
-                              fontFamily: 'Inter',
-                              fontSize: 12),
-                          suffixIcon: _isLoading
-                              ? CircularProgressIndicator()
-                              : IconButton(
-                                  icon: Icon(Icons.arrow_forward,
-                                      color: Color(0xFFFF9933)),
-                                  onPressed: () => _isLoginMode
-                                      ? _loginUser(context, _isLoginMode)
-                                      : _signupAndNavigateToOTP(
-                                          context, _isLoginMode),
-                                ),
-                        ),
-                        keyboardType: TextInputType.emailAddress,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Inter',
-                            fontSize: 16),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: _toggleLoginMode,
-                    child: Text(
-                      _isLoginMode
-                          ? 'Switch to Sign Up'
-                          : 'I already have an account',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Color.fromARGB(255, 225, 176, 137),
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          fontWeight: FontWeight.w100),
-                    ),
-                  ),
+                 SizedBox(height: isTablet ? 18 : 8),
+
+Padding(
+  padding: EdgeInsets.symmetric(
+    horizontal: MediaQuery.of(context).size.width * 0.03, 
+    vertical: MediaQuery.of(context).size.height * 0.01
+  ),
+  child: Container(
+    height: MediaQuery.of(context).size.height * 0.1, // Adjusted height for the text field
+    width: MediaQuery.of(context).size.width * 0.8,  // Adjusted width for the text field
+    child: TextField(
+      controller: _emailController,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+        ),
+        hintText: 'Enter your email',
+        hintStyle: TextStyle(
+            color: Colors.white70,
+            fontFamily: 'Inter',
+            fontSize: MediaQuery.of(context).size.width * 0.03),
+        suffixIcon: _isLoading
+            ? CircularProgressIndicator()
+            : IconButton(
+                icon: Icon(Icons.arrow_forward, color: Color(0xFFFF9933)),
+                onPressed: () => _isLoginMode
+                    ? _loginUser(context, _isLoginMode)
+                    : _signupAndNavigateToOTP(context, _isLoginMode),
+              ),
+      ),
+      keyboardType: TextInputType.emailAddress,
+      style: TextStyle(
+          color: Colors.white,
+          fontFamily: 'Inter',
+          fontSize: MediaQuery.of(context).size.width * 0.03),
+    ),
+  ),
+),
+
+// // Adjust the gap between the email input and the next section
+// SizedBox(height: MediaQuery.of(context).size.height * 0.02), // 2% of screen height
+
+GestureDetector(
+  onTap: _toggleLoginMode,
+  child: Text(
+    _isLoginMode ? 'Switch to Sign Up' : 'I already have an account',
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      color: Color.fromARGB(255, 225, 176, 137),
+      fontFamily: 'Inter',
+      fontSize: MediaQuery.of(context).size.width * 0.03,
+      fontWeight: FontWeight.w100,
+    ),
+  ),
+),
+
                 ],
               ),
             ),
@@ -249,72 +247,81 @@ class _W1PageState extends State<W1Page> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required String hintText,
-    GestureTapCallback? onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 30.0,
-          vertical: 8.0), // Added vertical padding for spacing between fields
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Label text widget
-          Container(
-            width:
-                80, // Adjust the width as needed for label length consistency
-            alignment: Alignment.centerLeft, // Align label text to the left
-            child: Text(
-              label,
-              style: TextStyle(
-                color: const Color.fromARGB(255, 255, 255, 255),
-                fontFamily: 'Inter',
-                fontSize: 12, // Smaller, consistent font size
-              ),
+ Widget _buildTextField({
+  required TextEditingController controller,
+  required String label,
+  required String hintText,
+  GestureTapCallback? onTap,
+}) {
+  // Get screen width and height using MediaQuery
+  double screenWidth = MediaQuery.of(context).size.width;
+  double screenHeight = MediaQuery.of(context).size.height;
+
+  // Determine padding and font size based on screen size
+  double horizontalPadding = screenWidth * 0.05; // 5% of screen width
+  double verticalPadding = screenHeight * 0.015; // 1.5% of screen height
+  double fontSize = screenWidth * 0.03; // 4% of screen width for font size
+
+  return Padding(
+    padding: EdgeInsets.symmetric(
+      horizontal: horizontalPadding,
+      vertical: verticalPadding,
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Label text widget
+        Container(
+          width: screenWidth * 0.15, // Adjust the width based on screen size (30% of screen width)
+          alignment: Alignment.centerLeft,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: const Color.fromARGB(255, 255, 255, 255),
+              fontFamily: 'Inter',
+              fontSize: fontSize, // Adjust font size based on screen size
             ),
           ),
-          SizedBox(width: 10), // Space between label and text field
-          // Text field container
-          Expanded(
-            child: Container(
-              height: 40,
-              child: TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10), // Adjusted padding inside text field
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Color(0xFFFF9933), width: 1.0),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                    borderSide:
-                        BorderSide(color: Color(0xFFFF9933), width: 1.0),
-                  ),
-                  hintText: hintText,
-                  hintStyle: TextStyle(
-                      color: Colors.white70, fontFamily: 'Inter', fontSize: 12),
+        ),
+        SizedBox(width: screenWidth * 0.03), // Space between label and text field (3% of screen width)
+        // Text field container
+        Expanded(
+          child: Container(
+            height: screenHeight * 0.05, // Adjust height based on screen height (5% of screen height)
+            child: TextField(
+              controller: controller,
+              decoration: InputDecoration(
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: screenWidth * 0.03, // Padding inside text field (3% of screen width)
+                  vertical: screenHeight * 0.01, // Padding inside text field (1% of screen height)
                 ),
-                keyboardType:
-                    onTap == null ? TextInputType.text : TextInputType.datetime,
-                style: TextStyle(
-                    color: Colors.white70,
-                    fontFamily: 'Inter',
-                    fontSize: 14), // Consistent font size for input
-                onTap: onTap,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                  borderSide: BorderSide(color: Color(0xFFFF9933), width: 1.0),
+                ),
+                hintText: hintText,
+                hintStyle: TextStyle(
+                    color: Colors.white70, fontFamily: 'Inter', fontSize: fontSize),
               ),
+              keyboardType: onTap == null ? TextInputType.text : TextInputType.datetime,
+              style: TextStyle(
+                color: Colors.white70,
+                fontFamily: 'Inter',
+                fontSize: fontSize, // Consistent font size for input
+              ),
+              onTap: onTap,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // Method to toggle between signup and login modes
   void _toggleLoginMode() {

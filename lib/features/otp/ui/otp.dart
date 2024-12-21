@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/otp/service/otp_service.dart';
 import 'package:flutter_application_1/features/sign_up/repo/sign_up_repo.dart';
+import 'package:flutter_application_1/features/sign_up/ui/w1_page.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
 
 class OtpOverlay extends StatefulWidget {
   final String email;
@@ -70,11 +74,20 @@ class _OtpOverlayState extends State<OtpOverlay> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+Widget build(BuildContext context) {
+  double screenWidth = MediaQuery.of(context).size.width;
+  double screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
+  return WillPopScope(
+    onWillPop: () async {
+      // Navigate to the W1Page when back button is pressed
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => W1Page()), // Replace with your actual W1Page widget
+      );
+      return false; // Prevent default back button action
+    },
+    child: Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -207,49 +220,96 @@ class _OtpOverlayState extends State<OtpOverlay> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   bool _isOtpComplete() {
     return _otpControllers.every((controller) => controller.text.isNotEmpty);
   }
 
-  void _verifyOtp() async {
-    String enteredOtp =
-        _otpControllers.map((controller) => controller.text).join();
+ void _verifyOtp() async {
+  String enteredOtp = _otpControllers.map((controller) => controller.text).join();
 
-    if (enteredOtp.length == 6 && timeup == false) {
-      setState(() {
-        _isVerifying = true;
-      });
+  if (enteredOtp.length == 6 && timeup == false) {
+    setState(() {
+      _isVerifying = true;
+    });
 
-      try {
-        bool isVerified =
-            await _otpService.verifyOtp(enteredOtp, widget.email, timeup);
+    try {
+      // Verify the OTP
+      bool isVerified = await _otpService.verifyOtp(enteredOtp, widget.email, timeup);
 
-        if (isVerified) {
+      if (isVerified) {
+        // Fetch guest profile data and update Hive
+        bool isGuestProfileNull = await _checkGuestProfile();
+
+        // Navigate based on the guest_profile state
+        if (isGuestProfileNull) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    widget.isLoginMode ? DashboardPage() : MainLogoPage()),
+            MaterialPageRoute(builder: (context) => MainLogoPage()),
           );
-          _otpControllers.forEach((controller) => controller.clear());
         } else {
-          _showSnackBar('Invalid OTP. Please try again.');
-          _otpControllers.forEach((controller) => controller.clear());
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => DashboardPage()),
+          );
         }
-      } catch (e) {
-        _showSnackBar('An error occurred. Please try again.');
-      } finally {
-        setState(() {
-          _isVerifying = false;
-        });
+
+        // Clear OTP fields
+        _otpControllers.forEach((controller) => controller.clear());
+      } else {
+        _showSnackBar('Invalid OTP. Please try again.');
+        _otpControllers.forEach((controller) => controller.clear());
       }
-    } else {
-      _showSnackBar('Please enter a valid OTP');
+    } catch (e) {
+      _showSnackBar('An error occurred. Please try again.');
+    } finally {
+      setState(() {
+        _isVerifying = false;
+      });
     }
+  } else {
+    _showSnackBar('Please enter a valid OTP');
   }
+}
+
+// Helper method to fetch guest profile, save it to Hive, and check if it's null
+Future<bool> _checkGuestProfile() async {
+  try {
+    final box = Hive.box('settings');
+    String? token = await box.get('token');
+    String url = 'http://145.223.23.200:3002/frontend/Guests/Get';
+
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var responseData = jsonDecode(response.body);
+      if (responseData['error_code'] == "0") {
+        var profileData = responseData['data']['item'];
+        var guestProfile = profileData['guest_profile'];
+
+        // Save guest_profile to Hive
+        await box.put('guest_profile', guestProfile);
+
+        // Return true if guest_profile is null
+        return guestProfile == null;
+      }
+    }
+    return true; // Default to true if there's an issue fetching the profile
+  } catch (e) {
+    return true; // Default to true on error
+  }
+}
+
+
 
   void _resendOtp() async {
     try {

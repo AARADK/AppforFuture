@@ -6,9 +6,9 @@ import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:flutter_application_1/hive/hive_service.dart';
 
 class Menu extends StatefulWidget {
-  final VoidCallback? closeMenu; // Add this parameter
+  final VoidCallback? closeMenu;
 
-  Menu({this.closeMenu}); // Initialize it in the constructor
+  Menu({this.closeMenu});
 
   @override
   _MenuState createState() => _MenuState();
@@ -25,15 +25,9 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _offsetAnimation = Tween<Offset>(
-      begin: Offset(-1.0, 0.0),
-      end: Offset(0.0, 0.0),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
+    _offsetAnimation = Tween<Offset>(begin: Offset(-1.0, 0.0), end: Offset(0.0, 0.0))
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
 
-    // Start the animation on init
     _controller.forward();
   }
 
@@ -45,31 +39,29 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size; // Get screen size
-    final double menuWidth = size.width * 0.8; // 80% of screen width
+    final size = MediaQuery.of(context).size;
+    final double menuWidth = size.width * 0.8;
 
     return SlideTransition(
       position: _offsetAnimation,
       child: Stack(
         children: [
-          // Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/images/menu.png', // Path to your image
-              fit: BoxFit.cover, // Cover the entire container
+              'assets/images/menu.png',
+              fit: BoxFit.cover,
             ),
           ),
-          // Menu content
           SafeArea(
             child: Align(
               alignment: Alignment.topLeft,
               child: Container(
-                width: menuWidth, // Use calculated menu width
-                height: size.height, // Cover full height
-                color: Colors.transparent, // Make the container transparent
+                width: menuWidth,
+                height: size.height,
+                color: Colors.transparent,
                 child: Column(
                   children: [
-                    SizedBox(height: size.height * 0.02), // Adjust top padding
+                    SizedBox(height: size.height * 0.02),
                     Text(
                       'myFutureTime',
                       style: TextStyle(
@@ -79,77 +71,56 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                         color: Color.fromARGB(255, 252, 127, 1),
                       ),
                     ),
-                    SizedBox(
-                        height: size.height *
-                            0.02), // Add space between text and logo
+                    SizedBox(height: size.height * 0.02),
                     Center(
                       child: Image.asset(
-                        'assets/images/logonaya.png', // Path to your logo image
+                        'assets/images/logonaya.png',
                         height: size.height * 0.1,
-                        color: Color.fromARGB(
-                            255, 252, 127, 1), // Adjust logo height
+                        color: Color.fromARGB(255, 252, 127, 1),
                       ),
                     ),
-                    SizedBox(
-                        height: size.height *
-                            0.04), // Add space between logo and items
+                    SizedBox(height: size.height * 0.04),
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            _buildMenuItem(context, 'My Profile', Icons.person,
-                                () {
+                            _buildMenuItem(context, 'My Profile', Icons.person, () {
                               MenuService.navigateToProfile(context);
                             }),
-                            _buildMenuItem(context, 'Horoscope', Icons.stars,
-                                () {
+                            _buildMenuItem(context, 'Horoscope', Icons.stars, () {
                               MenuService.navigateToHoroscope(context);
                             }),
-                            _buildMenuItem(
-                                context, 'Auspicious Time', Icons.access_time,
-                                () {
+                            _buildMenuItem(context, 'Auspicious Time', Icons.access_time, () {
                               MenuService.navigateToAuspiciousTime(context);
                             }),
-                            _buildMenuItem(
-                                context, 'Compatibility', Icons.favorite, () {
+                            _buildMenuItem(context, 'Compatibility', Icons.favorite, () {
                               MenuService.navigateToCompatibility(context);
                             }),
-                            _buildMenuItem(
-                                context, 'Our Astrologers', Icons.group, () {
+                            _buildMenuItem(context, 'Our Astrologers', Icons.group, () {
                               MenuService.navigateToAstrologers(context);
                             }),
-                            _buildMenuItem(context, 'Settings', Icons.settings,
-                                () {
+                            _buildMenuItem(context, 'Settings', Icons.settings, () {
                               showModalBottomSheet(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return Container(
-                                    height: size.height *
-                                        0.75, // Adjust bottom sheet height
+                                    height: size.height * 0.75,
                                     child: SettingsPage(),
                                   );
                                 },
                               );
                             }),
-                            _buildMenuItem(
-                                context, 'Contact Us', Icons.contact_mail, () {
+                            _buildMenuItem(context, 'Contact Us', Icons.contact_mail, () {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          SupportPage()));
+                                      builder: (context) => SupportPage()));
                             }),
                             _buildMenuItem(context, 'About Us', Icons.info, () {
                               MenuService.navigateToAboutUs(context);
                             }),
-                            _buildMenuItem(context, 'Log out', Icons.logout,
-                                () {
-                              HiveService().saveToken("");
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => W1Page()),
-                              );
+                            _buildMenuItem(context, 'Log out', Icons.logout, () {
+                              _showLogoutDialog(context);
                             }),
                           ],
                         ),
@@ -165,19 +136,16 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildMenuItem(
-      BuildContext context, String text, IconData icon, Function onTap) {
+  Widget _buildMenuItem(BuildContext context, String text, IconData icon, Function onTap) {
     final size = MediaQuery.of(context).size;
-    final double lineWidth =
-        size.width * 0.7; // Line width relative to screen width
+    final double lineWidth = size.width * 0.7;
 
     return Column(
       children: [
         GestureDetector(
           onTap: () => onTap(),
           child: Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: size.height * 0.01, horizontal: size.height * 0.06),
+            padding: EdgeInsets.symmetric(vertical: size.height * 0.01, horizontal: size.height * 0.06),
             child: Row(
               children: [
                 Expanded(
@@ -185,7 +153,7 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                     text,
                     style: TextStyle(
                       color: Color.fromARGB(255, 252, 127, 1),
-                      fontSize: size.width * 0.045, // Responsive font size
+                      fontSize: size.width * 0.045,
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w400,
                     ),
@@ -193,19 +161,93 @@ class _MenuState extends State<Menu> with SingleTickerProviderStateMixin {
                 ),
                 Icon(
                   icon,
-                  color: Color.fromARGB(255, 252, 127, 1), // Icon color
-                  size: size.width * 0.06, // Responsive icon size
+                  color: Color.fromARGB(255, 252, 127, 1),
+                  size: size.width * 0.06,
                 ),
               ],
             ),
           ),
         ),
         Container(
-          width: lineWidth, // Use calculated line width
-          height: 1, // Line height
-          color: Color.fromARGB(255, 252, 127, 1), // Line color
+          width: lineWidth,
+          height: 1,
+          color: Color.fromARGB(255, 252, 127, 1),
         ),
       ],
     );
   }
+
+  void _showLogoutDialog(BuildContext context) {
+  final size = MediaQuery.of(context).size;
+
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        elevation: 5,
+        child: Container(
+          width: size.width * 0.8, // Dialog width
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // "Are you sure you want to log out?" text in a single line with smaller font size
+              Text(
+                'Are you sure you want to log out?',
+                style: TextStyle(
+                  fontSize: size.width * 0.04, // Smaller font size
+                  fontWeight: FontWeight.w400, // Regular weight for minimalism
+                  fontFamily: 'Inter',
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: size.height * 0.02),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // "Cancel" button in grey
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close the dialog
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.grey, // Grey color for Cancel button
+                        fontSize: size.width * 0.04, // Scaled font size
+                        fontWeight: FontWeight.w600, // Slightly bold for emphasis
+                      ),
+                    ),
+                  ),
+                  // "Log out" button in red
+                  TextButton(
+                    onPressed: () {
+                      HiveService().clearToken();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => W1Page()),
+                      );
+                    },
+                    child: Text(
+                      'Log out',
+                      style: TextStyle(
+                        color: Colors.red, // Red color for Log out button
+                        fontSize: size.width * 0.04, // Scaled font size
+                        fontWeight: FontWeight.w600, // Slightly bold for emphasis
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 }

@@ -180,7 +180,7 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFFFF9933),
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -265,177 +265,208 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
     );
   }
 
-  void _showProfileDialog(BuildContext context, ProfileModel profile) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('User Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextRow('Name', profile.name),
-            _buildTextRow('Date of Birth', profile.dob),
-            _buildTextRow('Place of Birth', profile.cityId),
-            _buildTextRow('Time of Birth', profile.tob),
-          ],
+ void _showProfileDialog(BuildContext context, ProfileModel profile) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      // Get the screen size
+      final screenSize = MediaQuery.of(context).size;
+      final isLargeScreen = screenSize.width > 600;
+
+      return AlertDialog(
+        title: Text(
+          'User Profile',
+          style: TextStyle(fontSize: isLargeScreen ? 24 : 18),
+        ),
+        content: SizedBox(
+          width: isLargeScreen ? screenSize.width * 0.5 : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextRow('Name', profile.name, isLargeScreen),
+              _buildTextRow('Date of Birth', profile.dob, isLargeScreen),
+              _buildTextRow('Place of Birth', profile.cityId, isLargeScreen),
+              _buildTextRow('Time of Birth', profile.tob, isLargeScreen),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Close'),
+            child: Text(
+              'Close',
+              style: TextStyle(fontSize: isLargeScreen ? 18 : 14),
+            ),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
-  Widget _buildTextRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF9933)),
+Widget _buildTextRow(String label, String value, bool isLargeScreen) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFFF9933),
+          fontSize: isLargeScreen ? 20 : 16,
         ),
-        SizedBox(height: 5),
-        Text(value), // Display the profile information
-        SizedBox(height: 10),
-      ],
-    );
-  }
+      ),
+      SizedBox(height: 5),
+      Text(
+        value,
+        style: TextStyle(fontSize: isLargeScreen ? 18 : 14),
+      ),
+      SizedBox(height: 10),
+    ],
+  );
+}
+
 
  void _showEditableProfileDialog(BuildContext context) {
-    final TextEditingController nameController =
-        TextEditingController(text: _editedName);
-    final TextEditingController dobController =
-        TextEditingController(text: _editedDob);
-    final TextEditingController cityIdController =
-        TextEditingController(text: _editedCityId);
-    final TextEditingController tobController =
-        TextEditingController(text: _editedTob);
+  final TextEditingController nameController = TextEditingController(text: _editedName);
+  final TextEditingController dobController = TextEditingController(text: _editedDob);
+  final TextEditingController cityIdController = TextEditingController(text: _editedCityId);
+  final TextEditingController tobController = TextEditingController(text: _editedTob);
 
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Check Compatibility of:',
-          style: TextStyle(
-            fontSize: 16,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w600,
-            color: Color(0xFFFF9933),
-          ),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(
+        'Check Compatibility for:',
+        style: TextStyle(
+          fontSize: MediaQuery.of(context).size.width * 0.035, // Adjusting font size based on screen width
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFFF9933),
         ),
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField('Name', nameController, 'This field required'),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          // Show Date Picker
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-                          if (pickedDate != null) {
-                            dobController.text = "${pickedDate.toLocal()}"
-                                .split(' ')[0]; // Format as yyyy-mm-dd
-                          }
-                        },
-                        child: AbsorbPointer(
-                          // Disable text input for the Date of Birth field
-                          child: _buildTextField('Date of Birth', dobController,
-                              'Please select a date'),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          // Show Time Picker (12-hour format support)
-                          TimeOfDay? pickedTime = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          if (pickedTime != null) {
-                            // Format time in 12-hour format with AM/PM
-                            tobController.text = pickedTime
-                                .format(context); // Example: 2:30 AM or 2:30 PM
-                          }
-                        },
-                        child: AbsorbPointer(
-                          // Disable text input for Time of Birth field
-                          child: _buildTextField('Time of Birth', tobController,
-                              'Please select a time'),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                _buildTextField(
-                    'Place of Birth', cityIdController, 'This field required'),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Color.fromARGB(255, 219, 35, 35)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              isEditing = true;
-              if (_formKey.currentState!.validate()) {
-                setState(() {
-                  _editedName = nameController.text;
-                  _editedDob = dobController.text;
-                  _editedCityId = cityIdController.text;
-                  _editedTob =
-                      convertTo24HourFormat((tobController.text).toString());
-                });
-
-                // Print the values for debugging (optional)
-                print('Edited Name: $_editedName');
-                print('Edited Date of Birth: $_editedDob');
-                print('Edited City ID: $_editedCityId');
-                print('Edited Time of Birth: $_editedTob');
-
-                // Close the dialog
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              'Save',
-              style: TextStyle(color: Colors.orange),
-            ),
-          ),
-        ],
       ),
-    );
-  }
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextField('Name', nameController, 'This field required', context),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (pickedDate != null) {
+                          dobController.text = "${pickedDate.toLocal()}".split(' ')[0]; // Format as yyyy-mm-dd
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField('Date of Birth', dobController, 'Please select a date', context),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (pickedTime != null) {
+                          tobController.text = pickedTime.format(context); // Format time
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField('Time of Birth', tobController, 'Please select a time', context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              _buildTextField('Place of Birth', cityIdController, 'This field required', context),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space buttons apart
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 219, 35, 35),
+                  fontSize: MediaQuery.of(context).size.width * 0.04, // Responsive font size
+                ),
+              ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * 0.01, // Responsive vertical padding
+                    horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                  ),
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                isEditing = true;
+                if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    _editedName = nameController.text;
+                    _editedDob = dobController.text;
+                    _editedCityId = cityIdController.text;
+                    _editedTob = convertTo24HourFormat(tobController.text);
+                  });
 
+                  print('Edited Name: $_editedName');
+                  print('Edited Date of Birth: $_editedDob');
+                  print('Edited City ID: $_editedCityId');
+                  print('Edited Time of Birth: $_editedTob');
+
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: MediaQuery.of(context).size.width * 0.04, // Responsive font size
+                ),
+              ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * 0.01, // Responsive vertical padding
+                    horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
   String convertTo24HourFormat(String time12hr) {
     // Trim leading and trailing whitespaces from the input string
     time12hr = time12hr.trim();
@@ -489,25 +520,29 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
     };
   }
 
-  Widget _buildTextField(String label, TextEditingController controller,
-      String validationMessage) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Color.fromARGB(255, 87, 86, 86),
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
-          ),
+   Widget _buildTextField(String label, TextEditingController controller, String validationMessage, BuildContext context) {
+  // Using MediaQuery to adjust padding, font size and width dynamically
+  double screenWidth = MediaQuery.of(context).size.width;
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          color: Color.fromARGB(255, 87, 86, 86),
+          fontSize: screenWidth * 0.03, // Dynamic font size
+          fontWeight: FontWeight.w400,
         ),
-        SizedBox(height: 4), // Reduced space between label and text field
-        TextFormField(
+      ),
+      SizedBox(height: screenWidth * 0.02), // Adjusted space based on screen size
+      Container(
+        width: screenWidth * 0.8, // Adjust width of text field based on screen size
+        child: TextFormField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: '', // Keep hint text minimal as per user-friendly UI
-            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            hintText: '', // Keep hint text minimal
+            contentPadding: EdgeInsets.symmetric(vertical: screenWidth * 0.02, horizontal: screenWidth * 0.03), // Adjust padding dynamically
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
               borderSide: BorderSide(color: Color(0xFFDDDDDD), width: 1),
@@ -517,154 +552,161 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
               borderSide: BorderSide(color: Color(0xFFFF9933), width: 1),
             ),
           ),
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(fontSize: screenWidth * 0.03), // Adjust font size dynamically
           validator: (value) {
             if (value == null || value.isEmpty) {
               return validationMessage;
             }
-            // Date format validation (yyyy-mm-dd)
-            if (label.contains('Date of Birth') &&
-                !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+            if (label.contains('Date of Birth') && !RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
               return 'Please enter date in yyyy-mm-dd format';
             }
-            // No need to validate "Time of Birth" since TimePicker ensures correctness
             return null;
           },
         ),
-        SizedBox(height: 12), // Reduced space after text field
-      ],
-    );
+      ),
+      SizedBox(height: screenWidth * 0.04), // Adjust space after text field
+    ],
+  );
   }
 
   void _showEditableProfileDialog2(BuildContext context) {
-    final TextEditingController name2Controller =
-        TextEditingController(text: _editedName2);
-    final TextEditingController dob2Controller =
-        TextEditingController(text: _editedDob2);
-    final TextEditingController cityId2Controller =
-        TextEditingController(text: _editedCityId2);
-    final TextEditingController tob2Controller =
-        TextEditingController(text: _editedTob2);
+  final TextEditingController name2Controller = TextEditingController(text: _editedName2);
+  final TextEditingController dob2Controller = TextEditingController(text: _editedDob2);
+  final TextEditingController city2IdController = TextEditingController(text: _editedCityId2);
+  final TextEditingController tob2Controller = TextEditingController(text: _editedTob2);
 
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          'Check Compatibility with:',
-          style: TextStyle(
-            fontSize: 16,
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.w600,
-            color: Color(0xFFFF9933),
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(
+        'Check Compatibility with:',
+        style: TextStyle(
+          fontSize: MediaQuery.of(context).size.width * 0.035, // Adjusting font size based on screen width
+          fontFamily: 'Inter',
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFFF9933),
+        ),
+      ),
+      content: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextField('Name', name2Controller, 'This field required', context),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1900),
+                          lastDate: DateTime.now(),
+                        );
+                        if (pickedDate != null) {
+                          dob2Controller.text = "${pickedDate.toLocal()}".split(' ')[0]; // Format as yyyy-mm-dd
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField('Date of Birth', dob2Controller, 'Please select a date', context),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.02),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        TimeOfDay? pickedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (pickedTime != null) {
+                          tob2Controller.text = pickedTime.format(context); // Format time
+                        }
+                      },
+                      child: AbsorbPointer(
+                        child: _buildTextField('Time of Birth', tob2Controller, 'Please select a time', context),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              _buildTextField('Place of Birth', cityId2Controller, 'This field required', context),
+            ],
           ),
         ),
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField('Name', name2Controller, 'This field required'),
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          // Show Date Picker
-                          DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-                          if (pickedDate != null) {
-                            dob2Controller.text = "${pickedDate.toLocal()}"
-                                .split(' ')[0]; // Format as yyyy-mm-dd
-                          }
-                        },
-                        child: AbsorbPointer(
-                          // Disable text input for the Date of Birth field
-                          child: _buildTextField('Date of Birth', dob2Controller,
-                              'Please select a date'),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          // Show Time Picker (12-hour format support)
-                          TimeOfDay? pickedTime = await showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.now(),
-                          );
-                          if (pickedTime != null) {
-                            // Format time in 12-hour format with AM/PM
-                            tob2Controller.text = pickedTime
-                                .format(context); // Example: 2:30 AM or 2:30 PM
-                          }
-                        },
-                        child: AbsorbPointer(
-                          // Disable text input for Time of Birth field
-                          child: _buildTextField('Time of Birth', tob2Controller,
-                              'Please select a time'),
-                        ),
-                      ),
-                    ),
-                  ],
+      ),
+      actions: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween, // Space buttons apart
+          children: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color.fromARGB(255, 219, 35, 35),
+                  fontSize: MediaQuery.of(context).size.width * 0.04, // Responsive font size
                 ),
-                _buildTextField(
-                    'Place of Birth', cityId2Controller, 'This field required'),
-              ],
+              ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * 0.01, // Responsive vertical padding
+                    horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Color.fromARGB(255, 219, 35, 35)),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
+            TextButton(
+              onPressed: () {
               _person2Name = name2Controller.text;
               isEditing2 = true;
-              if (_formKey.currentState!.validate()) {
-                setState(() {
-                  
-                  _editedName2 = name2Controller.text;
-                  _editedDob2 = dob2Controller.text;
-                  _editedCityId2 = cityId2Controller.text;
-                  _editedTob2 =
-                      convertTo24HourFormat((tob2Controller.text).toString());
-                });
+                if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    _editedName2 = name2Controller.text;
+                    _editedDob2 = dob2Controller.text;
+                    _editedCityId2 = cityId2Controller.text;
+                    _editedTob2 = convertTo24HourFormat(tob2Controller.text);
+                  });
 
-                // Print the values for debugging (optional)
-                print('Edited Name: $_editedName2');
-                print('Edited Date of Birth: $_editedDob2');
-                print('Edited City ID: $_editedCityId2');
-                print('Edited Time of Birth: $_editedTob2');
+                  print('Edited Name: $_editedName2');
+                  print('Edited Date of Birth: $_editedDob2');
+                  print('Edited City ID: $_editedCityId2');
+                  print('Edited Time of Birth: $_editedTob2');
 
-                // Close the dialog
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              'Save',
-              style: TextStyle(color: Colors.orange),
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(
+                'Save',
+                style: TextStyle(
+                  color: Colors.orange,
+                  fontSize: MediaQuery.of(context).size.width * 0.04, // Responsive font size
+                ),
+              ),
+              style: ButtonStyle(
+                padding: MaterialStateProperty.all(
+                  EdgeInsets.symmetric(
+                    vertical: MediaQuery.of(context).size.height * 0.01, // Responsive vertical padding
+                    horizontal: MediaQuery.of(context).size.width * 0.04, // Responsive horizontal padding
+                  ),
+                ),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      ],
+    ),
+  );
+}
   
   Map<String, dynamic> getEditedProfile2() {
     return {

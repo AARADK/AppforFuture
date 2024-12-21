@@ -10,6 +10,7 @@ import 'package:flutter_application_1/features/compatibility/service/compatibili
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page2.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/compatibility/repo/compatibility_repo.dart';
+import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive/hive.dart';
@@ -91,13 +92,26 @@ class _CompatibilityPageState extends State<CompatibilityPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
-          );
-          return false; // Prevent the default back button behavior
-        },
+       onWillPop: () async {
+      final box = Hive.box('settings');
+      final guestProfile = await box.get('guest_profile');
+      
+      if (guestProfile != null) {
+        // Navigate to DashboardPage if guest_profile is not null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
+      } else {
+        // Navigate to MainLogoPage if guest_profile is null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainLogoPage()),
+        );
+      }
+      
+      return false; // Prevent the default back button behavior
+    },
         child: Scaffold(
           backgroundColor: Colors.white,
           body: Stack(
@@ -114,13 +128,24 @@ class _CompatibilityPageState extends State<CompatibilityPage> {
                       // Use TopNavBar here with correct arguments
                       TopNavBar(
                         title: 'Compatibility',
-                        onLeftButtonPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DashboardPage()),
-                          );
-                        },
+                        onLeftButtonPressed: () async {
+                            final box = Hive.box('settings');
+                            final guestProfile = await box.get('guest_profile');
+
+                            if (guestProfile != null) {
+                              // Navigate to DashboardPage if guest_profile is not null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => DashboardPage()),
+                              );
+                            } else {
+                              // Navigate to MainLogoPage if guest_profile is null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => MainLogoPage()),
+                              );
+                            }
+                          },
                         onRightButtonPressed: () {
                           Navigator.push(
                             context,
@@ -269,45 +294,67 @@ class _CompatibilityPageState extends State<CompatibilityPage> {
   }
 
   void _showProfileDialog(BuildContext context, ProfileModel profile) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('User Profile'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildTextRow('Name', profile.name),
-            _buildTextRow('Date of Birth', profile.dob),
-            _buildTextRow('Place of Birth', profile.cityId),
-            _buildTextRow('Time of Birth', profile.tob),
-          ],
+  showDialog(
+    context: context,
+    builder: (context) {
+      // Get the screen size
+      final screenSize = MediaQuery.of(context).size;
+      final isLargeScreen = screenSize.width > 600;
+
+      return AlertDialog(
+        title: Text(
+          'User Profile',
+          style: TextStyle(fontSize: isLargeScreen ? 24 : 18),
+        ),
+        content: SizedBox(
+          width: isLargeScreen ? screenSize.width * 0.5 : null,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextRow('Name', profile.name, isLargeScreen),
+              _buildTextRow('Date of Birth', profile.dob, isLargeScreen),
+              _buildTextRow('Place of Birth', profile.cityId, isLargeScreen),
+              _buildTextRow('Time of Birth', profile.tob, isLargeScreen),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text('Close'),
+            child: Text(
+              'Close',
+              style: TextStyle(fontSize: isLargeScreen ? 18 : 14),
+            ),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
-  Widget _buildTextRow(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style:
-              TextStyle(fontWeight: FontWeight.bold, color: Color(0xFFFF9933)),
+Widget _buildTextRow(String label, String value, bool isLargeScreen) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFFF9933),
+          fontSize: isLargeScreen ? 20 : 16,
         ),
-        SizedBox(height: 5),
-        Text(value), // Display the profile information
-        SizedBox(height: 10),
-      ],
-    );
-  }
+      ),
+      SizedBox(height: 5),
+      Text(
+        value,
+        style: TextStyle(fontSize: isLargeScreen ? 18 : 14),
+      ),
+      SizedBox(height: 10),
+    ],
+  );
+}
+
 }

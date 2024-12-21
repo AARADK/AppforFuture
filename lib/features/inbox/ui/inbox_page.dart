@@ -3,6 +3,7 @@ import 'package:flutter_application_1/components/bottom_nav_bar.dart';
 import 'package:flutter_application_1/components/topnavbar.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
 import 'package:flutter_application_1/features/inbox/ui/chat_box_page.dart';
+import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -118,7 +119,7 @@ class _InboxPageState extends State<InboxPage> {
     }
   }
 
- // Function to build searchable inquiries list
+  // Function to build searchable inquiries list
   List<dynamic> _buildSearchableList(List<dynamic> inquiries) {
     return inquiries.where((inquiry) {
       String question = (inquiry['question'] ?? '').toLowerCase();
@@ -130,7 +131,6 @@ class _InboxPageState extends State<InboxPage> {
       return question.contains(searchText) || category.contains(searchText);
     }).toList();
   }
-
 
   // Add a listener to update search text
   @override
@@ -153,33 +153,65 @@ class _InboxPageState extends State<InboxPage> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
+    return WillPopScope(
+        onWillPop: () async {
+          final box = Hive.box('settings');
+          final guestProfile = await box.get('guest_profile');
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          // Custom TopNavBar replacing the default AppBar
-          TopNavBar(
-            title: 'Inbox',
-            onLeftButtonPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => DashboardPage()),
-              );
-            },
-            onRightButtonPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SupportPage()),
-              );
-            },
-            leftIcon: Icons.arrow_back, // Icon for the left side
-            rightIcon: Icons.help, // Icon for the right side
-          ),
+          if (guestProfile != null) {
+            // Navigate to DashboardPage if guest_profile is not null
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => DashboardPage()),
+            );
+          } else {
+            // Navigate to MainLogoPage if guest_profile is null
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => MainLogoPage()),
+            );
+          }
 
-        // Search bar section with responsiveness
-Padding(
-  padding: EdgeInsets.all(screenWidth * 0.04), // Adjust padding based on screen width
+          return false; // Prevent the default back button behavior
+        },
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            children: [
+              // Custom TopNavBar replacing the default AppBar
+              TopNavBar(
+                title: 'Inquiries',
+                onLeftButtonPressed: () async {
+                  final box = Hive.box('settings');
+                  final guestProfile = await box.get('guest_profile');
+
+                  if (guestProfile != null) {
+                    // Navigate to DashboardPage if guest_profile is not null
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => DashboardPage()),
+                    );
+                  } else {
+                    // Navigate to MainLogoPage if guest_profile is null
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainLogoPage()),
+                    );
+                  }
+                },
+                onRightButtonPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SupportPage()),
+                  );
+                },
+                leftIcon: Icons.arrow_back, // Icon for the left side
+                rightIcon: Icons.help, // Icon for the right side
+              ),
+
+              // Search bar section with responsiveness
+             Padding(
+  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02), // Smaller horizontal padding
   child: TextField(
     controller: _searchController,
     onChanged: (value) {
@@ -189,193 +221,200 @@ Padding(
     },
     decoration: InputDecoration(
       hintText: 'Search inquiries...',
-      hintStyle: TextStyle(fontSize: screenWidth * 0.04), // Adjust hint text size based on screen width
+      hintStyle: TextStyle(
+        fontSize: screenWidth * 0.035, // Adjust the hint text size (smaller)
+      ),
       prefixIcon: Icon(Icons.search, color: Color(0xFFFF9933)),
       filled: true,
       fillColor: const Color.fromARGB(255, 212, 210, 210),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(screenWidth * 0.05), // Adjust border radius based on screen size
-        borderSide: BorderSide.none,
-      ),
+      border: InputBorder.none, // Remove border around TextField
     ),
   ),
 ),
 
-          // FutureBuilder for inquiries
-          Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: _fetchInquiries(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (snapshot.hasData) {
-                  final inquiries = snapshot.data!;
-                  final filteredInquiries = _buildSearchableList(inquiries);
 
-                  if (filteredInquiries.isEmpty) {
-                    return Center(child: Text('No inquiries found.'));
-                  }
+              // FutureBuilder for inquiries
+              Expanded(
+                child: FutureBuilder<List<dynamic>>(
+                  future: _fetchInquiries(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.hasData) {
+                      final inquiries = snapshot.data!;
+                      final filteredInquiries = _buildSearchableList(inquiries);
 
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: filteredInquiries.length,
-                    itemBuilder: (context, index) {
-                      final inquiry = filteredInquiries[index];
-                      return _buildInquiryCard(
-                          inquiry, index, screenHeight, screenWidth);
-                    },
-                  );
-                } else {
-                  return Center(child: Text('No data available.'));
-                }
-              },
-            ),
+                      if (filteredInquiries.isEmpty) {
+                        return Center(child: Text('No inquiries found.'));
+                      }
+
+                      return ListView.builder(
+                        controller: _scrollController,
+                        itemCount: filteredInquiries.length,
+                        itemBuilder: (context, index) {
+                          final inquiry = filteredInquiries[index];
+                          return _buildInquiryCard(
+                              inquiry, index, screenHeight, screenWidth);
+                        },
+                      );
+                    } else {
+                      return Center(child: Text('No data available.'));
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      // Custom BottomNavBar added as bottom navigation
-      bottomNavigationBar: BottomNavBar(
-        screenWidth: screenWidth,
-        screenHeight: screenHeight,
-        currentPageIndex: 3, // Assuming index 1 represents Inbox
-      ),
-    );
+          // Custom BottomNavBar added as bottom navigation
+          bottomNavigationBar: BottomNavBar(
+            screenWidth: screenWidth,
+            screenHeight: screenHeight,
+            currentPageIndex: 3, // Assuming index 1 represents Inbox
+          ),
+        ));
   }
 
-  Widget _buildInquiryCard(
-      dynamic inquiry, int index, double screenHeight, double screenWidth) {
-    bool isRead = inquiry['is_read'] ?? false;
-    bool isReplied = inquiry['is_replied'] ?? false;
-    int categoryTypeId = inquiry['category_type_id'] ?? 0;
-    String categoryName = _getCategoryName(categoryTypeId);
+ Widget _buildInquiryCard(
+    dynamic inquiry, int index, double screenHeight, double screenWidth) {
+  bool isRead = inquiry['is_read'] ?? false;
+  bool isReplied = inquiry['is_replied'] ?? false;
+  int categoryTypeId = inquiry['category_type_id'] ?? 0;
+  String categoryName = _getCategoryName(categoryTypeId);
 
-    // Calculate responsive height using MediaQuery
-    double cardHeight = screenHeight * 0.1; // 10% of the screen height
-    double cardWidth = screenWidth * 0.9; // 90% of the screen width
+  // Map category_type_id to logo images
+  String _getLogo(int categoryTypeId) {
+    switch (categoryTypeId) {
+      case 1:
+        return 'assets/images/horoscope2.png';
+      case 2:
+        return 'assets/images/compatibility2.png';
+      case 3:
+        return 'assets/images/auspicious2.png';
+      case 4:
+        return 'assets/images/kundali2.png';
+      case 5:
+        return 'assets/images/support2.png';
+      case 6:
+        return 'assets/images/aak.png';
+      default:
+        return 'assets/images/default.png'; // Fallback for unknown categories
+    }
+  }
 
-    // Calculate responsive font sizes
-    double titleFontSize =
-        screenWidth * 0.025; // 3% of the screen width for title
-    double subtitleFontSize =
-        screenWidth * 0.02; // 2.5% of the screen width for subtitle
+  // Calculate responsive font sizes
+  double titleFontSize = screenWidth * 0.025; // 2.5% of the screen width
+  double subtitleFontSize = screenWidth * 0.02; // 2% of the screen width
+  double logoSize = screenWidth * 0.08; // 8% of the screen width
 
-    // Calculate responsive icon sizes
-    double iconSize =
-        screenWidth * 0.04; // 4% of the screen width for the circle icon size
-    double statusIconSize =
-        screenWidth * 0.1; // 5% of the screen width for status icons
-
-    return Card(
-      elevation: 2.0,
-      margin: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.025,
-          vertical: screenHeight * 0.01), // Margin based on screen size
-      color: _selectedInquiryIndex == index
-          ? Colors.blue[50]
-          : Colors.white, // Highlight if selected
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15), // Add rounded corners
-      ),
-      child: Container(
-        height: cardHeight, // Use responsive height
-        padding: EdgeInsets.symmetric(
-            vertical: 8, horizontal: 16), // Padding around the content
-        child: Row(
-          // Use Row to align items horizontally
-          children: [
-            // Circle icon in a Container to control size and vertical alignment
-            Container(
-              height: iconSize, // Height of the circle
-              width: iconSize, // Width of the circle
-              alignment:
-                  Alignment.center, // Center the icon within the container
-              child: Icon(
-                isRead ? null : Icons.circle,
-                color: isRead ? null : Colors.orange,
-                size: iconSize *
-                    0.5, // Icon size (50% of the container size for a small circle)
+  return Column(
+    children: [
+      InkWell(
+        onTap: () async {
+          await _markAsRead(inquiry['inquiry_id']);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatBoxPage(
+                inquiry: inquiry,
+                inquiryId: inquiry['inquiry_id'],
               ),
             ),
-            Expanded(
-              // Use Expanded to take the remaining space for ListTile
-              child: ListTile(
-                contentPadding: EdgeInsets.all(
-                    5), // Remove default padding for a sleeker look
-                title: Text(
-  'Question: ${inquiry['question']} - $categoryName',
-  style: TextStyle(
-    fontSize: titleFontSize,
-    fontWeight: isRead ? FontWeight.normal : FontWeight.bold,
-  ),
-  maxLines: 1, // Limit the text to 1 line
-  overflow: TextOverflow.ellipsis, // Add ellipsis (...) if the text overflows
-),
-
-                subtitle: Column(
+          );
+          setState(() {
+            _selectedInquiryIndex = index;
+          });
+        },
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: screenHeight * 0.015, horizontal: screenWidth * 0.05),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center, // Ensures vertical alignment
+            children: [
+              // Placeholder for the unread dot (ensures alignment for read inquiries)
+              Container(
+                height: screenWidth * 0.02, // Small dot size
+                width: screenWidth * 0.02,
+                decoration: BoxDecoration(
+                  color: !isRead ? Colors.orange : Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: screenWidth * 0.03), // Space between dot and logo
+              // Logo next to the dot
+              Image.asset(
+                _getLogo(categoryTypeId),
+                height: logoSize,
+                width: logoSize,
+              ),
+              SizedBox(width: screenWidth * 0.03), // Space between logo and text
+              // Inquiry details
+              Expanded(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      '$categoryName : ${inquiry['question']}',
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight:
+                            isRead ? FontWeight.normal : FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4), // Small spacing between title and subtitle
+                    Text(
                       'Purchased on: ${inquiry['purchased_on']}',
                       style: TextStyle(
-                          fontSize:
-                              subtitleFontSize), // Use responsive font size for subtitle
+                        fontSize: subtitleFontSize,
+                        color: Colors.grey[700],
+                      ),
                     ),
                     Text(
                       'Price: \$${inquiry['price']}',
                       style: TextStyle(
-                          fontSize:
-                              subtitleFontSize), // Use responsive font size for subtitle
+                        fontSize: subtitleFontSize,
+                        color: Colors.grey[700],
+                      ),
                     ),
                   ],
                 ),
-                trailing: Container(
-                  height: statusIconSize * 0.5, // Height of the status icon
-                  width: statusIconSize * 0.5, // Width of the status icon
-                  alignment:
-                      Alignment.center, // Center the icon within the container
-                  decoration: BoxDecoration(
-                    color: isReplied
-                        ? Color(0xFFFF9933)
-                        : null, // Set color to #FF9933 if replied
-                    shape: BoxShape.circle,
-                    // Make the container circular
-                  ),
-                  child: isReplied
-                      ? Icon(
-                          Icons.check, // Tick icon
-                          color: Colors.white, // White color for the tick icon
-                          size: statusIconSize *
-                              0.3, // Responsive size for the tick icon
-                        )
-                      : Icon(
-                          Icons
-                              .hourglass_empty, // Hourglass icon for pending status
-                          color: Colors.orange, // Color for pending status
-                          size: statusIconSize *
-                              0.6, // Responsive size for the hourglass icon
-                        ),
-                ),
-
-              onTap: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ChatBoxPage(inquiry: inquiry),
-    ),
-  );
-  setState(() {
-    _selectedInquiryIndex = index;
-  });
-},
-
-
               ),
-            ),
-          ],
+              // Status icon for "replied/pending"
+              Container(
+                height: screenWidth * 0.04, // Icon container size
+                width: screenWidth * 0.04,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isReplied ? Color(0xFFFF9933) : null,
+                  shape: BoxShape.circle,
+                ),
+                child: isReplied
+                    ? Icon(
+                        Icons.check,
+                        color: Colors.white,
+                        size: screenWidth * 0.03,
+                      )
+                    : Icon(
+                        Icons.hourglass_empty,
+                        color: Colors.orange,
+                        size: screenWidth * 0.04,
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
+      // Divider to separate inquiries
+      Divider(
+        color: Colors.grey[300], // Subtle line color
+        thickness: 1, // Line thickness
+        indent: screenWidth * 0.05, // Start of the line
+        endIndent: screenWidth * 0.05, // End of the line
+      ),
+    ],
+  );
+}
 }

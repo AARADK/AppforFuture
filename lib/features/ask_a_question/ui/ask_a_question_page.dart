@@ -9,6 +9,7 @@ import 'package:flutter_application_1/features/ask_a_question/model/question_cat
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
+import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/profile/model/profile_model.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
 import 'package:hive/hive.dart';
@@ -170,13 +171,26 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
-          );
-          return false; // Prevent the default back button behavior
-        },
+          onWillPop: () async {
+      final box = Hive.box('settings');
+      final guestProfile = await box.get('guest_profile');
+      
+      if (guestProfile != null) {
+        // Navigate to DashboardPage if guest_profile is not null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
+      } else {
+        // Navigate to MainLogoPage if guest_profile is null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainLogoPage()),
+        );
+      }
+      
+      return false; // Prevent the default back button behavior
+    },
         child: Scaffold(
           backgroundColor: Colors.white,
           body: Stack(
@@ -193,13 +207,24 @@ class _AskQuestionPageState extends State<AskQuestionPage> {
                       // Use TopNavBar here with correct arguments
                       TopNavBar(
                         title: 'Ask a Question',
-                        onLeftButtonPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DashboardPage()),
-                          );
-                        },
+                         onLeftButtonPressed: () async {
+                            final box = Hive.box('settings');
+                            final guestProfile = await box.get('guest_profile');
+
+                            if (guestProfile != null) {
+                              // Navigate to DashboardPage if guest_profile is not null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => DashboardPage()),
+                              );
+                            } else {
+                              // Navigate to MainLogoPage if guest_profile is null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => MainLogoPage()),
+                              );
+                            }
+                          },
                         onRightButtonPressed: () {
                           Navigator.push(
                             context,

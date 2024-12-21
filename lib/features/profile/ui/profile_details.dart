@@ -53,6 +53,8 @@ class _ProfileDetailsState extends State<ProfileDetails> {
           setState(() {
             _profileData = responseData['data']['item'];
             _guestProfileData = _profileData!['guest_profile'];
+             // Save guest_profile to Hive
+            box.put('guest_profile', _guestProfileData);
             _nameController.text = _profileData!['name'] ?? '';
             _locationController.text = _profileData!['city_id'] ?? '';
             _dobController.text = _profileData!['dob'] ?? '';
@@ -191,18 +193,6 @@ Future<void> _selectTime(BuildContext context) async {
               ],
             ),
           ),
-          Positioned(
-            bottom: 20, // Position slightly above the bottom edge
-            left: 20,
-            right: 20,
-            child: _isEditing
-                ? _buildButton('Update Profile', _updateProfile, fontSize)
-                : _buildButton('Edit Profile', () {
-                    setState(() {
-                      _isEditing = true;
-                    });
-                  }, fontSize),
-          ),
         ],
       ),
     );
@@ -227,73 +217,52 @@ Future<void> _selectTime(BuildContext context) async {
     );
   }
 
-  Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding,
-      double screenWidth) {
-    return (SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTextField(
-              'Name', _nameController, Icons.person, _isEditing, fontSize),
-          SizedBox(height: spacing),
-          _buildTextField('City ID', _locationController, Icons.location_city,
-              _isEditing, fontSize),
-          SizedBox(height: spacing),
-          _buildTextField('Date of Birth (YYYY-MM-DD)', _dobController,
-              Icons.cake, _isEditing, fontSize,onTap: () => _selectDate(context),),
-          SizedBox(height: spacing),
-          _buildTextField('Time of Birth (HH:mm)', _tobController,
-              Icons.access_time, _isEditing, fontSize,onTap: () => _selectTime(context),),
-          SizedBox(height: spacing * 1.5),
-          _guestProfileData == null
-              ? Center(
-                  child: Text('Profile is being generated...',
-                      style:
-                          TextStyle(color: Colors.orange, fontSize: fontSize)))
-              : _buildGuestProfileUI(fontSize, spacing, screenWidth),
-          SizedBox(height: spacing * 1.5),
-          // _isEditing
-          //     ? Center(
-          //         child: ElevatedButton(
-          //           onPressed: _updateProfile,
-          //           style: ElevatedButton.styleFrom(
-          //             backgroundColor: const Color(0xFFFF9933),
-          //             padding: EdgeInsets.symmetric(
-          //                 horizontal: buttonPadding, vertical: spacing),
-          //             shape: RoundedRectangleBorder(
-          //               borderRadius: BorderRadius.circular(30),
-          //             ),
-          //           ),
-          //           child: Text(
-          //             'Update Profile',
-          //             style: TextStyle(fontSize: fontSize, color: Colors.white),
-          //           ),
-          //         ),
-          //       )
-          //     : Center(
-          //         child: ElevatedButton(
-          //           onPressed: () {
-          //             setState(() {
-          //               _isEditing = true;
-          //             });
-          //           },
-          //           style: ElevatedButton.styleFrom(
-          //             backgroundColor: const Color(0xFFFF9933),
-          //             padding: EdgeInsets.symmetric(
-          //                 horizontal: buttonPadding, vertical: spacing),
-          //             shape: RoundedRectangleBorder(
-          //               borderRadius: BorderRadius.circular(30),
-          //             ),
-          //           ),
-          //           child: Text('Edit Profile',
-          //               style:
-          //                   TextStyle(fontSize: fontSize, color: Colors.white)),
-          //         ),
-          //       ),
-        ],
-      ),
-    ));
-  }
+ Widget _buildProfileUI(double fontSize, double spacing, double buttonPadding, double screenWidth) {
+  return SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildTextField(
+            'Name', _nameController, Icons.person, _isEditing, fontSize),
+        SizedBox(height: spacing),
+        _buildTextField('City ID', _locationController, Icons.location_city,
+            _isEditing, fontSize),
+        SizedBox(height: spacing),
+        _buildTextField('Date of Birth (YYYY-MM-DD)', _dobController,
+            Icons.cake, _isEditing, fontSize, onTap: () => _selectDate(context)),
+        SizedBox(height: spacing),
+        _buildTextField('Time of Birth (HH:mm)', _tobController,
+            Icons.access_time, _isEditing, fontSize, onTap: () => _selectTime(context)),
+        SizedBox(height: spacing * 1.5),
+        
+        // Button placed before the guest profile UI
+        _isEditing
+            ? _buildButton('Update Profile', _updateProfile, fontSize)
+            : _buildButton(
+                'Edit Profile',
+                () {
+                  setState(() {
+                    _isEditing = true;
+                  });
+                },
+                fontSize,
+              ),
+        
+        SizedBox(height: spacing * 1.5),
+
+        _guestProfileData == null
+            ? Center(
+                child: Text('Profile is being generated...',
+                    style: TextStyle(color: Colors.orange, fontSize: fontSize)),
+              )
+            : _buildGuestProfileUI(fontSize, spacing, screenWidth),
+
+        SizedBox(height: spacing * 1.5),
+      ],
+    ),
+  );
+}
+
 
   Widget _buildGuestProfileUI(
       double fontSize, double spacing, double screenWidth) {

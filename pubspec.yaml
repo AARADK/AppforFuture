@@ -40,6 +40,8 @@ dependencies:
   image_picker: ^0.8.4+3
   url_launcher: ^6.0.20
   connectivity_plus: ^3.0.3
+  provider: ^6.1.2
+
   # video_player: ^2.5.4
   # flutter_gifimage: ^3.0.0
   # flutter_animated_image: ^1.0.0
@@ -121,6 +123,20 @@ flutter:
    - assets/images/infinitestar.gif
    - assets/images/fog.gif
    - assets/images/finalfog.gif
+   - assets/signs/aquarius.png
+   - assets/signs/aries.png
+   - assets/signs/pisces.png
+   - assets/signs/taurus.png
+   - assets/signs/gemini.png
+   - assets/signs/cancer.png
+   - assets/signs/leo.png
+   - assets/signs/virgo.png
+   - assets/signs/libra.png
+   - assets/signs/scorpio.png
+   - assets/signs/sagittarius.png
+   - assets/signs/capricorn.png
+   - assets/images/aak.png
+
 
 
 

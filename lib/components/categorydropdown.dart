@@ -3,6 +3,7 @@ import 'package:flutter_application_1/features/ask_a_question/model/question_cat
 import 'package:flutter_application_1/features/ask_a_question/model/question_model.dart';
 import 'package:flutter_application_1/features/ask_a_question/service/ask_a_question_service.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
+import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/payment/ui/payment_page.dart';
 import 'package:flutter_application_1/hive/hive_service.dart';
 import 'package:http/http.dart' as http;
@@ -399,19 +400,37 @@ class CategoryDropdownState extends State<CategoryDropdown> {
             ],
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => DashboardPage()),
-                (route) => false, // Remove all previous routes
-              );
-            },
-            child: Text('OK', style: TextStyle(fontSize: textSize)), // Responsive button text size
-          ),
-        ],
+       actions: [
+  TextButton(
+    onPressed: () async {
+      final box = Hive.box('settings');
+      final guestProfile = await box.get('guest_profile');
+
+      Navigator.of(context).pop(); // Close the dialog
+
+      if (guestProfile != null) {
+        // Navigate to DashboardPage if guest_profile is not null
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+          (route) => false, // Remove all previous routes
+        );
+      } else {
+        // Navigate to MainLogoPage if guest_profile is null
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => MainLogoPage()),
+          (route) => false, // Remove all previous routes
+        );
+      }
+    },
+    child: Text(
+      'OK',
+      style: TextStyle(fontSize: textSize), // Responsive button text size
+    ),
+  ),
+],
+
       );
     },
   );
@@ -461,430 +480,521 @@ void _showErrorDialog(String message) {
 
 
 
-  void _showQuestions(BuildContext context, String categoryId) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return FutureBuilder<Map<String, List<Question>>>(
-          future: _fetchQuestions(categoryId),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return AlertDialog(
-                title: Text('Error'),
-                content: Text('Error fetching questions: ${snapshot.error}'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  ),
-                ],
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              );
-            } else if (!snapshot.hasData ||
-                snapshot.data![categoryId] == null ||
-                snapshot.data![categoryId]!.isEmpty) {
-              return AlertDialog(
-                title: Text('No questions available'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text('OK'),
-                  ),
-                ],
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              );
-            } else {
-              final questions = snapshot.data![categoryId]!;
-              return AlertDialog(
-                title: Text('Select a Question'),
-                content: SizedBox(
-                  width: 400, // Fixed width
-                  height: 500, // Fixed height
-                  child: StatefulBuilder(
-                    builder: (BuildContext context, StateSetter setState) {
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Expanded(
-                            child: ListView(
-                              shrinkWrap: true,
-                              children: questions.map((question) {
-                                final isSelected =
-                                    selectedQuestionId == question.id;
-                                return Card(
-                                  elevation: 2,
-                                  margin: EdgeInsets.symmetric(vertical: 4),
-                                  shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        color: Color(0xFFFF9933), width: 1.0),
-                                    borderRadius: BorderRadius.circular(4.0),
-                                  ),
-                                  color: isSelected
-                                      ? Color(0xFFFF9933)
-                                      : Colors.white,
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets.all(8),
-                                    title: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            question.question,
-                                            style: TextStyle(
-                                              fontSize: 14, // Smaller font size
-                                            ),
-                                          ),
-                                        ),
-                                        // Price display
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              '\$${question.price.toStringAsFixed(2)}',
-                                              style: TextStyle(
-                                                fontSize:
-                                                    14, // Smaller font size
-                                                fontWeight: FontWeight.bold,
-                                                color: isSelected
-                                                    ? Colors.white
-                                                    : Colors.green,
-                                              ),
-                                            ),
-                                            if (isSelected)
-                                              Icon(Icons.check_circle,
-                                                  color: Colors.green,
-                                                  size: 16),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    onTap: () {
-                                      setState(() {
-                                        selectedQuestionId = question.id;
-                                      });
-                                    },
-                                  ),
-                                );
-                              }).toList(),
-                            ),
+  // void _showQuestions(BuildContext context, String categoryId) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return FutureBuilder<Map<String, List<Question>>>(
+  //         future: _fetchQuestions(categoryId),
+  //         builder: (context, snapshot) {
+  //           if (snapshot.connectionState == ConnectionState.waiting) {
+  //             return Center(child: CircularProgressIndicator());
+  //           } else if (snapshot.hasError) {
+  //             return AlertDialog(
+  //               title: Text('Error'),
+  //               content: Text('Error fetching questions: ${snapshot.error}'),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                   child: Text('OK'),
+  //                 ),
+  //               ],
+  //               backgroundColor: Colors.white,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(10),
+  //               ),
+  //             );
+  //           } else if (!snapshot.hasData ||
+  //               snapshot.data![categoryId] == null ||
+  //               snapshot.data![categoryId]!.isEmpty) {
+  //             return AlertDialog(
+  //               title: Text('No questions available'),
+  //               actions: [
+  //                 TextButton(
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                   child: Text('OK'),
+  //                 ),
+  //               ],
+  //               backgroundColor: Colors.white,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(10),
+  //               ),
+  //             );
+  //           } else {
+  //             final questions = snapshot.data![categoryId]!;
+  //             return AlertDialog(
+  //               title: Text('Select a Question'),
+  //               content: SizedBox(
+  //                 width: 400, // Fixed width
+  //                 height: 500, // Fixed height
+  //                 child: StatefulBuilder(
+  //                   builder: (BuildContext context, StateSetter setState) {
+  //                     return Column(
+  //                       mainAxisSize: MainAxisSize.min,
+  //                       children: [
+  //                         Expanded(
+  //                           child: ListView(
+  //                             shrinkWrap: true,
+  //                             children: questions.map((question) {
+  //                               final isSelected =
+  //                                   selectedQuestionId == question.id;
+  //                               return Card(
+  //                                 elevation: 2,
+  //                                 margin: EdgeInsets.symmetric(vertical: 4),
+  //                                 shape: RoundedRectangleBorder(
+  //                                   side: BorderSide(
+  //                                       color: Color(0xFFFF9933), width: 1.0),
+  //                                   borderRadius: BorderRadius.circular(4.0),
+  //                                 ),
+  //                                 color: isSelected
+  //                                     ? Color(0xFFFF9933)
+  //                                     : Colors.white,
+  //                                 child: ListTile(
+  //                                   contentPadding: EdgeInsets.all(8),
+  //                                   title: Row(
+  //                                     mainAxisAlignment:
+  //                                         MainAxisAlignment.spaceBetween,
+  //                                     children: [
+  //                                       Expanded(
+  //                                         child: Text(
+  //                                           question.question,
+  //                                           style: TextStyle(
+  //                                             fontSize: 14, // Smaller font size
+  //                                           ),
+  //                                         ),
+  //                                       ),
+  //                                       // Price display
+  //                                       Column(
+  //                                         crossAxisAlignment:
+  //                                             CrossAxisAlignment.end,
+  //                                         children: [
+  //                                           Text(
+  //                                             '\$${question.price.toStringAsFixed(2)}',
+  //                                             style: TextStyle(
+  //                                               fontSize:
+  //                                                   14, // Smaller font size
+  //                                               fontWeight: FontWeight.bold,
+  //                                               color: isSelected
+  //                                                   ? Colors.white
+  //                                                   : Colors.green,
+  //                                             ),
+  //                                           ),
+  //                                           if (isSelected)
+  //                                             Icon(Icons.check_circle,
+  //                                                 color: Colors.green,
+  //                                                 size: 16),
+  //                                         ],
+  //                                       ),
+  //                                     ],
+  //                                   ),
+  //                                   onTap: () {
+  //                                     setState(() {
+  //                                       selectedQuestionId = question.id;
+  //                                     });
+  //                                   },
+  //                                 ),
+  //                               );
+  //                             }).toList(),
+  //                           ),
+  //                         ),
+  //                         Row(
+  //                           mainAxisAlignment: MainAxisAlignment.end,
+  //                           children: [
+  //                             TextButton(
+  //                               onPressed: () {
+  //                                 Navigator.of(context).pop();
+  //                               },
+  //                               child: Text('Cancel'),
+  //                             ),
+  //                             SizedBox(width: 8), // Space between buttons
+  //                             ElevatedButton(
+  //                               onPressed: () {
+  //                                 if (selectedQuestionId != null) {
+  //                                   // Get selected question
+  //                                   final selectedQuestion =
+  //                                       questions.firstWhere((question) =>
+  //                                           question.id == selectedQuestionId);
+
+  //                                   Navigator.of(context).pop();
+
+  //                                   // Navigate to PaymentPage
+  //                                   Navigator.push(
+  //                                     context,
+  //                                     MaterialPageRoute(
+  //                                       builder: (context) => PaymentPage(
+  //                                         handleTickIconTap: handleTickIconTap,
+  //                                         question: selectedQuestion.question,
+  //                                         price: selectedQuestion.price,
+  //                                         inquiryType: "Ask a Question",
+  //                                       ),
+  //                                     ),
+  //                                   );
+  //                                 } else {
+  //                                   // Show a message if no question is selected
+  //                                  ScaffoldMessenger.of(context).showSnackBar(
+  //                                       SnackBar(
+  //                                         content: Text(
+  //                                           'Please select a question first.',
+  //                                           style: TextStyle(color: Colors.white), // White text color
+  //                                         ),
+  //                                         backgroundColor: Colors.orange, // Orange background color
+  //                                       ),
+  //                                     );
+
+  //                                 }
+  //                               },
+  //                               child: Text('OK'),
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ],
+  //                     );
+  //                   },
+  //                 ),
+  //               ),
+  //               backgroundColor: Colors.white,
+  //               shape: RoundedRectangleBorder(
+  //                 borderRadius: BorderRadius.circular(10),
+  //               ),
+  //             );
+  //           }
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
+//  void _showQuestionsDropdown(BuildContext context, String categoryId) {
+//   showModalBottomSheet(
+//     context: context,
+//     builder: (context) {
+//       return FutureBuilder<Map<String, List<Question>>>(
+//         future: _fetchQuestions(categoryId),
+//         builder: (context, snapshot) {
+//           if (snapshot.connectionState == ConnectionState.waiting) {
+//             return Center(child: CircularProgressIndicator());
+//           } else if (snapshot.hasError) {
+//             return Center(child: Text('Error fetching questions: ${snapshot.error}'));
+//           } else if (!snapshot.hasData || snapshot.data![categoryId] == null || snapshot.data![categoryId]!.isEmpty) {
+//             return Center(child: Text('No questions available.'));
+//           } else {
+//             final questions = snapshot.data![categoryId]!;
+//             return ListView.builder(
+//               itemCount: questions.length,
+//               itemBuilder: (context, index) {
+//                 final question = questions[index];
+//                 return ListTile(
+//                   title: Text(question.question),
+//                   subtitle: Text('\$${question.price}'),
+//                   onTap: ()async {
+//                         selectedQuestionId = question.id;
+//                         // String inquiryType;
+                    
+//                     // Directly navigate to the PaymentPage with the selected question
+//                     Navigator.push(
+//                       context,
+//                       MaterialPageRoute(
+//                         builder: (context) => PaymentPage(
+//                           handleTickIconTap: handleTickIconTap,
+//                           question: question.question,
+//                           price: question.price,
+//                           inquiryType: 'ask_a_question',
+//                         ),
+//                       ),
+//                     );
+//                   },
+//                 );
+//               },
+//             );
+//           }
+//         },
+//       );
+//     },
+//   );
+// }
+
+
+@override
+Widget build(BuildContext context) {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final screenHeight = MediaQuery.of(context).size.height;
+
+  if (widget.categoryTypeId == 6) {
+    return FutureBuilder<Map<int, List<QuestionCategory>>>(  // FutureBuilder to fetch categories
+      future: _categoriesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error fetching categories: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data![widget.categoryTypeId] == null || snapshot.data![widget.categoryTypeId]!.isEmpty) {
+          return Center(child: Text('No categories available.'));
+        } else {
+          final categories = snapshot.data![widget.categoryTypeId]!;
+          return SingleChildScrollView(
+            child: Column(
+              children: categories.map((category) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4.0), // Vertical padding between categories
+                  child: Column(
+                    children: [
+                      // Category Title with consistent padding
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05), // Horizontal padding
+                        child: ExpansionTile(
+                          title: Text(
+                            category.category,
+                            style: TextStyle(fontSize: screenWidth * 0.03), // Adjust font size
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Cancel'),
-                              ),
-                              SizedBox(width: 8), // Space between buttons
-                              ElevatedButton(
-                                onPressed: () {
-                                  if (selectedQuestionId != null) {
-                                    // Get selected question
-                                    final selectedQuestion =
-                                        questions.firstWhere((question) =>
-                                            question.id == selectedQuestionId);
-
-                                    Navigator.of(context).pop();
-
-                                    // Navigate to PaymentPage
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PaymentPage(
-                                          handleTickIconTap: handleTickIconTap,
-                                          question: selectedQuestion.question,
-                                          price: selectedQuestion.price,
-                                          inquiryType: "Ask a Question",
-                                        ),
+                          trailing: Icon(
+                            Icons.arrow_drop_down,
+                            color: Colors.black,
+                          ),
+                          children: [
+                            // Fetch questions for the specific category directly
+                            FutureBuilder<Map<String, List<Question>>>(  // Fetch questions based on category
+                              future: _fetchQuestions(category.id.toString()),
+                              builder: (context, questionSnapshot) {
+                                if (questionSnapshot.connectionState == ConnectionState.waiting) {
+                                  return Center(child: CircularProgressIndicator());
+                                } else if (questionSnapshot.hasError) {
+                                  return Center(child: Text('Error fetching questions: ${questionSnapshot.error}'));
+                                } else if (!questionSnapshot.hasData || questionSnapshot.data![category.id.toString()] == null || questionSnapshot.data![category.id.toString()]!.isEmpty) {
+                                  return Center(child: Text('No questions available.'));
+                                } else {
+                                  final questions = questionSnapshot.data![category.id.toString()]!;
+                                  return Column(
+                                    children: [
+                                      // Divider separating questions with consistent spacing
+                                      Padding(
+                                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05), // Padding for divider
+                                        child: Divider(color: Colors.grey.shade300, thickness: 1.0),
                                       ),
-                                    );
-                                  } else {
-                                    // Show a message if no question is selected
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'Please select a question first.',
-                                            style: TextStyle(color: Colors.white), // White text color
+                                      ...questions.map((question) {
+                                        return Padding(
+                                          padding: EdgeInsets.symmetric(vertical: 4.0), // Vertical padding between questions
+                                          child: Container(
+                                            margin: EdgeInsets.symmetric(vertical: 0.5),
+                                            child: ListTile(
+                                              contentPadding: EdgeInsets.symmetric(
+                                                horizontal: screenWidth * 0.02, // Horizontal padding for question text
+                                              ),
+                                              title: Row(
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      question.question,
+                                                      style: TextStyle(fontSize: screenWidth * 0.03), // Adjust font size
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '\$${question.price}',
+                                                    style: TextStyle(
+                                                      fontSize: screenWidth * 0.03,
+                                                      fontWeight: FontWeight.w400,
+                                                      color: Color(0xFFFF9933),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              onTap: () async {
+                                                selectedQuestionId = question.id;
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => PaymentPage(
+                                                      handleTickIconTap: handleTickIconTap,
+                                                      question: question.question,
+                                                      price: question.price,
+                                                      inquiryType: 'ask_a_question',
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
-                                          backgroundColor: Colors.orange, // Orange background color
-                                        ),
-                                      );
-
-                                  }
-                                },
-                                child: Text('OK'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
+                                        );
+                                      }).toList(),
+                                    ],
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Divider separating categories with consistent spacing
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05), // Padding for divider
+                        child: Divider(color: Colors.grey.shade300, thickness: 1.0),
+                      ),
+                    ],
                   ),
-                ),
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              );
-            }
-          },
-        );
+                );
+              }).toList(),
+            ),
+          );
+        }
       },
     );
   }
 
- @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
 
-    // Check if categoryTypeId is 6, use categoriesFuture; otherwise, use questionsFuture
-    if (widget.categoryTypeId == 6) {
-      return FutureBuilder<Map<int, List<QuestionCategory>>>(
-        future: _categoriesFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error fetching categories: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data![widget.categoryTypeId] == null || snapshot.data![widget.categoryTypeId]!.isEmpty) {
-            return Center(child: Text('No categories available.'));
-          } else {
-            final categories = snapshot.data![widget.categoryTypeId]!;
-            return ExpansionTile(
-              title: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Color(0xFFFF9933),
-                    width: 2.0,
-                  ),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: SizedBox(
-                  height: isPortrait ? 50 : 70,
-                  child: Row(
-                    children: [
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Ideas what to ask',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF9933),
-                            fontSize: screenWidth * 0.05,
-                          ),
+
+  // Handle other cases here (if categoryTypeId is not 6)
+else {
+      return Center(
+  child: FutureBuilder<Map<String, List<Question>>>(
+    future: _questionsFuture,
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      } else if (snapshot.hasError) {
+        return Text(
+          'Error fetching questions: ${snapshot.error}',
+          style: TextStyle(color: Colors.red),
+        );
+      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        return Text(
+          'No questions available.',
+          style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
+        );
+      } else {
+        final questions = snapshot.data!.values.expand((list) => list).toList();
+
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+          child: Container(
+            constraints: BoxConstraints(
+              maxHeight: screenHeight * 0.5, // Adjust this as needed
+            ),
+            child: Scrollbar( // Adds a scrollbar for better UX
+              thumbVisibility: true,
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.zero,
+                itemCount: questions.length,
+                itemBuilder: (context, index) {
+                  final question = questions[index];
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: 0.5),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1.0,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              children: categories.map((category) {
-                return ListTile(
-                  title: Text(category.category),
-                  onTap: () async {
-                    await _fetchQuestions(category.id);
-                    _showQuestions(context, category.id);
-                  },
-                );
-              }).toList(),
-            );
-          }
-        },
-      );
-    } else {
-      return Center(
-        child: FutureBuilder<Map<String, List<Question>>>(
-          future: _questionsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text(
-                'Error fetching questions: ${snapshot.error}',
-                style: TextStyle(color: Colors.red),
-              );
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text(
-                'No questions available.',
-                style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic),
-              );
-            } else {
-              final questions = snapshot.data!.values.expand((list) => list).toList();
-              final isScrollable = questions.length > 5;  // Check if more than 5 items are available (adjust as needed)
+                    ),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.02,
+                      ),
+                      title: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              question.question,
+                              style: TextStyle(fontSize: screenWidth * 0.03),
+                            ),
+                          ),
+                          Text(
+                            '\$${question.price}',
+                            style: TextStyle(
+                              fontSize: screenWidth * 0.03,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFFFF9933),
+                            ),
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        selectedQuestionId = question.id;
+                        String inquiryType;
 
-              return Padding(
-                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                child: Container(
-                  height: screenHeight * 0.25,
-                  child: Stack(
-                    children: [
-                      ListView.builder(
-                        controller: _scrollController, // Assign the controller here
-                        padding: EdgeInsets.zero,
-                        itemCount: questions.length,
-                        itemBuilder: (context, index) {
-                          final question = questions[index];
-                          return Container(
-                            margin: EdgeInsets.symmetric(vertical: 0.5),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.grey.shade300,
-                                  width: 1.0,
+                        if (widget.categoryTypeId == 1) {
+                          inquiryType = 'Horoscope';
+                          final selectedDate = await _selectDateWithMessage(
+                            context,
+                            question.question,
+                            question.price,
+                          );
+                          if (selectedDate != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PaymentPage(
+                                  handleTickIconTap: handleTickIconTap,
+                                  question: question.question,
+                                  price: question.price,
+                                  inquiryType: inquiryType,
                                 ),
                               ),
-                            ),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: screenWidth * 0.02,
-                                // vertical: screenHeight * 0.01,
+                            );
+                          }
+                        } else if (widget.categoryTypeId == 2 &&
+                            widget.editedProfile2 != null) {
+                          inquiryType = 'Compatibility';
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PaymentPage(
+                                handleTickIconTap: handleTickIconTap,
+                                question: question.question,
+                                price: question.price,
+                                inquiryType: inquiryType,
                               ),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      question.question,
-                                      style: TextStyle(fontSize: screenWidth * 0.03),
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$${question.price}',
-                                    style: TextStyle(
-                                      fontSize: screenWidth * 0.03,
-                                      fontWeight: FontWeight.w400,
-                                      color: Color(0xFFFF9933),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              onTap: () async {
-                                selectedQuestionId = question.id;
-                                String inquiryType;
-
-                                if (widget.categoryTypeId == 1) {
-                                  inquiryType = 'Horoscope';
-                                  final selectedDate = await _selectDateWithMessage(
-                                    context,
-                                    question.question,
-                                    question.price,
-                                  );
-                                  if (selectedDate != null) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PaymentPage(
-                                          handleTickIconTap: handleTickIconTap,
-                                          question: question.question,
-                                          price: question.price,
-                                          inquiryType: inquiryType,
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } else if (widget.categoryTypeId == 2 && widget.editedProfile2 != null) {
-                                  inquiryType = 'Compatibility';
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PaymentPage(
-                                        handleTickIconTap: handleTickIconTap,
-                                        question: question.question,
-                                        price: question.price,
-                                        inquiryType: inquiryType,
-                                      ),
-                                    ),
-                                  );
-                                } else if (widget.categoryTypeId == 2 && widget.editedProfile2 == null) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        'Please fill in Person 2 details to proceed.',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      backgroundColor: Colors.orange,
-                                    ),
-                                  );
-                                }
-                                if (widget.categoryTypeId == 3) {
-                                  inquiryType = 'Auspicious Time';
-                                  final selectedDate = await _selectDateWithMessage(
-                                    context,
-                                    question.question,
-                                    question.price,
-                                  );
-                                  if (selectedDate != null) {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PaymentPage(
-                                          handleTickIconTap: handleTickIconTap,
-                                          question: question.question,
-                                          price: question.price,
-                                          inquiryType: inquiryType,
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                }
-                              },
                             ),
                           );
-                        },
-                      ),
-                       if (isScrollable)
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: GestureDetector(
-                          onTap: () {
-                            if (_isAtBottom) {
-                              _scrollController.animateTo(
-                                0,
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            } else {
-                              _scrollController.animateTo(
-                                _scrollController.position.maxScrollExtent,
-                                duration: Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
-                            }
-                          },
-                          child: Icon(
-                            _isAtBottom
-                                ? Icons.keyboard_arrow_up
-                                : Icons.keyboard_arrow_down,
-                            size: 30,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                        } else if (widget.categoryTypeId == 2 &&
+                            widget.editedProfile2 == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                'Please fill in Person 2 details to proceed.',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              backgroundColor: Colors.orange,
+                            ),
+                          );
+                        } else if (widget.categoryTypeId == 3) {
+                          inquiryType = 'Auspicious Time';
+                          final selectedDate = await _selectDateWithMessage(
+                            context,
+                            question.question,
+                            question.price,
+                          );
+                          if (selectedDate != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PaymentPage(
+                                  handleTickIconTap: handleTickIconTap,
+                                  question: question.question,
+                                  price: question.price,
+                                  inquiryType: inquiryType,
+                                ),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                    ),
+                  );
+                },
               ),
-            );
-          }
-        },
-      ),
-    );
+            ),
+          ),
+        );
+      }
+    },
+  ),
+);
+
+    }
   }
-}
 }

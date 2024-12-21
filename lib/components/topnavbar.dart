@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 class TopNavBar extends StatelessWidget {
   final String title;
-  final VoidCallback onLeftButtonPressed;
+  final VoidCallback? onLeftButtonPressed;
   final VoidCallback onRightButtonPressed;
-  final IconData leftIcon;
+   final IconData? leftIcon; // Optional left icon
   final IconData rightIcon;
 
   TopNavBar({
     required this.title,
-    required this.onLeftButtonPressed,
+    this.onLeftButtonPressed,
     required this.onRightButtonPressed,
     this.leftIcon = Icons.menu, // Default left icon is menu
     this.rightIcon = Icons.done, // Default right icon is done

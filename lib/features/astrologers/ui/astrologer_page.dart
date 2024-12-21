@@ -7,7 +7,9 @@ import 'package:flutter_application_1/features/astrologers/model/astrologer_mode
 import 'package:flutter_application_1/features/astrologers/repo/astrologer_repo.dart';
 import 'package:flutter_application_1/features/astrologers/service/astrologer_service.dart';
 import 'package:flutter_application_1/features/dashboard/ui/dashboard_page.dart';
+import 'package:flutter_application_1/features/mainlogo/ui/main_logo_page.dart';
 import 'package:flutter_application_1/features/support/ui/support_page.dart';
+import 'package:hive/hive.dart';
 
 class OurAstrologersPage extends StatefulWidget {
   @override
@@ -32,11 +34,23 @@ class _OurAstrologersPageState extends State<OurAstrologersPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return WillPopScope(
-        onWillPop: () async {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => DashboardPage()),
-          );
+      onWillPop: () async {
+      final box = Hive.box('settings');
+      final guestProfile = await box.get('guest_profile');
+      
+      if (guestProfile != null) {
+        // Navigate to DashboardPage if guest_profile is not null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => DashboardPage()),
+        );
+      } else {
+        // Navigate to MainLogoPage if guest_profile is null
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainLogoPage()),
+        );
+      }
           return false; // Prevent the default back button behavior
         },
         child: Scaffold(
@@ -55,13 +69,24 @@ class _OurAstrologersPageState extends State<OurAstrologersPage> {
                       // Use TopNavBar here with correct arguments
                       TopNavBar(
                         title: 'Astrologers',
-                        onLeftButtonPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => DashboardPage()),
-                          );
-                        },
+                        onLeftButtonPressed: () async {
+                            final box = Hive.box('settings');
+                            final guestProfile = await box.get('guest_profile');
+
+                            if (guestProfile != null) {
+                              // Navigate to DashboardPage if guest_profile is not null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => DashboardPage()),
+                              );
+                            } else {
+                              // Navigate to MainLogoPage if guest_profile is null
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => MainLogoPage()),
+                              );
+                            }
+                          },
                         onRightButtonPressed: () {
                           Navigator.push(
                             context,

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class ChatBoxPage extends StatelessWidget {
   final Map<String, dynamic>? inquiry;
+  final String inquiryId;
 
-  ChatBoxPage({this.inquiry});
+  const ChatBoxPage({this.inquiry, required this.inquiryId});
 
   String _getCategoryName(int categoryTypeId) {
     switch (categoryTypeId) {
@@ -29,45 +33,66 @@ class ChatBoxPage extends StatelessWidget {
   Widget build(BuildContext context) {
     bool isRead = inquiry?['is_read'] ?? false;
     bool isReplied = inquiry?['is_replied'] ?? false;
-    String? finalReading = inquiry?['final_reading'];
-    String? finalReadingDate = inquiry?['final_reading_on'];
-    int categoryTypeId = inquiry?['category_type_id'] ?? 0;
-    String categoryName = _getCategoryName(categoryTypeId);
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Chat'),
+        backgroundColor: Colors.white,
+        title: Text('Chat', style: TextStyle(color: Colors.black)),
+        actions: [
+          PopupMenuButton<int>(
+            icon: Icon(Icons.report, color: Colors.black),
+            onSelected: (value) {
+              if (value == 1) {
+                print('Report button pressed');
+              } else if (value == 2) {
+                Clipboard.setData(ClipboardData(text: inquiryId));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Inquiry ID copied')),
+                );
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem<int>(
+                value: 1,
+                child: Text('Report'),
+              ),
+              PopupMenuItem<int>(
+                value: 2,
+                child: Row(
+                  children: [
+                    Icon(Icons.copy, color: Colors.black),
+                    SizedBox(width: 8),
+                    Text('Copy Inquiry ID'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // User's Inquiry Details including profiles
-              Align(
-                alignment: Alignment.centerLeft,
-                child: _buildUserInquiry(inquiry, categoryName, isRead),
-              ),
+              if (inquiry != null)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _buildUserInquiry(context, inquiry!),
+                ),
               SizedBox(height: 20),
-
-              // Backend's Reply with Star Rating
-              if (isReplied && finalReading != null && finalReading.isNotEmpty)
+              if (isReplied)
                 Align(
                   alignment: Alignment.centerRight,
                   child: _buildMessageBubble(
+                    context,
                     'Reply:',
-                    finalReading,
+                    inquiry?['final_reading'] ?? 'No reply available',
                     Colors.blue.shade200,
-                    finalReadingDate != null
-                        ? DateFormat('yyyy-MM-dd')
-                            .format(DateTime.parse(finalReadingDate))
-                        : 'Date not available',
-                    const Color.fromARGB(255, 6, 22, 35),
+                    inquiry?['final_reading_on'] ?? 'Date not available',
                   ),
-                )
-              else
-                Center(child: Text('Awaiting reply...')),
+                ),
             ],
           ),
         ),
@@ -75,7 +100,10 @@ class ChatBoxPage extends StatelessWidget {
     );
   }
 
-  Widget _buildUserInquiry(dynamic inquiry, String categoryName, bool isRead) {
+  Widget _buildUserInquiry(BuildContext context, Map<String, dynamic> inquiry) {
+    int categoryTypeId = inquiry['category_type_id'] ?? 0;
+    String categoryName = _getCategoryName(categoryTypeId);
+
     return Container(
       padding: EdgeInsets.all(12),
       margin: EdgeInsets.symmetric(vertical: 8),
@@ -93,16 +121,13 @@ class ChatBoxPage extends StatelessWidget {
           Text('Price: \$${inquiry['price']}'),
           Text(
               'Purchased on: ${DateFormat('yyyy-MM-dd').format(DateTime.parse(inquiry['purchased_on']))}'),
-          if (isRead)
+          if (inquiry['is_read'] ?? false)
             Padding(
               padding: const EdgeInsets.only(top: 5.0),
               child: Text('Seen',
                   style: TextStyle(
                       color: Colors.green, fontStyle: FontStyle.italic)),
             ),
-          SizedBox(height: 10),
-
-          // Profiles included as part of the inquiry
           _buildProfiles(inquiry),
         ],
       ),
@@ -110,12 +135,20 @@ class ChatBoxPage extends StatelessWidget {
   }
 
   Widget _buildMessageBubble(
-      String title, String message, Color color, String date, Color textColor,
-      {String? additionalInfo, bool isRead = false}) {
-    int selectedStars = 3; // Default rating
-
+    BuildContext context,
+    String title,
+    String message,
+    Color color,
+    String date,
+  ) {
     return StatefulBuilder(
       builder: (BuildContext context, StateSetter setState) {
+        const int maxStars = 5; // Max stars for rating
+        const Color starColor = Color.fromARGB(255, 9, 33, 69); // Star color
+
+        int selectedStars = inquiry?['rating'] ?? 0;
+        bool isSubmitting = false;
+
         return Container(
           padding: EdgeInsets.all(12),
           margin: EdgeInsets.symmetric(vertical: 8),
@@ -128,37 +161,47 @@ class ChatBoxPage extends StatelessWidget {
             children: [
               Text(title,
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, color: textColor)),
-              Text(message, style: TextStyle(color: textColor)),
+                      fontWeight: FontWeight.bold, color: Colors.black)),
+              Text(message, style: TextStyle(color: Colors.black)),
               SizedBox(height: 5),
               Text(date,
                   style: TextStyle(
-                      fontSize: 12, color: textColor.withOpacity(0.6))),
-              if (isRead)
-                Text(
-                  'Seen',
-                  style: TextStyle(
-                      color: Colors.green,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 12),
-                ),
+                      fontSize: 12, color: Colors.black.withOpacity(0.6))),
               SizedBox(height: 10),
-
-              // Star Rating Widget
               Row(
-                children: List.generate(5, (index) {
+                children: List.generate(maxStars, (index) {
                   return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedStars = index + 1;
-                      });
-                      print('Star ${index + 1} tapped');
-                    },
+                    onTap: isSubmitting
+                        ? null
+                        : () async {
+                            int newRating = index + 1;
+                            setState(() {
+                              selectedStars = newRating;
+                              isSubmitting = true;
+                            });
+
+                            bool success = await _rateInquiry(inquiryId, newRating);
+
+                            setState(() {
+                              isSubmitting = false;
+                              if (success) {
+                                inquiry?['rating'] = newRating;
+                              } else {
+                                selectedStars = inquiry?['rating'] ?? 0;
+                              }
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(success
+                                    ? 'Rated $newRating stars'
+                                    : 'Failed to rate. Try again.'),
+                              ),
+                            );
+                          },
                     child: Icon(
-                      Icons.star,
-                      color: index < selectedStars
-                          ? Color.fromARGB(255, 7, 38, 88)
-                          : Colors.grey,
+                      index < selectedStars ? Icons.star : Icons.star_border,
+                      color: starColor,
                       size: 20,
                     ),
                   );
@@ -222,5 +265,37 @@ class ChatBoxPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<bool> _rateInquiry(String inquiryId, int rating) async {
+    try {
+      final box = Hive.box('settings');
+      String? token = await box.get('token');
+
+      if (token == null) {
+        throw Exception('Token is not available');
+      }
+
+      final url =
+          'http://145.223.23.200:3002/frontend/GuestInquiry/RateInquiry?inquiry_id=$inquiryId&rating=$rating';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        print('Inquiry rated successfully');
+        return true;
+      } else {
+        print('Failed to rate inquiry. Status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error rating inquiry: $e');
+      return false;
+    }
   }
 }
