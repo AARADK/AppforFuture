@@ -214,7 +214,7 @@ class _CompatibilityPage2State extends State<CompatibilityPage2> {
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Color(0xFFFF9933),
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
                           ),
@@ -636,7 +636,7 @@ Widget _buildTextRow(String label, String value, bool isLargeScreen) {
                   ),
                 ],
               ),
-              _buildTextField('Place of Birth', cityId2Controller, 'This field required', context),
+              _buildTextField('Place of Birth', city2IdController, 'This field required', context),
             ],
           ),
         ),

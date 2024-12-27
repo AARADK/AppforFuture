@@ -322,76 +322,53 @@ Future<void> _selectTime(BuildContext context) async {
     );
   }
 
- Widget _buildGuestProfileDetail({
+Widget _buildGuestProfileDetail({
   required String label,
   required String value,
   required double fontSize,
   bool isExpandable = false,
   double? screenWidth,
 }) {
-  if (isExpandable) {
-    const int maxLength = 100; // Define the maximum number of characters before truncating
-    bool isTruncated = value.length > maxLength && !_isExpanded;
+  const int maxLength = 100; // Define the maximum number of characters before truncating
+  bool isTruncated = value.length > maxLength && !_isExpanded;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Label
-          Text(
-            '$label:',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
-          ),
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Label
+        Text(
+          '$label:',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
+        ),
 
-          // Value
-          SizedBox(height: fontSize * 0.2), // Small space between label and value
-          Text(
-            isTruncated ? '${value.substring(0, maxLength)}...' : value,
-            style: TextStyle(fontSize: fontSize),
-          ),
+        // Value
+        SizedBox(height: fontSize * 0.2), // Small space between label and value
+        Text(
+          isTruncated ? '${value.substring(0, maxLength)}...' : value,
+          style: TextStyle(fontSize: fontSize),
+        ),
 
-          // View More / View Less toggle
-          if (isTruncated)
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _isExpanded = !_isExpanded; // Toggle between expanded and collapsed
-                });
-              },
-              child: Padding(
-                padding: EdgeInsets.only(top: fontSize * 0.4),
-                child: Text(
-                  _isExpanded ? 'View Less' : 'View More',
-                  style: TextStyle(color: const Color(0xFFFF9933), fontSize: fontSize),
-                ),
+        // View More / View Less toggle
+        if (value.length > maxLength)
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded; // Toggle between expanded and collapsed
+              });
+            },
+            child: Padding(
+              padding: EdgeInsets.only(top: fontSize * 0.4),
+              child: Text(
+                _isExpanded ? 'View Less' : 'View More',
+                style: TextStyle(color: const Color(0xFFFF9933), fontSize: fontSize),
               ),
             ),
-        ],
-      ),
-    );
-  } else {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: fontSize * 0.4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Label
-          Text(
-            '$label:',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: fontSize),
           ),
-
-          // Value
-          SizedBox(height: fontSize * 0.2), // Small space between label and value
-          Text(
-            value,
-            style: TextStyle(fontSize: fontSize),
-          ),
-        ],
-      ),
-    );
-  }
+      ],
+    ),
+  );
 }
 
 

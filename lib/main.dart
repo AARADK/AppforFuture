@@ -1,4 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/api/firebase_api.dart';
+import 'package:flutter_application_1/firebase_options.dart';
+
 import 'package:flutter_application_1/features/auspicious_time/ui/auspicious_time_page.dart';
 import 'package:flutter_application_1/features/compatibility/ui/compatibility_page.dart';
 import 'package:flutter_application_1/features/horoscope/ui/horoscope_page.dart';
@@ -8,8 +12,13 @@ import 'package:flutter_application_1/features/sign_up/ui/w1_page.dart';
 import 'package:hive/hive.dart';
 import 'hive/hive_service.dart'; // Import your Hive service
 
-void main() async {
+
+ Future <void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options:DefaultFirebaseOptions.currentPlatform
+  );
+  await FirebaseApi().initNotifications();
 
   // Initialize Hive
   HiveService hiveService = HiveService();

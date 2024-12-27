@@ -41,6 +41,8 @@ dependencies:
   url_launcher: ^6.0.20
   connectivity_plus: ^3.0.3
   provider: ^6.1.2
+  firebase_core: ^2.32.0 # Replace with the latest version
+  firebase_messaging: ^14.6.1 # Replace with the latest version
 
   # video_player: ^2.5.4
   # flutter_gifimage: ^3.0.0
